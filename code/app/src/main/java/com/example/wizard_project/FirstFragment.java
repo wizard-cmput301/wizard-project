@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.wizard_project.databinding.FragmentFirstBinding;
-
+// Home Screen
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
