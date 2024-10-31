@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="darker_purple">#5801B4</color>
+    <color name="lighter_purple">#8938EA</color>
+    <color name="star_yellow">#FFF300</color>
+    <color name="event_blue">#A8FFFD</color>
 </resources>
