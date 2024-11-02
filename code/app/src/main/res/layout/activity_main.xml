@@ -1,33 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- Top Nav Bar -->
+    <View
+        android:id="@+id/top_nav_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:layout_height="56dp"
+        android:background="@color/lighter_purple" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
+    <!-- EventWizard Logo -->
+    <ImageView
+        android:id="@+id/event_wizard_logo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/top_nav_bar"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/event_wizard_logo"
+        android:contentDescription="@string/eventwizard_logo_desc"
+        android:layout_marginTop="20dp" />
 
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <include layout="@layout/content_main" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+    <!-- App Name -->
+    <TextView
+        android:id="@+id/app_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="16dp"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        android:layout_below="@+id/event_wizard_logo"
+        android:layout_centerHorizontal="true"
+        android:text="@string/eventwizard_text"
+        android:textSize="48sp"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <!-- Enter Event Button -->
+    <Button
+        android:id="@+id/enter_event_button"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/app_title"
+        android:layout_centerHorizontal="true"
+        android:backgroundTint="@color/lighter_purple"
+        android:text="@string/enter_event_string"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:layout_marginTop="30dp" />
+
+    <!-- "OR" Text -->
+    <TextView
+        android:id="@+id/or_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/enter_event_button"
+        android:layout_centerHorizontal="true"
+        android:text="@string/or_text"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp" />
+
+    <!-- Create/Manage Facility Button -->
+    <Button
+        android:id="@+id/manage_facility_button"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/or_text"
+        android:layout_centerHorizontal="true"
+        android:backgroundTint="@color/lighter_purple"
+        android:text="@string/create_manage_facility_string"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:layout_marginTop="10dp" />
+
+    <!-- Bottom Nav Bar -->
+    <View
+        android:id="@+id/bottom_nav_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/lighter_purple" />
+</RelativeLayout>
