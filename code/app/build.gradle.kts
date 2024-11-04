@@ -39,12 +39,9 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-firestore")
 
-<<<<<<< HEAD
-=======
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
 
->>>>>>> 85d58a1 (Changed the QRScanner and Event classes built some xml files for them as well)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -53,4 +50,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+
+
 }
