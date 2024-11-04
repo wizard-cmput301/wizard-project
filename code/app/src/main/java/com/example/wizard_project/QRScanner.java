@@ -1,12 +1,6 @@
 package com.example.wizard_project;
 
-public class jancis {
-
-
-
+public class QRScanner {
 
 
 }
-
-
-
