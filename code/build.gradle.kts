@@ -4,6 +4,7 @@ plugins {
     id("com.google.gms.google-services") version "4.4.2" apply false
 }
 
+<<<<<<< HEAD
 buildscript {
     repositories {
         google()
@@ -12,3 +13,5 @@ buildscript {
         classpath(libs.navigation.safe.args.gradle.plugin)
     }
 }
+=======
+>>>>>>> 85d58a1 (Changed the QRScanner and Event classes built some xml files for them as well)

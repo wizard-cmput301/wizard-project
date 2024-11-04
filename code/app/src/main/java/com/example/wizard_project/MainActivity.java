@@ -1,5 +1,6 @@
 package com.example.wizard_project;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -50,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
         enterEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(MainActivity.this, QRScanner.class);
+                startActivity(intent);
             }
         });
 
