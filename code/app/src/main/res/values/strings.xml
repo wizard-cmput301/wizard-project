@@ -4,12 +4,18 @@
     <string name="action_settings">Settings</string>
 
     <!-- Navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
+    <string name="home_fragment_label">Home Fragment</string>
+    <string name="entrant_fragment_label">Entrant Fragment</string>
+    <string name="organizer_fragment_label">Organizer Fragment</string>
 
     <!-- Buttons -->
     <string name="enter_event_string">Enter Event</string>
     <string name="create_manage_facility_string">Create/Manage Facility</string>
+
+    <!-- Titles -->
+    <string name="camera_title">Camera</string>
+    <string name="menu_title">Menu</string>
+    <string name="home_title">Home</string>
 
     <!-- Text -->
     <string name="eventwizard_text">EventWizard</string>
@@ -17,4 +23,5 @@
 
     <!-- Descriptions -->
     <string name="eventwizard_logo_desc">EventWizard Logo</string>
+
 </resources>
