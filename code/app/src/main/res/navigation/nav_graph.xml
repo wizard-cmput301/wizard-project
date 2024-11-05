@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_HomeFragment_to_OrganizerFragment"
             app:destination="@id/OrganizerFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_AdminFragment"
+            app:destination="@id/AdminFragment" />
     </fragment>
 
     <!-- Entrant Fragment -->
@@ -35,4 +38,11 @@
         tools:layout="@layout/fragment_organizer">
     </fragment>
 
+    <!-- Admin Fragment -->
+    <fragment
+        android:id="@+id/AdminFragment"
+        android:name="com.example.wizard_project.AdminFragment"
+        android:label="@string/admin_fragment_label"
+        tools:layout="@layout/fragment_admin">
+    </fragment>
 </navigation>
