@@ -7,10 +7,12 @@
     <string name="home_fragment_label">Home Fragment</string>
     <string name="entrant_fragment_label">Entrant Fragment</string>
     <string name="organizer_fragment_label">Organizer Fragment</string>
+    <string name="admin_fragment_label">Admin Fragment</string>
 
     <!-- Buttons -->
     <string name="enter_event_string">Enter Event</string>
     <string name="create_manage_facility_string">Create/Manage Facility</string>
+    <string name="admin_string">Admin</string>
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>

@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @return A string representing the device ID.
      */
-    private String retrieveDeviceId() {
+    public String retrieveDeviceId() {
         return Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 

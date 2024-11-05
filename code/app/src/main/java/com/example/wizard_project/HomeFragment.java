@@ -11,6 +11,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.wizard_project.databinding.FragmentHomeBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * HomeFragment represents the screen that users see when they open the app.
@@ -19,12 +20,17 @@ import com.example.wizard_project.databinding.FragmentHomeBinding;
  */
 public class HomeFragment extends Fragment {
 
-    private FragmentHomeBinding binding;
+    private FragmentHomeBinding binding; // View binding accessing UI elements
+    private FirebaseFirestore db; // Firestore instance for database operations
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout using View Binding
         binding = FragmentHomeBinding.inflate(inflater, container, false);
+
+        // Initialize Firestore instance
+        db = FirebaseFirestore.getInstance();
+
         return binding.getRoot();
     }
 
@@ -40,11 +46,55 @@ public class HomeFragment extends Fragment {
 
         // Button to navigate to OrganizerFragment
         binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_OrganizerFragment));
+
+        // Check if the user is an admin
+        isAdmin(isAdmin -> {
+            // If the user is an admin, show the button to navigate to AdminFragment
+            if (isAdmin) {
+                binding.adminButton.setVisibility(View.VISIBLE);
+                binding.adminButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_AdminFragment));
+            }
+            // If the user is not an admin, hide the admin button
+            else {
+                binding.adminButton.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    /**
+     * Checks if the user is an admin in the database.
+     *
+     * @param callback The callback to handle the result.
+     */
+    private void isAdmin(AdminCheckCallback callback) {
+        // Get the device ID from the MainActivity
+        String deviceId = ((MainActivity) requireActivity()).retrieveDeviceId();
+
+        // Query the database for the user document
+        db.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
+            // Check if the document exists in the database
+            if (documentSnapshot.exists()) {
+                // Get the 'admin' field from the document, pass the result to the callback
+                Boolean isAdmin = documentSnapshot.getBoolean("admin");
+                callback.onResult(isAdmin != null && isAdmin);
+            } else {
+                callback.onResult(false); // If document does not exist, assume not admin
+            }
+        }).addOnFailureListener(e -> {
+            callback.onResult(false); // If error, assume not admin
+        });
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    /**
+     * Callback interface to handle the result of the admin check.
+     */
+    public interface AdminCheckCallback {
+        void onResult(boolean isAdmin);
     }
 }

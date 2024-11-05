@@ -8,18 +8,18 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.wizard_project.databinding.FragmentOrganizerBinding;
+import com.example.wizard_project.databinding.FragmentAdminBinding;
 
 /**
- * OrganizerFragment provides the UI and functionality for organizers.
+ * AdminFragment provides the UI and functionality for admins.
  */
-public class OrganizerFragment extends Fragment {
+public class AdminFragment extends Fragment {
 
-    private FragmentOrganizerBinding binding;
+    private FragmentAdminBinding binding;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentOrganizerBinding.inflate(inflater, container, false);
+        binding = FragmentAdminBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -28,7 +28,7 @@ public class OrganizerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Set the text to display in the fragment
-        binding.textviewThird.setText("This is the Organizer Fragment");
+        binding.textviewFourth.setText("This is the Admin Fragment");
     }
 
     @Override
