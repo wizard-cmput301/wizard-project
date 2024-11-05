@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up view binding and content view
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        // set up the user
 
         // Set up the toolbar
         setSupportActionBar(binding.toolbar);
@@ -73,7 +74,18 @@ public class MainActivity extends AppCompatActivity {
 
         // Retrieve and store the device ID
         String deviceId = retrieveDeviceId();
-        storeDeviceId(deviceId);
+        User newUser = new User(
+                deviceId,           // deviceId
+                "",                 // Email
+                "",                 // location
+                false,               // isAdmin
+                false,              // isEntrant
+                false,              // isOrganizer
+                "",                 // name
+                "",                 // phoneNumber
+                ""                  // profile pic uri
+        );
+        storeUser(newUser);
     }
 
     /**
@@ -89,20 +101,42 @@ public class MainActivity extends AppCompatActivity {
      * Stores the device ID in the Firestone database if the user is new.
      * The user's admin status is set to false by default.
      *
-     * @param deviceId A string representing the unique device ID to be stored in the database.
+     * @param newUser A class representing the data stored from this user
      */
-    private void storeDeviceId(String deviceId) {
-        // Create a user data map with the device ID and admin status
+    private void storeUser(User newUser) {
+        // Create a user data map with the user data
+        String deviceId = newUser.getDeviceId();
+
         Map<String, Object> deviceData = new HashMap<>();
-        deviceData.put("deviceId", deviceId);
-        deviceData.put("admin", false); // Set admin status to false by default
+        deviceData.put("deviceId",deviceId);
+        deviceData.put("email",newUser.getEmail());
+        deviceData.put("location",newUser.getLocation());
+        deviceData.put("IsAdmin", newUser.isAdmin());
+        deviceData.put("IsEntrant", newUser.isEntrant());
+        deviceData.put("isOrganizer", newUser.isOrganizer());
+        deviceData.put("name", newUser.getName());
+        deviceData.put("phoneNumber", newUser.getPhoneNumber());
+        deviceData.put("photoId", newUser.getProfilePictureUri());
 
         // Check if the device already exists in the database
         db.collection("users").document(deviceId).get().addOnCompleteListener( task -> {
             if (task.isSuccessful()) {
+
                 DocumentSnapshot document = task.getResult();
-                // If the device ID is not found in the database, add it
-                if (!document.exists()) {
+                // If the user is new add them to the database
+                // otherwise if not found in the database, add them
+
+                if (document.exists()) {
+                    newUser.setEmail((String) document.get("email"));
+                    newUser.setLocation((String) document.get("location"));
+                    newUser.setAdmin((Boolean) document.get("IsAdmin"));
+                    newUser.setEntrant((Boolean) document.get("IsEntrant"));
+                    newUser.setOrganizer((Boolean) document.get("isOrganizer"));
+                    newUser.setName((String) document.get("name"));
+                    newUser.setPhoneNumber((String) document.get("phoneNumber"));
+                    newUser.setProfilePictureUri((String) document.get("photoId"));
+                }
+                else {
                     db.collection("users").document(deviceId).set(deviceData);
                 }
             }
