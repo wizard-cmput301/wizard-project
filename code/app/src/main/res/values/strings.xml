@@ -18,6 +18,11 @@
     <string name="camera_title">Camera</string>
     <string name="menu_title">Menu</string>
     <string name="home_title">Home</string>
+    <string name="image_title">Images</string>
+    <string name="profile_title">Profiles</string>
+    <string name="file_title">Events</string>
+
+
 
     <!-- Text -->
     <string name="eventwizard_text">EventWizard</string>

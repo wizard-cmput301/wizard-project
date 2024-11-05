@@ -35,6 +35,7 @@
         android:background="@color/lighter_purple"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
+        app:labelVisibilityMode="labeled"
         app:itemActiveIndicatorStyle="@android:color/transparent"
         app:menu="@menu/bottom_nav_menu" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

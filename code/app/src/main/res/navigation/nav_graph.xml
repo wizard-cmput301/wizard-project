@@ -8,7 +8,7 @@
     <!-- Home Fragment -->
     <fragment
         android:id="@+id/HomeFragment"
-        android:name="com.example.wizard_project.HomeFragment"
+        android:name="com.example.wizard_project.Fragments.HomeFragment"
         android:label="@string/home_fragment_label"
         tools:layout="@layout/fragment_home">
         <action
@@ -25,7 +25,7 @@
     <!-- Entrant Fragment -->
     <fragment
         android:id="@+id/EntrantFragment"
-        android:name="com.example.wizard_project.EntrantFragment"
+        android:name="com.example.wizard_project.Fragments.EntrantFragment"
         android:label="@string/entrant_fragment_label"
         tools:layout="@layout/fragment_entrant">
     </fragment>
@@ -33,7 +33,7 @@
     <!-- Organizer Fragment -->
     <fragment
         android:id="@+id/OrganizerFragment"
-        android:name="com.example.wizard_project.OrganizerFragment"
+        android:name="com.example.wizard_project.Fragments.OrganizerFragment"
         android:label="@string/organizer_fragment_label"
         tools:layout="@layout/fragment_organizer">
     </fragment>
@@ -41,7 +41,7 @@
     <!-- Admin Fragment -->
     <fragment
         android:id="@+id/AdminFragment"
-        android:name="com.example.wizard_project.AdminFragment"
+        android:name="com.example.wizard_project.Fragments.AdminFragment"
         android:label="@string/admin_fragment_label"
         tools:layout="@layout/fragment_admin">
     </fragment>

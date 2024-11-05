@@ -1,5 +1,10 @@
-package com.example.wizard_project;
+package com.example.wizard_project.Classes;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+
+/**
+ * Representation of the current user
+ */
 public class User {
     private String deviceId;
     private String email;
@@ -90,6 +95,27 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getUserToString(){
+        if(this.isAdmin){
+            return "Admin";
+        } else if(this.isOrganizer){
+            return "Organizer";
+        }else if(this.isEntrant){
+            return  "Entrant";
+        }
+        return "User";
+    }
+    public void setUserData(DocumentSnapshot document){
+        this.deviceId = (String) document.get("deviceId");
+        this.email = (String) document.get("email");
+        this.location = (String) document.get("location");
+        this.isAdmin = (Boolean) document.get("IsAdmin");
+        this.isEntrant = (Boolean) document.get("IsEntrant");
+        this.isOrganizer = (Boolean) document.get("isOrganizer");
+        this.name = (String) document.get("name");
+        this.phoneNumber = (String) document.get("phoneNumber");
+        this.profilePictureUri = (String) document.get("photoId");
+    }
     public String getProfilePictureUri() {
         return profilePictureUri;
     }

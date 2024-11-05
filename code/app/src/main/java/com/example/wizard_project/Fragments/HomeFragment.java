@@ -1,4 +1,4 @@
-package com.example.wizard_project;
+package com.example.wizard_project.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.wizard_project.MainActivity;
+import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentHomeBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -28,6 +30,7 @@ public class HomeFragment extends Fragment {
         // Inflate the layout using View Binding
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
+
         // Initialize Firestore instance
         db = FirebaseFirestore.getInstance();
 
@@ -37,6 +40,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+
 
         // Get the NavController for navigating between fragments
         NavController navController = NavHostFragment.findNavController(this);

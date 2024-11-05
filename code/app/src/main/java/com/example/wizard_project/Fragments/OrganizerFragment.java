@@ -1,4 +1,4 @@
-package com.example.wizard_project;
+package com.example.wizard_project.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

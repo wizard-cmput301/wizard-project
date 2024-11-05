@@ -1,25 +1,23 @@
-package com.example.wizard_project;
+package com.example.wizard_project.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
-import com.example.wizard_project.databinding.FragmentAdminBinding;
+import com.example.wizard_project.databinding.FragmentEntrantBinding;
 
 /**
- * AdminFragment provides the UI and functionality for admins.
+ * EntrantFragment represents the UI and functionality for entrants
  */
-public class AdminFragment extends Fragment {
+public class EntrantFragment extends Fragment {
 
-    private FragmentAdminBinding binding;
+    private FragmentEntrantBinding binding;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentAdminBinding.inflate(inflater, container, false);
+        binding = FragmentEntrantBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -28,7 +26,7 @@ public class AdminFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Set the text to display in the fragment
-        binding.textviewFourth.setText("This is the Admin Fragment");
+        binding.textviewSecond.setText("This is the Entrant Fragment");
     }
 
     @Override

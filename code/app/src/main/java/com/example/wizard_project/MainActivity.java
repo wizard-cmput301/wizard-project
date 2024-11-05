@@ -2,33 +2,19 @@ package com.example.wizard_project;
 
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.wizard_project.Classes.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import com.example.wizard_project.databinding.ActivityMainBinding;
 
@@ -127,14 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 // otherwise if not found in the database, add them
 
                 if (document.exists()) {
-                    newUser.setEmail((String) document.get("email"));
-                    newUser.setLocation((String) document.get("location"));
-                    newUser.setAdmin((Boolean) document.get("IsAdmin"));
-                    newUser.setEntrant((Boolean) document.get("IsEntrant"));
-                    newUser.setOrganizer((Boolean) document.get("isOrganizer"));
-                    newUser.setName((String) document.get("name"));
-                    newUser.setPhoneNumber((String) document.get("phoneNumber"));
-                    newUser.setProfilePictureUri((String) document.get("photoId"));
+                    newUser.setUserData(document);
                 }
                 else {
                     db.collection("users").document(deviceId).set(deviceData);
