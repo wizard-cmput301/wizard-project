@@ -75,7 +75,7 @@ public class HomeFragment extends Fragment {
             // Check if the document exists in the database
             if (documentSnapshot.exists()) {
                 // Get the 'admin' field from the document, pass the result to the callback
-                Boolean isAdmin = documentSnapshot.getBoolean("admin");
+                Boolean isAdmin = documentSnapshot.getBoolean("IsAdmin");
                 callback.onResult(isAdmin != null && isAdmin);
             } else {
                 callback.onResult(false); // If document does not exist, assume not admin
