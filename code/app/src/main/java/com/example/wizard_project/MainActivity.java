@@ -14,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.provider.Settings;
 import android.view.View;
 
 import androidx.navigation.NavController;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         enterEventButton = findViewById(R.id.enter_event_button);
         manageFacilityButton = findViewById(R.id.manage_facility_button);
 
+
         // Enter Event Button
         enterEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
         // Create/Manage Facility Button
         manageFacilityButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,5 +66,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    /**
+     * Retrieves the unique device ID from the user's device.
+     *
+     * @return A string representing the device ID.
+     */
+    public String retrieveDeviceId() {
+        return Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 }
