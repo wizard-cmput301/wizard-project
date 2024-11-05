@@ -36,7 +36,7 @@ public class QRScanner extends AppCompatActivity {
                 initQRCodeScanner();
             }
         } else {
-            // If Android version is below M, directly initialize QR code scanner
+            // directly initialize QR code scanner
             initQRCodeScanner();
         }
     }
@@ -72,17 +72,23 @@ public class QRScanner extends AppCompatActivity {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
 
         if (result != null && result.getContents() != null) {
-            // Get the scanned QR code content (assuming it contains an event ID)
+            // Process the scanned content
             String eventId = result.getContents();
-
-            // Start EventDetailActivity with the scanned eventId
-            Intent intent = new Intent(this, Event.class);  // Ensure Event.class is your event details activity
+            Intent intent = new Intent(this, Event.class);
             intent.putExtra("EVENT_ID", eventId);
             startActivity(intent);
-            finish();
         } else {
-            // No QR code was scanned or scanning was canceled, close the activity
-            finish();
+            // User canceled the scan or no result, exit the scanner
+            Toast.makeText(this, "Scan canceled", Toast.LENGTH_SHORT).show();
         }
+        finish(); // Closes QRScanner activity after handling result
     }
+
+
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(this, "Scanner canceled", Toast.LENGTH_SHORT).show();
+        finish(); // Ends the QRScanner activity, closing the scanner view
+    }
+
 }
