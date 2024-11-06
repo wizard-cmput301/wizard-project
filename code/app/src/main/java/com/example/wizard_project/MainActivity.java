@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up view binding and content view
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        //addSampleUsersToDatabase();
         // Set up the entrant toolbar
         setSupportActionBar(binding.entrantToolbar);
         // Initialize Firebase and navigation components

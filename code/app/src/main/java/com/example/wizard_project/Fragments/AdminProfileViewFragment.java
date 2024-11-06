@@ -95,9 +95,6 @@ public class AdminProfileViewFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         // reset the bottom nav bar
-        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
-        bottomNavigationView.getMenu().clear(); // Clear the current menu
-        bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
     }
 
 }

@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -48,15 +49,20 @@ public class ProfileFragment extends Fragment {
         currentUser = mainActivity.getCurrentUser();
         deleteUser = mainActivity.getDeleteUser();
         DisplayUser = currentUser;
-        // Show delete button only if the user is an admin, We will only viewing other profiles as an admin
-        if (currentUser.isAdmin()) {
-            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
-            bottomNavigationView.getMenu().clear(); // Clear the current menu
+
+        // check If we are viewing as an admin or Entrant
+        NavController navController = Navigation.findNavController(view);
+        int previousDestinationId =  navController.getPreviousBackStackEntry().getDestination().getId();
+
+        if (previousDestinationId == R.id.AdminFragment) {
+            DisplayUser = deleteUser;
             binding.deleteProfileButton.setVisibility(View.VISIBLE);
             binding.editProfileButton.setVisibility(View.INVISIBLE);
             binding.deleteProfileButton.setOnClickListener(v -> DeleteProfile());
-            DisplayUser = deleteUser;
+
         }
+
+        // Show delete button only if the user is an admin, We will only viewing other profiles as an admin
 
         // Display user information in the UI if available
         if (DisplayUser != null) {
@@ -78,7 +84,6 @@ public class ProfileFragment extends Fragment {
 
         // Navigate to EditProfileFragment when the edit profile button is clicked
         binding.editProfileButton.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(requireView());
             navController.navigate(R.id.action_ProfileFragment_to_EditProfileFragment);
         });
     }
@@ -96,7 +101,6 @@ public class ProfileFragment extends Fragment {
                         NavController navController = Navigation.findNavController(requireView());
                         navController.navigate(R.id.action_ProfileFragment_to_AdminFragment);
                     }
-
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
