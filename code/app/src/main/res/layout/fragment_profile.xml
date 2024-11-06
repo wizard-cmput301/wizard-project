@@ -81,5 +81,20 @@
             app:layout_constraintTop_toBottomOf="@id/profilePhone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+        <!-- Admin Delete Profile Button -->
+        <Button
+            android:id="@+id/deleteProfileButton"
+            android:layout_width="111dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="100dp"
+            android:backgroundTint="@color/lighter_purple"
+            android:text="@string/deleteButton"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.149"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profilePhone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

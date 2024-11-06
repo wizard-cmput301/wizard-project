@@ -52,9 +52,14 @@
     <!-- Admin Fragment -->
     <fragment
         android:id="@+id/AdminFragment"
-        android:name="com.example.wizard_project.Fragments.AdminFragment"
+        android:name="com.example.wizard_project.Fragments.AdminProfileViewFragment"
         android:label="@string/admin_fragment_label"
         tools:layout="@layout/fragment_admin">
+
+        <!-- Admin Button -->
+        <action
+            android:id="@+id/action_AdminProfileFragment_to_ProfileFragment"
+            app:destination="@id/ProfileFragment" />
     </fragment>
 
     <!-- Profile Fragment -->
@@ -68,6 +73,10 @@
         <action
             android:id="@+id/action_ProfileFragment_to_EditProfileFragment"
             app:destination="@+id/EditProfileFragment" />
+        <!-- Delete Profile Button -->
+        <action
+            android:id="@+id/action_ProfileFragment_to_AdminFragment"
+            app:destination="@+id/AdminFragment" />
     </fragment>
 
     <!-- Edit Profile Fragment -->
