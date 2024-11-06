@@ -21,6 +21,7 @@
     <string name="camera_title">Camera</string>
     <string name="menu_title">Menu</string>
     <string name="home_title">Home</string>
+    <string name="add_event_title">Add Event</string>
     <string name="image_title">Images</string>
     <string name="profile_title">Profiles</string>
     <string name="file_title">Events</string>
@@ -33,6 +34,7 @@
     <string name="eventwizard_logo_desc">EventWizard Logo</string>
     <string name="profile_picture_button_desc">Profile Picture Button</string>
     <string name="profile_picture_desc">Profile Picture</string>
+    <string name="upload_image_text">Upload Image</string>
 
     <!-- Edit Profile -->
     <string name="user_name">User Name</string>

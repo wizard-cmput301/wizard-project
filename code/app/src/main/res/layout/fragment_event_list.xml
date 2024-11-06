@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="Fragments.EventListFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="10dp"
+        android:divider="@color/transparent"
+        android:dividerHeight="12dp"
+        app:layout_constraintBottom_toTopOf="@id/organizer_events_navigation_bar"
+        tools:listitem="@layout/event_card" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/organizer_events_navigation_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        app:menu="@menu/organizer_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/darker_purple"
+        app:labelVisibilityMode="unlabeled"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
