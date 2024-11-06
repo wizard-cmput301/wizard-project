@@ -1,6 +1,8 @@
 package com.example.wizard_project.Classes;
 
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * Representation of the current user
@@ -16,10 +18,44 @@ public class User {
     private String phoneNumber;
     private String profilePictureUri;
 
+    private FirebaseFirestore db;
+    private DocumentReference userRef;
 
-    // Constructor with all fields
-    public User(String deviceId, String email, String location ,boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri) {
+    /**
+     * Default constructor initializes fields with default values and sets up Firestore reference.
+     */
+    public User() {
+        // Initialize fields with default values if needed
+        db = FirebaseFirestore.getInstance();
+        this.deviceId = "";
+        initializeDocumentReference();
+        this.email = "";
+        this.location = "";
+        this.isAdmin = false;
+        this.isEntrant = false;
+        this.isOrganizer = false;
+        this.name = "";
+        this.phoneNumber = "";
+        this.profilePictureUri = "";
+    }
+
+    /**
+     * Constructor with all fields to initialize a User object.
+     *
+     * @param deviceId          The user's device ID.
+     * @param email             The user's email.
+     * @param location          The user's location.
+     * @param isAdmin           Whether the user is an admin.
+     * @param isEntrant         Whether the user is an entrant.
+     * @param isOrganizer       Whether the user is an organizer.
+     * @param name              The user's name.
+     * @param phoneNumber       The user's phone number.
+     * @param profilePictureUri The URI for the user's profile picture.
+     */
+    public User(String deviceId, String email, String location, boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri) {
+        db = FirebaseFirestore.getInstance();
         this.deviceId = deviceId;
+        initializeDocumentReference();
         this.email = email;
         this.location = location;
         this.isAdmin = isAdmin;
@@ -30,13 +66,15 @@ public class User {
         this.profilePictureUri = profilePictureUri;
     }
 
-    // Getters and Setters
+    // Getters and Setters with corresponding Firestore updates
     public String getDeviceId() {
         return deviceId;
     }
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+        initializeDocumentReference();
+        updateFieldInDatabase("deviceId", deviceId);
     }
 
     public String getEmail() {
@@ -45,6 +83,7 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+        updateFieldInDatabase("email", email);
     }
 
     public String getLocation() {
@@ -53,6 +92,7 @@ public class User {
 
     public void setLocation(String location) {
         this.location = location;
+        updateFieldInDatabase("location", location);
     }
 
     public boolean isAdmin() {
@@ -61,6 +101,7 @@ public class User {
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+        updateFieldInDatabase("isAdmin", admin);
     }
 
     public boolean isEntrant() {
@@ -69,6 +110,7 @@ public class User {
 
     public void setEntrant(boolean entrant) {
         isEntrant = entrant;
+        updateFieldInDatabase("isEntrant", entrant);
     }
 
     public boolean isOrganizer() {
@@ -77,6 +119,7 @@ public class User {
 
     public void setOrganizer(boolean organizer) {
         isOrganizer = organizer;
+        updateFieldInDatabase("isOrganizer", organizer);
     }
 
     public String getName() {
@@ -85,6 +128,7 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+        updateFieldInDatabase("name", name);
     }
 
     public String getPhoneNumber() {
@@ -93,19 +137,67 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+        updateFieldInDatabase("phoneNumber", phoneNumber);
     }
 
-    public String getUserToString(){
-        if(this.isAdmin){
+    public String getProfilePictureUri() {
+        return profilePictureUri;
+    }
+
+    public void setProfilePictureUri(String profilePictureUri) {
+        this.profilePictureUri = profilePictureUri;
+        updateFieldInDatabase("photoId", profilePictureUri);
+    }
+
+    /**
+     * Generates a string representation of the user's role.
+     *
+     * @return A string representing the user's role.
+     */
+    public String getUserToString() {
+        if (this.isAdmin) {
             return "Admin";
-        } else if(this.isOrganizer){
+        } else if (this.isOrganizer) {
             return "Organizer";
-        }else if(this.isEntrant){
-            return  "Entrant";
+        } else if (this.isEntrant) {
+            return "Entrant";
         }
         return "User";
     }
-    public void setUserData(DocumentSnapshot document){
+
+    /**
+     * Initializes the user document reference if the device ID is valid.
+     */
+    private void initializeDocumentReference() {
+        if (deviceId != null && !deviceId.isEmpty()) {
+            userRef = db.collection("users").document(deviceId);
+        } else {
+            userRef = null;
+        }
+    }
+
+    /**
+     * Updates a specific field in the Firestore user document.
+     *
+     * @param field The field to be updated.
+     * @param value The new value for the field.
+     */
+    private void updateFieldInDatabase(String field, Object value) {
+        if (userRef != null) {
+            userRef.update(field, value)
+                    .addOnSuccessListener(aVoid -> System.out.println("Field " + field + " updated successfully."))
+                    .addOnFailureListener(e -> System.err.println("Failed to update field " + field + ": " + e.getMessage()));
+        } else {
+            System.err.println("User Document Reference is null.");
+        }
+    }
+
+    /**
+     * Populates the user object with data from a Firestore document.
+     *
+     * @param document The Firestore document containing user data.
+     */
+    public void setUserData(DocumentSnapshot document) {
         this.deviceId = (String) document.get("deviceId");
         this.email = (String) document.get("email");
         this.location = (String) document.get("location");
@@ -115,12 +207,6 @@ public class User {
         this.name = (String) document.get("name");
         this.phoneNumber = (String) document.get("phoneNumber");
         this.profilePictureUri = (String) document.get("photoId");
-    }
-    public String getProfilePictureUri() {
-        return profilePictureUri;
-    }
-
-    public void setProfilePictureUri(String profilePictureUri) {
-        this.profilePictureUri = profilePictureUri;
+        initializeDocumentReference();
     }
 }

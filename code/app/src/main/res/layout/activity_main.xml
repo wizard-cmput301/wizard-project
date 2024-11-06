@@ -13,13 +13,26 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/entrantToolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/lighter_purple"
             app:title="@string/eventwizard_text"
             app:titleTextColor="@color/white"
-            app:titleCentered="true" />
+            app:titleCentered="true" >
+
+            <!-- Profile Picture Button -->
+            <ImageButton
+                android:id="@+id/profilePictureButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="end"
+                android:src="@drawable/event_wizard_logo"
+                android:contentDescription="@string/profile_picture_button_desc"
+                android:background="?attr/selectableItemBackground"
+                android:layout_marginEnd="10dp"
+                android:scaleType="fitCenter" />
+        </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Nav Host Fragment -->
