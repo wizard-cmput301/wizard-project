@@ -30,7 +30,6 @@ public class HomeFragment extends Fragment {
         // Inflate the layout using View Binding
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
-
         // Initialize Firestore instance
         db = FirebaseFirestore.getInstance();
 
@@ -40,8 +39,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
 
         // Get the NavController for navigating between fragments
         NavController navController = NavHostFragment.findNavController(this);

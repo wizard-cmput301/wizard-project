@@ -8,11 +8,14 @@
     <string name="entrant_fragment_label">Entrant Fragment</string>
     <string name="organizer_fragment_label">Organizer Fragment</string>
     <string name="admin_fragment_label">Admin Fragment</string>
+    <string name="profile_fragment_label">Profile Fragment</string>
+    <string name="edit_profile_fragment_label">Edit Profile Fragment</string>
 
     <!-- Buttons -->
     <string name="enter_event_string">Enter Event</string>
     <string name="create_manage_facility_string">Create/Manage Facility</string>
     <string name="admin_string">Admin</string>
+    <string name="save_button">Save</string>
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
@@ -22,13 +25,21 @@
     <string name="profile_title">Profiles</string>
     <string name="file_title">Events</string>
 
-
-
     <!-- Text -->
     <string name="eventwizard_text">EventWizard</string>
     <string name="or_text">OR</string>
 
     <!-- Descriptions -->
     <string name="eventwizard_logo_desc">EventWizard Logo</string>
+    <string name="profile_picture_button_desc">Profile Picture Button</string>
+    <string name="profile_picture_desc">Profile Picture</string>
 
+    <!-- Edit Profile -->
+    <string name="user_name">User Name</string>
+    <string name="user_email">User Email</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="enter_email">Enter Email</string>
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="enter_name">Enter Name</string>
 </resources>
