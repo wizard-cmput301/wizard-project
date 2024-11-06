@@ -2,6 +2,7 @@ package com.example.wizard_project;
 
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private FirebaseFirestore db;
     private User currentUser;
+    private User deleteUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up the entrant toolbar
         setSupportActionBar(binding.entrantToolbar);
-
         // Initialize Firebase and navigation components
         db = FirebaseFirestore.getInstance();
         setupNavigation();
@@ -185,6 +186,41 @@ public class MainActivity extends AppCompatActivity {
         return currentUser;
     }
 
+    /**
+     * Sets the user to delete user's data.
+     * Used for admin
+     *
+     */
+    public void setDeleteUser(User newUser) {
+        deleteUser = newUser;
+    }
+    /**
+     * gets the user to delete user's data.
+     * Used for admin
+     *
+     */
+    public User getDeleteUser() {
+        return deleteUser;
+    }
+
+    public void addSampleUsersToDatabase() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        for (int i = 1; i <= 10; i++) {
+            // Create a sample User object
+            String id =Integer.toString(i);
+            User sampleUsers =  new User(id, "@gmail.com", "58888 north ave", false, false, false, "Jerry ", "213123123123", "");
+            Map<String, Object> userData = createUserDataMap(sampleUsers);
+            db.collection("users").document(id).set(userData)
+                    .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> {
+                        currentUser = null;
+                        Toast.makeText(this, "Failed to create user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+
+
+        }
+    }
     /**
      * Interface for a callback when the current user is loaded.
      */

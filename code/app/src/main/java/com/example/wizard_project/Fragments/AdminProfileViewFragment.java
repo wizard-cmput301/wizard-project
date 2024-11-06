@@ -5,12 +5,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.wizard_project.Adapters.BrowseProfileAdapter;
+import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.databinding.FragmentAdminBinding;
@@ -19,26 +23,44 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * AdminFragment provides the UI and functionality for admins.
  */
-public class AdminFragment extends Fragment {
+public class AdminProfileViewFragment extends Fragment {
 
     private FragmentAdminBinding binding;
-    private List<User> profileList = new ArrayList<>();
+    private ArrayList<User> profileList = new ArrayList<>();
     private BrowseProfileAdapter adapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Use View Binding to inflate the layout
         binding = FragmentAdminBinding.inflate(inflater, container, false);
-            // Set up RecyclerView
-        binding.profileRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new BrowseProfileAdapter(profileList);
-        binding.profileRecyclerView.setAdapter(adapter);
+
+        // Initialize the ListView with binding
+        ListView profileListView = binding.profilelistListview;
+
+        // Create a new instance of ProfileAdapter with the context and profileList
+        adapter = new BrowseProfileAdapter(getContext(), profileList);
+
+        // Set the adapter to the ListView
+        profileListView.setAdapter(adapter);
+
+        // Load profiles from Firebase or another data source
         loadUsers();
-        return binding.getRoot();
+
+        // Set the item click listener for the ListView
+        binding.profilelistListview.setOnItemClickListener((parent, view, position, id) -> {
+            User selectedUser = profileList.get(position);  // Get the clicked item
+            MainActivity mainActivity = (MainActivity) requireActivity();
+            mainActivity.setDeleteUser(selectedUser);
+            // Navigate to ProfileFragment
+            NavController navController = Navigation.findNavController(requireView());
+            navController.navigate(R.id.action_AdminProfileFragment_to_ProfileFragment);
+        });
+
+        return binding.getRoot();  // Return the root view of binding
     }
 
     @Override
@@ -48,7 +70,6 @@ public class AdminFragment extends Fragment {
         bottomNavigationView.getMenu().clear(); // Clear the current menu
         bottomNavigationView.inflateMenu(R.menu.bottom_nav_admin); // Load the admin-specific menu
 
-        // Set the text to display in the fragment
     }
 
     private void loadUsers(){
@@ -65,7 +86,7 @@ public class AdminFragment extends Fragment {
                         }
                         adapter.notifyDataSetChanged();
                     } else {
-                        Log.e("AdminFragment", "Error getting documents", task.getException());
+                        Log.e("AdminProfileViewFragment", "Error getting documents", task.getException());
                     }
                 });
     }
@@ -77,7 +98,6 @@ public class AdminFragment extends Fragment {
         BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
         bottomNavigationView.getMenu().clear(); // Clear the current menu
         bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-        binding = null;
     }
 
 }

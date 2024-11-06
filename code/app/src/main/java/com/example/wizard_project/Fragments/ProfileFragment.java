@@ -1,6 +1,7 @@
 package com.example.wizard_project.Fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,11 @@ import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentProfileBinding;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * ProfileFragment displays the user's profile information, and allows them to edit their information.
@@ -23,6 +29,9 @@ public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private User currentUser;
+    private User deleteUser;
+    private User DisplayUser;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -37,17 +46,28 @@ public class ProfileFragment extends Fragment {
         // Get the current user information from MainActivity
         MainActivity mainActivity = (MainActivity) requireActivity();
         currentUser = mainActivity.getCurrentUser();
+        deleteUser = mainActivity.getDeleteUser();
+        DisplayUser = currentUser;
+        // Show delete button only if the user is an admin, We will only viewing other profiles as an admin
+        if (currentUser.isAdmin()) {
+            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
+            bottomNavigationView.getMenu().clear(); // Clear the current menu
+            binding.deleteProfileButton.setVisibility(View.VISIBLE);
+            binding.editProfileButton.setVisibility(View.INVISIBLE);
+            binding.deleteProfileButton.setOnClickListener(v -> DeleteProfile());
+            DisplayUser = deleteUser;
+        }
 
         // Display user information in the UI if available
-        if (currentUser != null) {
+        if (DisplayUser != null) {
             // Name
-            binding.profileName.setText(currentUser.getName() != null && !currentUser.getName().isEmpty() ? currentUser.getName() : "No name provided");
+            binding.profileName.setText(DisplayUser.getName() != null && !DisplayUser.getName().isEmpty() ? DisplayUser.getName() : "No name provided");
 
             // Email
-            binding.profileEmail.setText(currentUser.getEmail() != null && !currentUser.getEmail().isEmpty() ? currentUser.getEmail() : "No email provided");
+            binding.profileEmail.setText(DisplayUser.getEmail() != null && !DisplayUser.getEmail().isEmpty() ? DisplayUser.getEmail() : "No email provided");
 
             // Phone number
-            binding.profilePhone.setText(currentUser.getPhoneNumber() != null && !currentUser.getPhoneNumber().isEmpty() ? currentUser.getPhoneNumber() : "No phone number provided");
+            binding.profilePhone.setText(DisplayUser.getPhoneNumber() != null && !DisplayUser.getPhoneNumber().isEmpty() ? DisplayUser.getPhoneNumber() : "No phone number provided");
 
             // TODO: Load and display the user's profile picture here
         // Error handling (user data not found)
@@ -63,6 +83,28 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private void DeleteProfile() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("users").document(deleteUser.getDeviceId());
+        deleteUser.DeleteUser();
+        docRef.delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("TAG", "Document successfully deleted!");
+                        // Navigate to HomeFragment after successful deletion
+                        NavController navController = Navigation.findNavController(requireView());
+                        navController.navigate(R.id.action_ProfileFragment_to_AdminFragment);
+                    }
+
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("TAG", "Error deleting document", e);
+                    }
+                });
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
