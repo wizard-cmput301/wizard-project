@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.wizard_project.Adapters.BrowseProfileAdapter;
@@ -66,9 +67,30 @@ public class AdminProfileViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
-        bottomNavigationView.getMenu().clear(); // Clear the current menu
-        bottomNavigationView.inflateMenu(R.menu.bottom_nav_admin); // Load the admin-specific menu
+        // Access the BottomNavigationView from the Activity
+        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+
+        // Set up the admin-specific menu if we are in the AdminViewFragment
+        bottomNavigationView.getMenu().clear();
+        bottomNavigationView.inflateMenu(R.menu.bottom_nav_admin);
+
+        // Access the NavController associated with the Activity's NavHostFragment
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+
+        // Connect NavController to BottomNavigationView
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            // Home Button
+            if (item.getItemId() == R.id.nav_profile_browse) {
+                navController.navigate(R.id.AdminFragment);
+                return true;
+            }else  if (item.getItemId() == R.id.nav_home) {
+                navController.navigate(R.id.HomeFragment);
+                return true;
+            }
+            return false;
+        });
 
     }
 

@@ -1,22 +1,29 @@
 package com.example.wizard_project;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private StorageReference storageRef;
     private User currentUser;
     private User deleteUser;
+    private PhotoHandler photo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +60,14 @@ public class MainActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
+
+        // test image upload:
+        // ImageView image = findViewById(R.id.event_wizard_logo);
+        //  photo = new PhotoHandler();
+        // photo.loadImage("IMG_0113.JPG",image,this);
+        //  photo.getUserImage(this);
+
+
         // Initialize navigation components
         setupNavigation();
 
@@ -66,6 +82,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Handle the result of the image picker
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            photo.uploadImage(imageUri,
+                uri -> {
+                    Toast.makeText(this, "Upload Success", Toast.LENGTH_SHORT).show();
+                },
+                e -> {
+                    Toast.makeText(this, "Upload Failed", Toast.LENGTH_SHORT).show();
+                });
+        }
+    }
     /**
      * Sets up the navigation components and toolbar visibility.
      */
