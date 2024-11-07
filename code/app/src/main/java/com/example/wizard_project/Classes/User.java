@@ -150,6 +150,20 @@ public class User {
     }
 
     /**
+     * Initializes the user document reference if the device ID is valid.
+     */
+    public void DeleteUser() {
+        this.deviceId = "";
+        this.email = "";
+        this.location = "";
+        this.isAdmin = false;
+        this.isEntrant = false;
+        this.isOrganizer = false;
+        this.name = "";
+        this.phoneNumber = "";
+        this.profilePictureUri = "";
+    }
+    /**
      * Generates a string representation of the user's role.
      *
      * @return A string representing the user's role.
