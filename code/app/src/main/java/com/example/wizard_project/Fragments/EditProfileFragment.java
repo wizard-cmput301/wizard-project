@@ -1,16 +1,25 @@
 package com.example.wizard_project.Fragments;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.bumptech.glide.Glide;
+import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEditProfileBinding;
@@ -38,11 +47,23 @@ public class EditProfileFragment extends Fragment {
         MainActivity mainActivity = (MainActivity) requireActivity();
         currentUser = mainActivity.getCurrentUser();
 
+        binding.editProfileImage.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, PhotoHandler.PICK_IMAGE_REQUEST);
+            }
+        });
+
         // Pre-fill the fields with the current user data
         if (currentUser != null) {
             binding.editTextName.setText(currentUser.getName());
             binding.editTextEmail.setText(currentUser.getEmail());
             binding.editTextPhone.setText(currentUser.getPhoneNumber());
+            if (!currentUser.getProfilePictureUri().equals("")) {
+                Uri imageUri = Uri.parse(currentUser.getProfilePictureUri());
+                Glide.with(requireContext()).load(imageUri).into(binding.editProfileImage);
+            }
         }
 
         // Set up the save button click listener
@@ -82,6 +103,23 @@ public class EditProfileFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            currentUser.setProfilePictureUri(imageUri.toString());
+
+            // Load the selected image into the ImageView
+            Glide.with(requireContext()).load(imageUri).into(binding.editProfileImage);
+
+            // Upload the image to Firebase
+            PhotoHandler photo = new PhotoHandler();
+            photo.uploadImage(imageUri,
+                    uri -> Toast.makeText(requireContext(), "Upload Success", Toast.LENGTH_SHORT).show(),
+                    e -> Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show());
+        }
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
