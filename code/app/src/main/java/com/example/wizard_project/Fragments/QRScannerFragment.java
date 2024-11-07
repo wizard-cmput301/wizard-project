@@ -99,4 +99,11 @@ public class QRScannerFragment extends Fragment {
         // Navigate to EventDetailsFragment or EntrantFragment with the event details
         NavHostFragment.findNavController(this).navigate(R.id.action_QRScannerFragment_to_EntrantFragment, bundle);
     }
+
+
+
+
+
+
+
 }
