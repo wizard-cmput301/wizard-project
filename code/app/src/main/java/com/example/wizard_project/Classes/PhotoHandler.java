@@ -1,6 +1,8 @@
 package com.example.wizard_project.Classes;
 
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +10,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -22,12 +26,8 @@ import java.util.UUID;
  *  uploadImage - Upload an image to firebase storage
  *  loadImage - loads image from firebase storage and uploads it into an image view
  */
-public class PhotoHandler {
+public class PhotoHandler  extends AppCompatActivity {
     public static final int PICK_IMAGE_REQUEST = 1; // Request code for image selection
-
-    public PhotoHandler() {
-
-    }
 
     /**
      * Opens the gallery for the user to select an image.
@@ -38,6 +38,7 @@ public class PhotoHandler {
         if (context instanceof Activity) {
             ((Activity) context).startActivityForResult(intent, PICK_IMAGE_REQUEST);
         }
+
     }
 
     /**
