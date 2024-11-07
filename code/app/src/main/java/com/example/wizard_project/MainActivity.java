@@ -63,9 +63,9 @@ public class MainActivity extends AppCompatActivity {
 
         // test image upload:
         // ImageView image = findViewById(R.id.event_wizard_logo);
-        //  photo = new PhotoHandler();
+        // photo = new PhotoHandler();
         // photo.loadImage("IMG_0113.JPG",image,this);
-        //  photo.getUserImage(this);
+        // photo.getUserImage(this);
 
 
         // Initialize navigation components
@@ -82,22 +82,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // Handle the result of the image picker
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
-            photo.uploadImage(imageUri,
-                uri -> {
-                    Toast.makeText(this, "Upload Success", Toast.LENGTH_SHORT).show();
-                },
-                e -> {
-                    Toast.makeText(this, "Upload Failed", Toast.LENGTH_SHORT).show();
-                });
-        }
-    }
     /**
      * Sets up the navigation components and toolbar visibility.
      */
