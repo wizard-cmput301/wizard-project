@@ -51,7 +51,7 @@
         android:layout_marginStart="30dp"/>
 
     <TextView
-        android:id="@+id/event_view_availability"
+        android:id="@+id/event_view_waitlist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/event_view_price"
@@ -63,7 +63,7 @@
     <TextView
         android:id="@+id/event_view_deadline"
         android:layout_width="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/event_view_availability"
+        app:layout_constraintTop_toBottomOf="@id/event_view_waitlist"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_height="wrap_content"
         android:text="Deadline: Closes in 2 Days"
@@ -95,7 +95,7 @@
             android:text="Edit Event"/>
 
         <Button
-            android:id="@+id/view_entrant_button"
+            android:id="@+id/view_entrants_button"
             android:layout_width="140dp"
             android:layout_height="40dp"
             android:layout_marginTop="50dp"

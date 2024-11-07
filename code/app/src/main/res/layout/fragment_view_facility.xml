@@ -19,7 +19,7 @@
         android:src="@drawable/example_facility"/>
 
     <Button
-        android:id="@+id/facility_view_image_button"
+        android:id="@+id/facility_edit_image_button"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:drawableLeft="@drawable/folder_icon"
@@ -35,7 +35,7 @@
         android:id="@+id/facility_view_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/facility_view_image_button"
+        app:layout_constraintTop_toBottomOf="@id/facility_edit_image_button"
         app:layout_constraintStart_toStartOf="parent"
         android:text="Facility Name: Example Rec Centre"
         android:layout_marginTop="30dp"

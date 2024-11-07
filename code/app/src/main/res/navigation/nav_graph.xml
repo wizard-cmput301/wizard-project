@@ -22,6 +22,14 @@
             android:id="@+id/action_HomeFragment_to_OrganizerFragment"
             app:destination="@id/OrganizerFragment" />
 
+        <action
+            android:id="@+id/action_HomeFragment_to_EditFacilityFragment"
+            app:destination="@+id/EditFacilityFragment" />
+
+        <action
+            android:id="@+id/action_HomeFragment_to_ViewFacilityFragment"
+            app:destination="@+id/ViewFacilityFragment" />
+
         <!-- Admin Button -->
         <action
             android:id="@+id/action_HomeFragment_to_AdminFragment"
@@ -90,5 +98,26 @@
         <action
             android:id="@+id/action_EditProfileFragment_to_ProfileFragment"
             app:destination="@+id/ProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ViewFacilityFragment"
+        android:name="com.example.wizard_project.Fragments.ViewFacilityFragment"
+        android:label="View Facility Fragment"
+        tools:layout="@layout/fragment_view_facility">
+
+        <action
+            android:id="@+id/action_ViewFacilityFragment_to_EditFacilityFragment"
+            app:destination="@+id/EditFacilityFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/EditFacilityFragment"
+        android:name="com.example.wizard_project.Fragments.EditFacilityFragment"
+        android:label="Edit Facility Fragment"
+        tools:layout="@layout/fragment_edit_facility">
+        <action
+            android:id="@+id/action_EditFacilityFragment_to_ViewFacilityFragment"
+            app:destination="@+id/ViewFacilityFragment" />
     </fragment>
 </navigation>

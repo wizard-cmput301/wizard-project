@@ -17,6 +17,7 @@ public class User {
     private String name;
     private String phoneNumber;
     private String profilePictureUri;
+    private Facility facility;
 
     private FirebaseFirestore db;
     private DocumentReference userRef;
@@ -147,6 +148,14 @@ public class User {
     public void setProfilePictureUri(String profilePictureUri) {
         this.profilePictureUri = profilePictureUri;
         updateFieldInDatabase("photoId", profilePictureUri);
+    }
+
+    public Facility getFacility() {
+        return facility;
+    }
+
+    public void setFacility(Facility facility) {
+        this.facility = facility;
     }
 
     /**
