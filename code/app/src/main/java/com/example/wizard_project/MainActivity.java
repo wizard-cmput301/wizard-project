@@ -1,9 +1,11 @@
 package com.example.wizard_project;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,11 +14,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +55,14 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
+
+        //test image upload:
+        // ImageView image = findViewById(R.id.event_wizard_logo);
+        //PhotoHandler photo = new PhotoHandler();
+        //photo.loadImage("IMG_0113.JPG",image,this);
+
+
 
         // Initialize navigation components
         setupNavigation();

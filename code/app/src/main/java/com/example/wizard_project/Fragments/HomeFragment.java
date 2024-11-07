@@ -13,6 +13,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentHomeBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
@@ -39,6 +40,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+
 
         // Get the NavController for navigating between fragments
         NavController navController = NavHostFragment.findNavController(this);
