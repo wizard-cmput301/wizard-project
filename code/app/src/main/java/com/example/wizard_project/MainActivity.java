@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     currentUser.setUserData(document);
                 // If the document does not exist, create a new user
                 } else {
-                    currentUser = new User(deviceId, "", "", false, false, false, "", "", "");
+                    currentUser = new User(deviceId, "", "", false, false, false, "", "", "","");
                     Map<String, Object> userData = createUserDataMap(currentUser);
                     db.collection("users").document(deviceId).set(userData)
                             .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())
@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         userData.put("name", user.getName());
         userData.put("phoneNumber", user.getPhoneNumber());
         userData.put("photoId", user.getProfilePictureUri());
+        userData.put("profilePath", user.getProfilePath());
         return userData;
     }
 
@@ -238,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 1; i <= 10; i++) {
             // Create a sample User object
             String id =Integer.toString(i);
-            User sampleUsers =  new User(id, "@gmail.com", "58888 north ave", false, false, false, "Jerry ", "213123123123", "");
+            User sampleUsers =  new User(id, "@gmail.com", "58888 north ave", false, false, false, "Jerry ", "213123123123", "","");
             Map<String, Object> userData = createUserDataMap(sampleUsers);
             db.collection("users").document(id).set(userData)
                     .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())

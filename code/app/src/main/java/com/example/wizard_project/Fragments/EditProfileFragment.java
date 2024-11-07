@@ -24,6 +24,8 @@ import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEditProfileBinding;
 import com.example.wizard_project.Classes.User;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 /**
  * EditProfileFragment allows the user to edit their profile information.
@@ -32,10 +34,12 @@ public class EditProfileFragment extends Fragment {
 
     private FragmentEditProfileBinding binding;
     private User currentUser;
+    private PhotoHandler photo;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false);
+        photo = new PhotoHandler();
         return binding.getRoot();
     }
 
@@ -49,7 +53,6 @@ public class EditProfileFragment extends Fragment {
 
         binding.editProfileImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, PhotoHandler.PICK_IMAGE_REQUEST);
             }
@@ -62,12 +65,32 @@ public class EditProfileFragment extends Fragment {
             binding.editTextPhone.setText(currentUser.getPhoneNumber());
             if (!currentUser.getProfilePictureUri().equals("")) {
                 Uri imageUri = Uri.parse(currentUser.getProfilePictureUri());
-                Glide.with(requireContext()).load(imageUri).into(binding.editProfileImage);
+                Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.editProfileImage);
             }
         }
 
         // Set up the save button click listener
         binding.buttonSaveProfile.setOnClickListener(v -> saveUserProfile());
+
+        binding.buttonDeleteProfilePic.setOnClickListener(v -> {
+            String imagePath = currentUser.getProfilePath();
+            if(!imagePath.equals("")){
+                photo.deleteImage(imagePath, aVoid -> {
+                            Toast.makeText(getContext(), "Image deleted successfully", Toast.LENGTH_SHORT).show();
+                            // Update user data and UI after successful deletion
+                            currentUser.setProfilePictureUri("");
+                            currentUser.setProfilePath("");
+                            binding.editProfileImage.setImageResource(R.drawable.event_wizard_logo); // Set default image
+                        },
+                        e -> {
+                            Toast.makeText(getContext(), "Failed to delete image", Toast.LENGTH_SHORT).show();
+                        }
+                );
+            } else {
+                Toast.makeText(getContext(), "No profile picture to delete", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     /**
@@ -111,13 +134,15 @@ public class EditProfileFragment extends Fragment {
             currentUser.setProfilePictureUri(imageUri.toString());
 
             // Load the selected image into the ImageView
-            Glide.with(requireContext()).load(imageUri).into(binding.editProfileImage);
+            Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.editProfileImage);
 
             // Upload the image to Firebase
             PhotoHandler photo = new PhotoHandler();
-            photo.uploadImage(imageUri,
+
+            photo.uploadImage(currentUser, imageUri,
                     uri -> Toast.makeText(requireContext(), "Upload Success", Toast.LENGTH_SHORT).show(),
                     e -> Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show());
+
         }
     }
     @Override
