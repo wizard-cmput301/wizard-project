@@ -39,6 +39,7 @@ android {
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
     implementation ("androidx.navigation:navigation-fragment-ktx:2.8.3")
     implementation ("androidx.navigation:navigation-ui-ktx:2.8.3")
