@@ -1,5 +1,4 @@
 package com.example.wizard_project.Fragments;
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
