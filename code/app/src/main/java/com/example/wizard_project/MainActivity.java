@@ -21,11 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.example.wizard_project.databinding.ActivityMainBinding;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private FirebaseFirestore db;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
     private User currentUser;
     private User deleteUser;
 
@@ -36,11 +40,19 @@ public class MainActivity extends AppCompatActivity {
         // Set up view binding and content view
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // TODO: Delete when done testing
         //addSampleUsersToDatabase();
+
         // Set up the entrant toolbar
         setSupportActionBar(binding.entrantToolbar);
-        // Initialize Firebase and navigation components
+
+        // Initialize Firebase components
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+
+        // Initialize navigation components
         setupNavigation();
 
         // Retrieve the device ID, then initialize the user
@@ -226,5 +238,14 @@ public class MainActivity extends AppCompatActivity {
      */
     public interface UserLoadCallback {
         void onUserLoaded(User user);
+    }
+
+    /**
+     * Getter for Firebase Storage reference.
+     *
+     * @return The root Firebase Storage reference.
+     */
+    public StorageReference getStorageRef() {
+        return storageRef;
     }
 }
