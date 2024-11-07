@@ -43,8 +43,8 @@ public class HomeFragment extends Fragment {
         // Get the NavController for navigating between fragments
         NavController navController = NavHostFragment.findNavController(this);
 
-        // Button to navigate to EntrantFragment
-        binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EntrantFragment));
+        // Button to navigate to QRScannerFragment
+        binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment));
 
         // Button to navigate to OrganizerFragment
         binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_OrganizerFragment));

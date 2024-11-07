@@ -7,6 +7,7 @@ plugins {
 buildscript {
     repositories {
         google()
+        mavenCentral()
     }
     dependencies {
         classpath(libs.navigation.safe.args.gradle.plugin)

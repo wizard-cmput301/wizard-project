@@ -14,8 +14,8 @@
 
         <!-- Enter Event Button -->
         <action
-            android:id="@+id/action_HomeFragment_to_EntrantFragment"
-            app:destination="@id/EntrantFragment" />
+            android:id="@+id/action_HomeFragment_to_QRScannerFragment"
+            app:destination="@id/QRScannerFragment" />
 
         <!-- Manage Facility Button -->
         <action
@@ -27,6 +27,7 @@
             android:id="@+id/action_HomeFragment_to_AdminFragment"
             app:destination="@id/AdminFragment" />
     </fragment>
+
 
     <!-- Entrant Fragment -->
     <fragment
@@ -91,4 +92,16 @@
             android:id="@+id/action_EditProfileFragment_to_ProfileFragment"
             app:destination="@+id/ProfileFragment" />
     </fragment>
+
+    <!-- QRScanner Fragment -->
+    <fragment
+        android:id="@+id/QRScannerFragment"
+        android:name="com.example.wizard_project.Fragments.QRScannerFragment"
+        android:label="QR Scanner"
+        tools:layout="@layout/fragment_qrscanner">
+        <action
+            android:id="@+id/action_QRScannerFragment_to_EntrantFragment"
+            app:destination="@id/EntrantFragment" />
+    </fragment>
+
 </navigation>
