@@ -64,6 +64,7 @@
     <!-- Edit Facility -->
     <string name="facility_name_label">Facility Name</string>
     <string name="location_label">Location</string>
+    <string name="admin_fragment_label_event">admin_fragment_label_event</string>
 
 
 </resources>

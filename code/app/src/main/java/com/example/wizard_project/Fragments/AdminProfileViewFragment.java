@@ -35,9 +35,11 @@ public class AdminProfileViewFragment extends Fragment {
     private ArrayList<User> profileList = new ArrayList<>();
     private BrowseProfileAdapter adapter;
 
+    /**
+     * Inflates the layout for this fragment using View Binding.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Use View Binding to inflate the layout
         binding = FragmentAdminBinding.inflate(inflater, container, false);
 
         // Initialize the ListView with the profile list adapter
@@ -66,7 +68,6 @@ public class AdminProfileViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
         // Set up the admin-specific bottom navigation menu
         BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
         bottomNavigationView.getMenu().clear();
@@ -86,11 +87,14 @@ public class AdminProfileViewFragment extends Fragment {
             } else  if (item.getItemId() == R.id.nav_home) {
                 navController.navigate(R.id.HomeFragment);
                 return true;
+            // Event browsing
+            } else  if (item.getItemId() == R.id.nav_events_browse) {
+                navController.navigate(R.id.AdminFragmentEventView);
+                return true;
             }else if(item.getItemId() == R.id.nav_image_browse){
                 navController.navigate(R.id.AdminFragmentImageView);
                 return true;
             }
-            // TODO: Event Browsing
             // TODO: Facility Browsing
             // TODO: Image Browsing
             return false;

@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -12,7 +13,6 @@ import java.util.UUID;
 /**
  * Representation of an event, created by an organizer and joined by entrants.
  */
-
 public class Event implements Serializable {
     private String event_name;
     private Facility event_location;
@@ -25,14 +25,13 @@ public class Event implements Serializable {
     private String posterUri;
     private String eventId;
 
-
-
     /**
-     * Constructor containing the details of the event.
+     * Constructor for initializing an Event instance with essential details.
      * @param event_name Name of the event.
      * @param event_price Cost to enter the event.
-     * @param event_waitlist_limit Waitlist limit for the event.
-     * @param event_deadline Date representing the deadline to join the event.
+     * @param event_waitlist_limit Maximum number of users on the waitlist.
+     * @param event_deadline Deadline date to join the event.
+     * @param facilityId ID of the facility where the event is held.
      */
     public Event(String event_name, int event_price, int event_waitlist_limit, Date event_deadline, String facilityId) {
         this.event_name = event_name;
@@ -40,7 +39,8 @@ public class Event implements Serializable {
         this.event_waitlist_limit = event_waitlist_limit;
         this.event_deadline = event_deadline;
         this.facilityId = facilityId;
-        this.eventId = UUID.randomUUID().toString();
+        this.eventId = eventId != null ? eventId : UUID.randomUUID().toString(); // Only generate if it's null
+        this.waitlist = new ArrayList<>(); // Initialize the waitlist
     }
 
     public String getEvent_name() {
@@ -121,7 +121,7 @@ public class Event implements Serializable {
 
     /**
      * Add a user to the list of entrants.
-     * @param user The user to be added.
+     * @param user The user joining the event as an entrant.
      */
     public void addEntrant(User user) {
         entrant_list.add(user);
@@ -129,21 +129,34 @@ public class Event implements Serializable {
 
     /**
      * Add a user to the waitlist.
-     * @param user The user to be added.
+     * @param user The user to be added to the waitlist.
      */
     public void addToWaitlist(User user) {
         waitlist.add(user);
     }
 
     /**
+     * Clears the event's data in memory, setting fields to default or empty values.
+     * TODO: This currently isn't being used because it was causing a crash, not sure if needed
+     */
+    public void removeFacilityDataMemory() {
+        this.event_name = "";
+        this.event_price = 0;
+        this.event_waitlist_limit = 0;
+        this.event_deadline = null;
+        this.facilityId = "";
+        this.eventId = "";
+        this.waitlist = null;
+    }
+
+    /**
      * Populates the Event object with data from a Firestore document.
-     *
      * @param document The Firestore document containing event data.
      */
     public void setEventData(DocumentSnapshot document) {
-        this.event_name = (String) document.get("name");
-        this.eventId = (String) document.get("eventId");
-        this.facilityId = (String) document.get(facilityId);
+        this.eventId = document.getId(); // Assigns Firestore's document ID to eventId
+        this.event_name = document.getString("name");
+        this.facilityId = document.getString("facilityId");
 
         Long priceValue = document.getLong("price");
         this.event_price = (priceValue != null) ? priceValue.intValue() : 0;
@@ -154,5 +167,4 @@ public class Event implements Serializable {
         Timestamp eventEndTime = document.getTimestamp("end_time");
         this.event_deadline = (eventEndTime != null) ? eventEndTime.toDate() : null;
     }
-
 }

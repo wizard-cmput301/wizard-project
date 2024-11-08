@@ -2,6 +2,7 @@ package com.example.wizard_project.Adapters;
 
 import android.content.Context;
 import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +19,19 @@ import com.google.android.material.imageview.ShapeableImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter to display event information in a list format for browsing.
+ */
 public class BrowseEventAdapter extends ArrayAdapter<Event> {
     private List<Event> eventList;
     private Context context;
 
+    /**
+     * Constructor to initialize the adapter with event data.
+     *
+     * @param context The context in which the adapter is being used.
+     * @param events  The list of events to be displayed.
+     */
     public BrowseEventAdapter(Context context, ArrayList<Event> events) {
         super(context, 0, events);
         this.context = context;
@@ -35,20 +45,45 @@ public class BrowseEventAdapter extends ArrayAdapter<Event> {
             convertView = LayoutInflater.from(context).inflate(R.layout.event_card, parent, false);
         }
 
+        // Get the Event object for the current position in the list
         Event currentEvent = eventList.get(position);
 
-        ShapeableImageView eventImage = convertView.findViewById(R.id.event_card_image);
+        // Locate TextViews within the card layout for event details
         TextView eventTitle = convertView.findViewById(R.id.event_card_title);
         TextView eventDetails = convertView.findViewById(R.id.event_card_details);
         TextView eventLocation = convertView.findViewById(R.id.event_card_location);
         TextView eventAvailability = convertView.findViewById(R.id.event_card_availability);
         TextView eventDeadline = convertView.findViewById(R.id.event_card_deadline);
 
-        eventTitle.setText(currentEvent.getEvent_name());
-        eventDetails.setText(String.format("$%d", currentEvent.getEvent_price()));
-        eventLocation.setText(currentEvent.getEvent_location().getFacility_location());
-        eventAvailability.setText(String.format("$d Spots Available", currentEvent.getRemainingWaitlistLimit()));
-        eventDeadline.setText(String.format("%d Days Remaining", currentEvent.getEvent_deadline()));
+        // Bind event data to each view
+        if (eventTitle != null) {
+            eventTitle.setText(currentEvent.getEvent_name() != null ? currentEvent.getEvent_name() : "No Title");
+        }
+
+        if (eventDetails != null) {
+            eventDetails.setText(String.format("$%d per lesson", currentEvent.getEvent_price()));
+        }
+
+        if (eventLocation != null) {
+            String location = currentEvent.getEvent_location() != null
+                    ? currentEvent.getEvent_location().getFacility_location()
+                    : "No Location";
+            eventLocation.setText(location);
+        }
+
+        if (eventAvailability != null) {
+            int slotsAvailable = currentEvent.getRemainingWaitlistLimit();
+            eventAvailability.setText(String.format("%d Slots Available", slotsAvailable));
+        }
+
+        if (eventDeadline != null) {
+            String deadlineText = "No Deadline";
+            if (currentEvent.getEvent_deadline() != null) {
+                long daysRemaining = (currentEvent.getEvent_deadline().getTime() - System.currentTimeMillis()) / (1000 * 60 * 60 * 24);
+                deadlineText = String.format("Closes In: %d Days", daysRemaining);
+            }
+            eventDeadline.setText(deadlineText);
+        }
 
         return convertView;
     }
