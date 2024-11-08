@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.example.wizard_project.Classes.Facility;
 import com.google.firebase.Firebase;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.StorageReference;
 
@@ -13,13 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FacilityController {
-    private FirebaseFirestore db;
-
+    private final FirebaseFirestore db;
     public FacilityController() {
-        db = FirebaseFirestore.getInstance();
+        this.db = FirebaseFirestore.getInstance();
     }
 
     public Facility createFacility(String userId, String facility_name, String facility_location) {
+        Log.d("createFacility", "Method called with userId: " + userId);
+
         Facility newFacility = new Facility(userId, facility_name, facility_location);
 
         Map<String, Object> facilityData = new HashMap<>();
@@ -38,10 +40,11 @@ public class FacilityController {
         Facility newFacility = new Facility(userId, "", "");
         db.collection("facilities").whereEqualTo("userId", userId).get()
                 .addOnSuccessListener(documentSnapshots -> {
-                    if (!documentSnapshots.isEmpty()) {
-                        newFacility.setUserData(documentSnapshots.getDocuments().get(0));
-                    }
-                });
+                    DocumentSnapshot facilityRef = documentSnapshots.getDocuments().get(0);
+                    newFacility.setFacilityData(facilityRef);
+                })
+                .addOnFailureListener(e -> { Log.e("RetrievalError", "Error retrieving facility data:", e); });
+
         return newFacility;
     }
 

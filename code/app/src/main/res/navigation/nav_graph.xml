@@ -27,6 +27,11 @@
             android:id="@+id/action_HomeFragment_to_ViewFacilityFragment"
             app:destination="@+id/ViewFacilityFragment" />
 
+        <!-- QR Scanner Button -->
+        <action
+            android:id="@+id/action_HomeFragment_to_EntrantFragment"
+            app:destination="@id/EntrantFragment" />
+
         <!-- Admin Button -->
         <action
             android:id="@+id/action_HomeFragment_to_AdminFragment"

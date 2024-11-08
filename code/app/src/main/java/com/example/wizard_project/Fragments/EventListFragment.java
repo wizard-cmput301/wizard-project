@@ -30,9 +30,6 @@ public class EventListFragment extends Fragment {
 
         adapter = new BrowseEventAdapter(getContext(), eventList);
 
-
-
-
-
+        return binding.getRoot();
     }
 }

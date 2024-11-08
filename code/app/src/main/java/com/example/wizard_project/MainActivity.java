@@ -32,6 +32,11 @@ import com.example.wizard_project.databinding.ActivityMainBinding;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+/**
+ * MainActivity is the central activity for the EventWizard app, managing user authentication,
+ * navigation between fragments, and Firestore data storage. This class also handles user-specific
+ * tasks, including retrieving and storing profile data and configuring the UI based on user roles.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
@@ -40,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private StorageReference storageRef;
     private User currentUser;
     private User deleteUser;
-    private Facility userFacility;
     private PhotoHandler photo;
 
     @Override
@@ -54,21 +58,16 @@ public class MainActivity extends AppCompatActivity {
         // TODO: Delete when done testing
         //addSampleUsersToDatabase();
 
-        // Set up the entrant toolbar
-        setSupportActionBar(binding.entrantToolbar);
-
         // Initialize Firebase components
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
-
-        // test image upload:
+        // TODO: Delete when done testing
         // ImageView image = findViewById(R.id.event_wizard_logo);
         // photo = new PhotoHandler();
         // photo.loadImage("IMG_0113.JPG",image,this);
         // photo.getUserImage(this);
-
 
         // Initialize navigation components
         setupNavigation();
@@ -84,9 +83,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
     /**
-     * Sets up the navigation components and toolbar visibility.
+     * Configures bottom navigation and toolbar visibility for specific fragments.
      */
     private void setupNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -107,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // Handle toolbar visibility based on the current fragment
+        // Toggle toolbar visibility based on the current fragment
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             // Entrant toolbar
             if (destination.getId() == R.id.EntrantFragment) {
@@ -115,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 binding.entrantToolbar.setVisibility(View.GONE);
             }
-            // TODO: Create other custom toolbars for other fragments
+            // TODO: Create custom toolbars for other fragments
         });
     }
 
@@ -184,7 +182,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads the current user's data from Firestore into the User object. (not sure if this will be needed in the future, currently not used)
+     * Loads the current user's data from Firestore into the User object.
+     * TODO: Delete if no longer needed (currently not used)
      *
      * @param deviceId The unique device ID used as the document ID in Firestore.
      * @param callback The callback to notify when the user is loaded.
@@ -218,35 +217,29 @@ public class MainActivity extends AppCompatActivity {
         return currentUser;
     }
 
-    /**
-     * Returns the current user's facility data.
-     *
-     * @return The current Facility object or null if the facility does not exist.
-     */
-    public Facility getUserFacility() {
-        return userFacility;
-    }
 
     /**
-     * Sets the user to delete user's data.
-     * Used for admin
+     * Sets the user to delete.
+     * Used for admin functionality.
      *
+     * @param newUser The user to mark for deletion.
      */
     public void setDeleteUser(User newUser) {
         deleteUser = newUser;
     }
+
     /**
-     * gets the user to delete user's data.
-     * Used for admin
+     * Retrieves the user marked for deletion.
+     * Used for admin functionality.
      *
+     * @return The User object marked for deletion.
      */
     public User getDeleteUser() {
         return deleteUser;
     }
 
+    // TODO: Delete when done testing
     public void addSampleUsersToDatabase() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         for (int i = 1; i <= 10; i++) {
             // Create a sample User object
             String id =Integer.toString(i);
@@ -258,10 +251,9 @@ public class MainActivity extends AppCompatActivity {
                         currentUser = null;
                         Toast.makeText(this, "Failed to create user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
-
-
         }
     }
+
     /**
      * Interface for a callback when the current user is loaded.
      */
@@ -270,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Getter for Firebase Storage reference.
+     * Retrieves the Firebase Storage reference.
      *
      * @return The root Firebase Storage reference.
      */

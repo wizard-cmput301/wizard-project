@@ -1,20 +1,12 @@
 package com.example.wizard_project.Fragments;
-
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.READ_MEDIA_IMAGES;
-import static android.Manifest.permission.READ_MEDIA_VIDEO;
-import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
-
-import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -22,7 +14,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
-
 import com.example.wizard_project.Classes.Facility;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.FacilityController;
@@ -62,9 +53,15 @@ public class EditFacilityFragment extends Fragment {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_home) {
                 navController.navigate(R.id.HomeFragment);
+                return true;
             }
             else if (item.getItemId() == R.id.nav_add_event) {
                 navController.navigate(R.id.EditEventFragment);
+                return true;
+            }
+            else {
+                navController.navigate(R.id.EventListFragment);
+                return true;
             }
         });
 

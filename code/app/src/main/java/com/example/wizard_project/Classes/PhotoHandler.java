@@ -1,6 +1,5 @@
 package com.example.wizard_project.Classes;
 
-
 import static android.app.Activity.RESULT_OK;
 
 import android.app.Activity;
@@ -28,7 +27,6 @@ import java.util.UUID;
 public class PhotoHandler {
     public static final int PICK_IMAGE_REQUEST = 1; // Request code for image selection
 
-
     /**
      * Uploads an image to Firebase.
      * This method uses Glide or a similar image loading library to display the image
@@ -45,6 +43,7 @@ public class PhotoHandler {
                 .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(successListener))
                 .addOnFailureListener(failureListener);
     }
+
     /**
      * Deletes an image to Firebase.
      * This method uses Glide or a similar image loading library to display the image
@@ -61,6 +60,7 @@ public class PhotoHandler {
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
     }
+
     /**
      * Loads an image from Firebase Storage into an ImageView.
      * This method uses Glide or a similar image loading library to display the image

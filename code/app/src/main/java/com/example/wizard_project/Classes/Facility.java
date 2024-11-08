@@ -15,6 +15,7 @@ public class Facility {
     private String facility_location;
     private String userId;
     private String facilityId;
+    private String posterUri;
     private List<Event> eventList;
 
     private FirebaseFirestore db;
@@ -75,7 +76,7 @@ public class Facility {
      *
      * @param document The Firestore document containing facility data.
      */
-    public void setUserData(DocumentSnapshot document) {
+    public void setFacilityData(DocumentSnapshot document) {
         this.facilityId = (String) document.get("facilityId");
         this.facility_name = (String) document.get("name");
         this.facility_location = (String) document.get("location");

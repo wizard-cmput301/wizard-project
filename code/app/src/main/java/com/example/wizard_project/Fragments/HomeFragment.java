@@ -41,20 +41,16 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-
         // Get the NavController for navigating between fragments
         NavController navController = NavHostFragment.findNavController(this);
 
-        // Button to navigate to QRScannerFragment
-        binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EntrantFragment));
-
-        // Button to navigate to Entrant fragment
-        binding.qrcodeButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment));
+        // Set up buttons to navigate to other fragments
+        binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EntrantFragment)); // Navigate to EntrantFragment
+        binding.qrcodeButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment)); // Navigate to QRScannerFragment
+        binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_OrganizerFragment)); // Navigate to OrganizerFragment
 
         // Button to navigate to OrganizerFragment
-
-        // Check if the user is an admin
+        // Check if the user is an organizer
         isOrganizer(isOrganizer -> {
             // If the user is an organizer, navigate to the view facility fragment.
             if (isOrganizer) {
@@ -68,33 +64,32 @@ public class HomeFragment extends Fragment {
 
 
         // Check if the user is an admin
+        // Display the admin button if the user has admin privileges
         isAdmin(isAdmin -> {
-            // If the user is an admin, show the button to navigate to AdminFragment
-            if (isAdmin) {
-                binding.adminButton.setVisibility(View.VISIBLE);
-                binding.adminButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_AdminFragment));
-            }
-            // If the user is not an admin, hide the admin button
-            else {
-                binding.adminButton.setVisibility(View.GONE);
+            if (binding != null) { // Ensure binding is still valid
+                if (isAdmin) {
+                    binding.adminButton.setVisibility(View.VISIBLE);
+                    binding.adminButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_AdminFragment));
+                } else {
+                    binding.adminButton.setVisibility(View.GONE);
+                }
             }
         });
     }
 
     /**
-     * Checks if the user is an admin in the database.
+     * Checks if the current user has admin privileges by querying Firestore.
+     * If the user is an admin, the admin button is made visible.
      *
-     * @param callback The callback to handle the result.
+     * @param callback A callback to handle the result of the admin check.
      */
     private void isAdmin(AdminCheckCallback callback) {
         // Get the device ID from the MainActivity
         String deviceId = ((MainActivity) requireActivity()).retrieveDeviceId();
 
-        // Query the database for the user document
+        // Query Firestore to check if the user has admin privileges
         db.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
-            // Check if the document exists in the database
             if (documentSnapshot.exists()) {
-                // Get the 'admin' field from the document, pass the result to the callback
                 Boolean isAdmin = documentSnapshot.getBoolean("IsAdmin");
                 callback.onResult(isAdmin != null && isAdmin);
             } else {
