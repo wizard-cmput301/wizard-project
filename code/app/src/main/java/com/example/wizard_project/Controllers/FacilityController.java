@@ -25,15 +25,11 @@ public class FacilityController {
     }
 
     /**
-     * Creates a new facility with its attributes and adds it to the database.
-     * @param userId The device ID of the user.
-     * @param facility_name The name of the facility.
-     * @param facility_location The location of the facility.
-     * @return The newly created facility object.
+     * adds a facility to the database.
+     * @param newFacility a placeholder facility Object
      */
-    public Facility createFacility(String userId, String facility_name, String facility_location) {
+    public void createFacility(Facility newFacility) {
         // Create a new facility object with the inputted arguments.
-        Facility newFacility = new Facility(userId, facility_name, facility_location);
 
         // Create a new hashmap containing each facility attribute and its value.
         Map<String, Object> facilityData = new HashMap<>();
@@ -41,12 +37,15 @@ public class FacilityController {
         facilityData.put("name", newFacility.getFacility_name());
         facilityData.put("location", newFacility.getFacility_location());
         facilityData.put("facilityId", newFacility.getFacilityId());
+        facilityData.put("facility_imagePath", newFacility.getFacilitymagePath());
+        facilityData.put("posterUri", newFacility.getposterUri());
+
 
         // Create the facility document in the database.
         db.collection("facilities").document(newFacility.getFacilityId()).set(facilityData)
                 .addOnSuccessListener(aVoid -> Log.d("FacilityCreated", "Successfully added facility."))
                 .addOnFailureListener(e -> { Log.e("FacilityError", "Failed to create facility.", e); });
-        return newFacility;
+
     }
 
     /**
@@ -57,7 +56,7 @@ public class FacilityController {
      */
     public void getFacility(String userId, facilityCallback callback) {
         // Create a new facility object.
-        Facility newFacility = new Facility(userId, "", "");
+        Facility newFacility = new Facility(userId,"","",  "", "", "" );
 
         // Populate the facility object with the facility info from the database.
         db.collection("facilities").whereEqualTo("userId", userId).get()
@@ -88,6 +87,20 @@ public class FacilityController {
         // Update the facility fields.
         facilityRef.update("name", facility.getFacility_name());
         facilityRef.update("location", facility.getFacility_location());
+    }
+    /**
+     * Updates the values of a facility in the database.
+     * @param facility The facility to update
+     * @param feild The feild to update
+     * @param update the update
+     */
+    public void updateFeild(Facility facility, String feild,String update) {
+        // Retrieve the facility document.
+        DocumentReference facilityRef = db.collection("facilities").document(facility.getFacilityId());
+
+        // Update the facility fields.
+        facilityRef.update(feild,update);
+
     }
 
     /**

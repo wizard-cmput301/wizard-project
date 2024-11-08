@@ -1,5 +1,6 @@
 package com.example.wizard_project.Fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.Facility;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.FacilityController;
@@ -81,6 +83,10 @@ public class ViewFacilityFragment extends Fragment {
                     userFacility = facility;
                     binding.facilityViewName.setText(String.format("Facility Name: %s", userFacility.getFacility_name()));
                     binding.facilityViewLocation.setText(String.format("Facility Location: %s", userFacility.getFacility_location()));
+                    if(userFacility.getFacilitymagePath() != null){
+                        Uri imageUri = Uri.parse(userFacility.getposterUri());
+                        Glide.with(requireContext()).load(imageUri).into(binding.facilityViewImageview);
+                    }
                 }
             }
         });
