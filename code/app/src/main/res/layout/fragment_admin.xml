@@ -15,5 +15,4 @@
         android:paddingBottom="75dp">
 
     </ListView>
-
 </LinearLayout>

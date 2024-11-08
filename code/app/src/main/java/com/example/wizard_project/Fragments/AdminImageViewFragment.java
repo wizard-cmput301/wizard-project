@@ -32,6 +32,9 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
+/**
+ * AdminImageViewFragment allows admin users to view and delete images from Firebase Storage.
+ */
 public class AdminImageViewFragment extends Fragment {
     private FragmentAdminImageBinding binding;
     private ArrayList<ImageHolder> imageList = new ArrayList<>();
@@ -39,20 +42,17 @@ public class AdminImageViewFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Use View Binding to inflate the layout
         binding = FragmentAdminImageBinding.inflate(inflater, container, false);
 
         // Initialize the ListView with binding
         ListView imageListView = binding.imageListView;
-
         imageAdapter = new BrowseImageAdapter(getContext(),imageList);
-        // Set the adapter to the ListView
         imageListView.setAdapter(imageAdapter);
 
         // Load images from Firebase
         loadImages();
 
-        // Set the item click listener for the ListView
+        // Set click listener to handle image deletion
         imageListView.setOnItemClickListener((parent, view, position, id) -> {
             ImageHolder image_clicked = imageList.get(position);  // Get the clicked item
             new AlertDialog.Builder(getContext())
@@ -81,37 +81,39 @@ public class AdminImageViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Access the BottomNavigationView from the Activity
-        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
 
-        // Set up the admin-specific menu if we are in the AdminViewFragment
+        // Set up the admin-specific bottom navigation menu
+        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
         bottomNavigationView.getMenu().clear();
         bottomNavigationView.inflateMenu(R.menu.bottom_nav_admin);
 
-        // Access the NavController associated with the Activity's NavHostFragment
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-
-        // Connect NavController to BottomNavigationView
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            // Home Button
+            // Profile browsing
             if (item.getItemId() == R.id.nav_profile_browse) {
                 navController.navigate(R.id.AdminFragment);
                 return true;
-            }else  if (item.getItemId() == R.id.nav_home) {
+                // Home page
+            } else  if (item.getItemId() == R.id.nav_home) {
                 navController.navigate(R.id.HomeFragment);
+                return true;
+                // Event browsing
+            } else  if (item.getItemId() == R.id.nav_events_browse) {
+                navController.navigate(R.id.AdminFragmentEventView);
                 return true;
             }else if(item.getItemId() == R.id.nav_image_browse){
                 navController.navigate(R.id.AdminFragmentImageView);
                 return true;
-
             }
             return false;
         });
-
     }
 
+    /**
+     * Loads all images from the Firebase Storage "images" folder and updates the list.
+     */
     private void loadImages() {
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/");
 
@@ -135,23 +137,27 @@ public class AdminImageViewFragment extends Fragment {
 
     }
 
-    private void deleteImage(ImageHolder image_clicked) {
-        if(!image_clicked.getImagePath().equals("")) {
+    /**
+     * Deletes the specified image from Firebase Storage.
+     * @param imageToDelete The ImageHolder containing information of the image to delete.
+     */
+    private void deleteImage(ImageHolder imageToDelete) {
+        if(!imageToDelete.getImagePath().equals("")) {
             // Get a reference to the image in Firebase Storage
-            StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(image_clicked.getImagePath());
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imageToDelete.getImagePath());
             // Delete the image
             imageRef.delete();
-            image_clicked.setImagePath("");
-            image_clicked.setImageUrl("");
-
+            imageToDelete.setImagePath("");
+            imageToDelete.setImageUrl("");
         }
     }
 
+    /**
+     * Cleans up the View Binding to avoid memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // reset the bottom nav bar
+        binding = null;
     }
-
 }
-

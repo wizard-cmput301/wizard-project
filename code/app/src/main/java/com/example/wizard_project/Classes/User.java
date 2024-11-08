@@ -163,8 +163,10 @@ public class User {
         this.profilePath = profilePath;
         updateFieldInDatabase("profilePath", profilePath);
     }
+
     /**
-     * Initializes the user document reference if the device ID is valid.
+     * Wipes the user's data from memory.
+     * TODO: rename
      */
     public void DeleteUser() {
         this.deviceId = "";
@@ -178,6 +180,7 @@ public class User {
         this.profilePictureUri = "";
         this.profilePath = "";
     }
+
     /**
      * Generates a string representation of the user's role.
      *
