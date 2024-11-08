@@ -47,7 +47,6 @@ public class HomeFragment extends Fragment {
         // Set up buttons to navigate to other fragments
         binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EntrantFragment)); // Navigate to EntrantFragment
         binding.qrcodeButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment)); // Navigate to QRScannerFragment
-        binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_OrganizerFragment)); // Navigate to OrganizerFragment
 
         // Button to navigate to OrganizerFragment
         // Check if the user is an organizer
@@ -114,8 +113,8 @@ public class HomeFragment extends Fragment {
             // Check if the document exists in the database
             if (documentSnapshot.exists()) {
                 // Get the 'organizer' field from the document, pass the result to the callback
-                Boolean isOrganizer = documentSnapshot.getBoolean("IsOrganizer");
-                callback.onResult(isOrganizer != null && isOrganizer);
+                Boolean isOrganizer = documentSnapshot.getBoolean("isOrganizer");
+                callback.onResult(Boolean.TRUE.equals(isOrganizer));
             } else {
                 callback.onResult(false); // If document does not exist, assume not organizer
             }

@@ -28,6 +28,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class EditFacilityFragment extends Fragment {
     private FragmentEditFacilityBinding binding;
     private User currentUser;
+    private Facility userFacility;
     private final FacilityController controller = new FacilityController();
 
     @Override
@@ -40,6 +41,7 @@ public class EditFacilityFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Set up the navigation bar.
         BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
 
         bottomNavigationView.getMenu().clear();
@@ -73,14 +75,21 @@ public class EditFacilityFragment extends Fragment {
         Button doneButton = binding.facilityDoneButton;
         Button uploadImageButton = binding.facilityEditImageButton;
         ImageView facilityImage = binding.facilityEditImageview;
-        Facility userFacility;
 
 
-        userFacility = controller.getFacility(userId);
-        facilityName.setText(userFacility.getFacility_name());
-        facilityLocation.setText(userFacility.getFacility_location());
+        // Populate the text fields with existing facility info.
+        controller.getFacility(userId, new FacilityController.facilityCallback() {
+            @Override
+            public void onCallback(Facility facility) {
+                if (facility != null) {
+                    userFacility = facility;
+                    facilityName.setText(userFacility.getFacility_name());
+                    facilityLocation.setText(userFacility.getFacility_location());
+                }
+            }
+        });
 
-
+        // Submit the inputted facility info, direct user to facility view.
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,12 +104,14 @@ public class EditFacilityFragment extends Fragment {
 
                 } else {
                     if (currentUser.isOrganizer()) {
+                        // Update existing facility info if the user is already an organizer.
                         userFacility.setFacility_name(newName);
                         userFacility.setFacility_location(newLocation);
                         controller.updateFacility(userFacility);
                         navController.navigate(R.id.action_EditFacilityFragment_to_ViewFacilityFragment);
 
                     } else {
+                        // Create new facility with the inputted info.
                         Facility newFacility = controller.createFacility(userId, newName, newLocation);
                         controller.updateFacility(newFacility);
                         currentUser.setOrganizer(true);
@@ -110,6 +121,7 @@ public class EditFacilityFragment extends Fragment {
             }
         });
 
+        // Prompt the user to select a photo and add it to the database.
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
