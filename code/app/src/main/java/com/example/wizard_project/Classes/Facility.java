@@ -7,6 +7,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Represents a facility, owned by an organizer.
+ */
 public class Facility {
     private String facility_name;
     private String facility_location;
@@ -17,6 +20,12 @@ public class Facility {
     private FirebaseFirestore db;
     private DocumentReference userRef;
 
+    /**
+     * Constructs a Facility object with the user's Device ID, facility name, and facility location.
+     * @param userId The user's Device ID.
+     * @param facility_name The name of the facility.
+     * @param facility_location The location of the facility.
+     */
     public Facility(String userId, String facility_name, String facility_location) {
         this.userId = userId;
         this.facilityId = UUID.randomUUID().toString();
@@ -52,6 +61,10 @@ public class Facility {
         return facilityId;
     }
 
+    /**
+     * Adds an event to a facility's list of events.
+     * @param event The Event object to be added.
+     */
     public void addEvent(Event event) {
         eventList.add(event);
     }

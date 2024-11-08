@@ -37,8 +37,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/facility_edit_image_button"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="Facility Name"
-        android:textSize="16dp"
+        android:text="@string/facility_name_label"
+        android:textSize="16sp"
         android:layout_marginTop="40dp"
         android:layout_marginStart="80dp" />
 
@@ -49,7 +49,7 @@
         app:layout_constraintTop_toBottomOf="@id/facility_name_label"
         app:layout_constraintStart_toStartOf="parent"
         android:hint="Example Rec Centre"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:layout_marginTop="5dp"
         android:layout_marginHorizontal="80dp"
         android:background="@drawable/edittext_border"/>
@@ -60,8 +60,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/facility_edit_name"
-        android:text="Location"
-        android:textSize="16dp"
+        android:text="@string/location_label"
+        android:textSize="16sp"
         android:layout_marginTop="20dp"
         android:layout_marginStart="80dp" />
 
@@ -72,7 +72,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/facility_location_label"
         android:hint="Edmonton, AB"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:layout_marginTop="5dp"
         android:layout_marginHorizontal="80dp"
         android:background="@drawable/edittext_border"/>
@@ -88,7 +88,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/button_border"
         android:textColor="@color/black"
-        android:text="Done"/>
+        android:text="@string/doneButton"/>
 
 
 

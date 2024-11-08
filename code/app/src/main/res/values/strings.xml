@@ -18,6 +18,9 @@
     <string name="profile_pic_delete">Remove Profile Picture</string>
     <string name="save_button">Save</string>
     <string name="deleteButton">Delete</string>
+    <string name="qrCodebutton">QR Code Scanner</string>
+    <string name="doneButton">Done</string>
+    <string name="edit_facility_button">Edit Facility</string>
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
@@ -47,4 +50,18 @@
     <string name="enter_email">Enter Email</string>
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="enter_name">Enter Name</string>
+
+    <!-- Edit Event -->
+    <string name="upload_poster_label">Upload Poster</string>
+    <string name="event_name_label">Event Name</string>
+    <string name="price_label">Price</string>
+    <string name="waiting_list_label">Waiting List</string>
+    <string name="deadline_label">Deadline</string>
+    <string name="select_a_date">Select a Date</string>
+
+    <!-- Edit Facility -->
+    <string name="facility_name_label">Facility Name</string>
+    <string name="location_label">Location</string>
+
+
 </resources>

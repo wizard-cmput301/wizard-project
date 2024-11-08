@@ -46,6 +46,7 @@ public class BrowseEntrantAdapter extends ArrayAdapter<User> {
         User currentUser = userList.get(position);
 
         userName.setText(currentUser.getName());
+        selectionBox.setText("");
 
         return convertView;
     }

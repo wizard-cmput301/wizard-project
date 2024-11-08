@@ -19,7 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.example.wizard_project.Classes.Facility;
 import com.example.wizard_project.Classes.User;
@@ -27,8 +29,11 @@ import com.example.wizard_project.Controllers.FacilityController;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEditFacilityBinding;
 import com.example.wizard_project.MainActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-
+/**
+ * EditFacilityFragment allows an organizer to create or edit a facility.
+ */
 public class EditFacilityFragment extends Fragment {
     private FragmentEditFacilityBinding binding;
     private User currentUser;
@@ -44,10 +49,28 @@ public class EditFacilityFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+
+        bottomNavigationView.getMenu().clear();
+        bottomNavigationView.inflateMenu(R.menu.organizer_nav_menu);
+
+        NavController navController = NavHostFragment.findNavController(this);
+        NavController navBarController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+
+        NavigationUI.setupWithNavController(bottomNavigationView, navBarController);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.nav_home) {
+                navController.navigate(R.id.HomeFragment);
+            }
+            else if (item.getItemId() == R.id.nav_add_event) {
+                navController.navigate(R.id.EditEventFragment);
+            }
+        });
+
         MainActivity mainActivity = (MainActivity) requireActivity();
         currentUser = mainActivity.getCurrentUser();
         String userId = currentUser.getDeviceId();
-        NavController navController = NavHostFragment.findNavController(this);
         EditText facilityName = binding.facilityEditName;
         EditText facilityLocation = binding.facilityEditLocation;
         Button doneButton = binding.facilityDoneButton;

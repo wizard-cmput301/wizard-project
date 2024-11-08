@@ -17,9 +17,11 @@ import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.FacilityController;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
-import com.example.wizard_project.databinding.FragmentOrganizerBinding;
 import com.example.wizard_project.databinding.FragmentViewFacilityBinding;
 
+/**
+ * ViewFacilityFragment allows an organizer to view their facility's details.
+ */
 public class ViewFacilityFragment extends Fragment {
     private FragmentViewFacilityBinding binding;
     private User currentUser;

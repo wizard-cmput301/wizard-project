@@ -21,21 +21,21 @@
     <Button
         android:id="@+id/event_edit_poster_button"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:drawableLeft="@drawable/folder_icon"
         app:layout_constraintTop_toBottomOf="@id/event_edit_imageview"
         app:layout_constraintStart_toStartOf="parent"
         android:background="@color/transparent"
         android:textColor="@color/lighter_gray"
-        android:text="Upload Poster"
+        android:text="@string/upload_poster_label"
         android:layout_marginHorizontal="120dp"/>
 
     <TextView
         android:id="@+id/event_name_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Event Name"
-        android:textSize="16dp"
+        android:text="@string/event_name_label"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/event_edit_poster_button"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="20dp"
@@ -46,7 +46,7 @@
         android:layout_width="250dp"
         android:layout_height="40dp"
         android:hint="Adult Swim"
-        android:textSize="16dp"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/event_name_label"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="5dp"
@@ -59,8 +59,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/event_name_edittext"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="Price"
-        android:textSize="16dp"
+        android:text="@string/price_label"
+        android:textSize="16sp"
         android:layout_marginTop="20dp"
         android:layout_marginStart="80dp" />
 
@@ -69,7 +69,7 @@
         android:layout_width="250dp"
         android:layout_height="40dp"
         android:hint="$25 per Lesson"
-        android:textSize="16dp"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/event_price_label"
         app:layout_constraintStart_toStartOf="parent"
         android:inputType="number"
@@ -81,10 +81,10 @@
         android:id="@+id/event_waitlist_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Waiting List"
+        android:text="@string/waiting_list_label"
         app:layout_constraintTop_toBottomOf="@id/event_price_edittext"
         app:layout_constraintStart_toStartOf="parent"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:layout_marginTop="20dp"
         android:layout_marginStart="80dp" />
 
@@ -95,45 +95,57 @@
         android:hint="20 Spots Available"
         app:layout_constraintTop_toBottomOf="@id/event_waitlist_label"
         app:layout_constraintStart_toStartOf="parent"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:inputType="number"
         android:layout_marginTop="5dp"
         android:layout_marginHorizontal="80dp"
         android:background="@drawable/edittext_border"/>
+
     <TextView
         android:id="@+id/event_deadline_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Days Until Close"
+        android:text="@string/deadline_label"
         app:layout_constraintTop_toBottomOf="@id/event_waitlist_edittext"
         app:layout_constraintStart_toStartOf="parent"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:layout_marginTop="20dp"
         android:layout_marginStart="80dp" />
 
-    <EditText
-        android:id="@+id/event_deadline_edittext"
-        android:layout_width="250dp"
+    <Button
+        android:id="@+id/date_picker_button"
+        android:layout_width="48dp"
         android:layout_height="40dp"
-        android:hint="Closes in 2 Days"
+        app:layout_constraintTop_toBottomOf="@id/event_deadline_label"
+        app:layout_constraintStart_toStartOf="@id/event_deadline_text"
+        android:background="@color/transparent"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="5dp"
+        android:drawableRight="@drawable/calendar_icon"/>
+
+    <TextView
+        android:id="@+id/event_deadline_text"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
         app:layout_constraintTop_toBottomOf="@id/event_deadline_label"
         app:layout_constraintStart_toStartOf="parent"
-        android:textSize="16dp"
-        android:inputType="number"
+        android:text="@string/select_a_date"
+        android:gravity="center_vertical"
+        android:background="@drawable/edittext_border"
+        android:textSize="16sp"
         android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="80dp"
-        android:background="@drawable/edittext_border"/>
+        android:layout_marginHorizontal="80dp" />
 
     <Button
         android:id="@+id/event_done_button"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/event_deadline_edittext"
+        app:layout_constraintTop_toBottomOf="@id/event_deadline_text"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginHorizontal="150dp"
         android:background="@drawable/button_border"
         android:textColor="@color/black"
-        android:text="Done"/>
+        android:text="@string/doneButton"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

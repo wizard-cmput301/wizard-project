@@ -8,27 +8,15 @@
     android:background="@color/white">
 
     <ListView
+        android:id="@+id/event_listview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="600dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="10dp"
         android:divider="@color/transparent"
         android:dividerHeight="12dp"
-        app:layout_constraintBottom_toTopOf="@id/organizer_events_navigation_bar"
         tools:listitem="@layout/event_card" />
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/organizer_events_navigation_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        app:menu="@menu/organizer_nav_menu"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/darker_purple"
-        app:labelVisibilityMode="unlabeled"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -58,14 +58,6 @@ public class EditProfileFragment extends Fragment {
             }
         });
 
-        binding.editProfileImage.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, PhotoHandler.PICK_IMAGE_REQUEST);
-            }
-        });
-
         // Pre-fill the fields with the current user data
         if (currentUser != null) {
             binding.editTextName.setText(currentUser.getName());
@@ -74,10 +66,6 @@ public class EditProfileFragment extends Fragment {
             if (!currentUser.getProfilePictureUri().equals("")) {
                 Uri imageUri = Uri.parse(currentUser.getProfilePictureUri());
                 Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.editProfileImage);
-            }
-            if (!currentUser.getProfilePictureUri().equals("")) {
-                Uri imageUri = Uri.parse(currentUser.getProfilePictureUri());
-                Glide.with(requireContext()).load(imageUri).into(binding.editProfileImage);
             }
         }
 

@@ -47,7 +47,7 @@ public class BrowseEventAdapter extends ArrayAdapter<Event> {
         eventTitle.setText(currentEvent.getEvent_name());
         eventDetails.setText(String.format("$%d", currentEvent.getEvent_price()));
         eventLocation.setText(currentEvent.getEvent_location().getFacility_location());
-        eventAvailability.setText(String.format("$d Spots Available", currentEvent.getEvent_waitlist()));
+        eventAvailability.setText(String.format("$d Spots Available", currentEvent.getRemainingWaitlistLimit()));
         eventDeadline.setText(String.format("%d Days Remaining", currentEvent.getEvent_deadline()));
 
         return convertView;

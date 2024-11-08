@@ -61,7 +61,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:background="@drawable/button_border"
         android:textColor="@color/black"
-        android:text="Edit Facility"/>
+        android:text="@string/edit_facility_button"/>
 
 
 
