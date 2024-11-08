@@ -80,8 +80,8 @@ public class ProfileFragment extends Fragment {
 
             if (!DisplayUser.getProfilePictureUri().equals("")) {
                 Uri imageUri = Uri.parse(DisplayUser.getProfilePictureUri());
+                Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.profileImage);
 
-                Glide.with(requireContext()).load(imageUri).into(binding.profileImage);
             }
             // Error handling (user data not found)
         } else {

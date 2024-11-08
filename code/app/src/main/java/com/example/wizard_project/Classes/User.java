@@ -17,6 +17,8 @@ public class User {
     private String name;
     private String phoneNumber;
     private String profilePictureUri;
+    private String profilePath;
+
 
     private FirebaseFirestore db;
     private DocumentReference userRef;
@@ -37,6 +39,7 @@ public class User {
         this.name = "";
         this.phoneNumber = "";
         this.profilePictureUri = "";
+        this.profilePath = "";
     }
 
     /**
@@ -51,8 +54,10 @@ public class User {
      * @param name              The user's name.
      * @param phoneNumber       The user's phone number.
      * @param profilePictureUri The URI for the user's profile picture.
+     * @param profilePath The URI for the user's profile picture.
+
      */
-    public User(String deviceId, String email, String location, boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri) {
+    public User(String deviceId, String email, String location, boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri,String profilePath) {
         db = FirebaseFirestore.getInstance();
         this.deviceId = deviceId;
         initializeDocumentReference();
@@ -64,6 +69,7 @@ public class User {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.profilePictureUri = profilePictureUri;
+        this.profilePath = profilePath;
     }
 
     // Getters and Setters with corresponding Firestore updates
@@ -148,7 +154,14 @@ public class User {
         this.profilePictureUri = profilePictureUri;
         updateFieldInDatabase("photoId", profilePictureUri);
     }
+    public String getProfilePath() {
+        return this.profilePath;
+    }
 
+    public void setProfilePath(String profilePath) {
+        this.profilePath = profilePath;
+        updateFieldInDatabase("profilePath", profilePath);
+    }
     /**
      * Initializes the user document reference if the device ID is valid.
      */
@@ -162,6 +175,7 @@ public class User {
         this.name = "";
         this.phoneNumber = "";
         this.profilePictureUri = "";
+        this.profilePath = "";
     }
     /**
      * Generates a string representation of the user's role.
@@ -221,6 +235,7 @@ public class User {
         this.name = (String) document.get("name");
         this.phoneNumber = (String) document.get("phoneNumber");
         this.profilePictureUri = (String) document.get("photoId");
+        this.profilePath = (String) document.get("profilePath");
         initializeDocumentReference();
     }
 }
