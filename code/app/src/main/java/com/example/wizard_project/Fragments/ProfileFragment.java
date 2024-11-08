@@ -1,5 +1,6 @@
 package com.example.wizard_project.Fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,8 @@ import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.bumptech.glide.Glide;
+import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
@@ -75,8 +78,18 @@ public class ProfileFragment extends Fragment {
             // Phone number
             binding.profilePhone.setText(DisplayUser.getPhoneNumber() != null && !DisplayUser.getPhoneNumber().isEmpty() ? DisplayUser.getPhoneNumber() : "No phone number provided");
 
-            // TODO: Load and display the user's profile picture here
-        // Error handling (user data not found)
+            if (!DisplayUser.getProfilePictureUri().equals("")) {
+                Uri imageUri = Uri.parse(DisplayUser.getProfilePictureUri());
+
+                Glide.with(requireContext()).load(imageUri).into(binding.profileImage);
+            }
+            // Error handling (user data not found)
+            if (!DisplayUser.getProfilePictureUri().equals("")) {
+                Uri imageUri = Uri.parse(DisplayUser.getProfilePictureUri());
+                Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.profileImage);
+
+            }
+            // Error handling (user data not found)
         } else {
             binding.profileName.setText("User not found");
             Toast.makeText(requireContext(), "User data is not available", Toast.LENGTH_SHORT).show();

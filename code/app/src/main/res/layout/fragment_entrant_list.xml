@@ -52,16 +52,4 @@
         android:textColor="@color/black"
         android:text="Sample Attendees"/>
 
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/organizer_nav_menu"
-        app:labelVisibilityMode="unlabeled"
-        android:background="@color/darker_purple"/>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

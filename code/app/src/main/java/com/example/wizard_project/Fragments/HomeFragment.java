@@ -46,18 +46,18 @@ public class HomeFragment extends Fragment {
         // Get the NavController for navigating between fragments
         NavController navController = NavHostFragment.findNavController(this);
 
-        // Button to navigate to EntrantFragment
-        binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EntrantFragment));
+        // Button to navigate to QRScannerFragment
+        binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment));
 
         // Button to navigate to OrganizerFragment
 
         // Check if the user is an admin
         isOrganizer(isOrganizer -> {
-            // If the user is an organizer, show the button to navigate to OrganizerFragment
+            // If the user is an organizer, navigate to the view facility fragment.
             if (isOrganizer) {
                 binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_ViewFacilityFragment));
             }
-            // If the user is not an admin, hide the admin button
+            // If the user is not an organizer, navigate to the edit facility fragment to create one.
             else {
                 binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment));
             }

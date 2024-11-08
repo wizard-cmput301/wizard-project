@@ -53,19 +53,6 @@ public class EditEventFragment extends Fragment {
         Event event;
 
 
-        // The following code is from https://developer.android.com/training/data-storage/shared/photopicker#java.
-        // Registers a photo picker activity launcher in single-select mode.
-        ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
-                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                    // Callback is invoked after the user selects a media item or closes the
-                    // photo picker.
-                    if (uri != null) {
-                        Log.d("PhotoPicker", "Selected URI: " + uri);
-
-                    } else {
-                        Log.d("PhotoPicker", "No media selected");
-                    }
-                });
 
         if (getArguments() != null) {
             event = (Event) getArguments().getSerializable("event");
@@ -102,10 +89,7 @@ public class EditEventFragment extends Fragment {
         editPosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Launch the photo picker and let the user choose only images.
-                pickMedia.launch(new PickVisualMediaRequest.Builder()
-                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                        .build());
+
             }
         });
     }

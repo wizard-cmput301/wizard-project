@@ -102,7 +102,7 @@ public class AdminProfileViewFragment extends Fragment {
                     if (task.isSuccessful()) {
                         profileList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            User profile = new User(null,null,null,false,false,false,null,null,null);
+                            User profile = new User(null,null,null,false,false,false,null,null,null,null);
                             profile.setUserData(document);
                             profileList.add(profile);
                         }

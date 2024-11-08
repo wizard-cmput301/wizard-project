@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +23,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.wizard_project.Classes.Facility;
 import com.example.wizard_project.Classes.User;
+import com.example.wizard_project.Controllers.FacilityController;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEditFacilityBinding;
 import com.example.wizard_project.MainActivity;
@@ -30,6 +32,7 @@ import com.example.wizard_project.MainActivity;
 public class EditFacilityFragment extends Fragment {
     private FragmentEditFacilityBinding binding;
     private User currentUser;
+    private final FacilityController controller = new FacilityController();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,8 +46,8 @@ public class EditFacilityFragment extends Fragment {
 
         MainActivity mainActivity = (MainActivity) requireActivity();
         currentUser = mainActivity.getCurrentUser();
+        String userId = currentUser.getDeviceId();
         NavController navController = NavHostFragment.findNavController(this);
-
         EditText facilityName = binding.facilityEditName;
         EditText facilityLocation = binding.facilityEditLocation;
         Button doneButton = binding.facilityDoneButton;
@@ -52,14 +55,11 @@ public class EditFacilityFragment extends Fragment {
         ImageView facilityImage = binding.facilityEditImageview;
         Facility userFacility;
 
-        if (currentUser.isOrganizer()) {
-            userFacility = currentUser.getFacility();
-            facilityName.setText(userFacility.getFacility_name());
-            facilityLocation.setText(userFacility.getFacility_location());
-        }
-        else {
-            userFacility = null;
-        }
+
+        userFacility = controller.getFacility(userId);
+        facilityName.setText(userFacility.getFacility_name());
+        facilityLocation.setText(userFacility.getFacility_location());
+
 
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,16 +67,25 @@ public class EditFacilityFragment extends Fragment {
                 String newName = facilityName.getText().toString();
                 String newLocation = facilityLocation.getText().toString();
 
-                if (userFacility != null) {
-                    userFacility.setFacility_name(newName);
-                    userFacility.setFacility_location(newLocation);
-                }
+                if (newName.trim().isEmpty()) {
+                    facilityName.setError("Please enter a valid facility name.");
 
-                else {
-                    Facility newFacility = new Facility(newName, newLocation);
-                    currentUser.setFacility(newFacility);
-                    currentUser.setOrganizer(true);
-                    navController.navigate(R.id.action_EditFacilityFragment_to_ViewFacilityFragment);
+                } else if (newLocation.trim().isEmpty()) {
+                    facilityLocation.setError("Please enter a valid location.");
+
+                } else {
+                    if (currentUser.isOrganizer()) {
+                        userFacility.setFacility_name(newName);
+                        userFacility.setFacility_location(newLocation);
+                        controller.updateFacility(userFacility);
+                        navController.navigate(R.id.action_EditFacilityFragment_to_ViewFacilityFragment);
+
+                    } else {
+                        Facility newFacility = controller.createFacility(userId, newName, newLocation);
+                        controller.updateFacility(newFacility);
+                        currentUser.setOrganizer(true);
+                        navController.navigate(R.id.action_EditFacilityFragment_to_ViewFacilityFragment);
+                    }
                 }
             }
         });

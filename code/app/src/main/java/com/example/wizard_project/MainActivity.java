@@ -17,6 +17,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.wizard_project.Classes.Facility;
 import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private StorageReference storageRef;
     private User currentUser;
     private User deleteUser;
+    private Facility userFacility;
     private PhotoHandler photo;
 
     @Override
@@ -63,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
         // test image upload:
         // ImageView image = findViewById(R.id.event_wizard_logo);
-        //  photo = new PhotoHandler();
+        // photo = new PhotoHandler();
         // photo.loadImage("IMG_0113.JPG",image,this);
-        //  photo.getUserImage(this);
+        // photo.getUserImage(this);
 
 
         // Initialize navigation components
@@ -82,22 +84,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // Handle the result of the image picker
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
-            photo.uploadImage(imageUri,
-                uri -> {
-                    Toast.makeText(this, "Upload Success", Toast.LENGTH_SHORT).show();
-                },
-                e -> {
-                    Toast.makeText(this, "Upload Failed", Toast.LENGTH_SHORT).show();
-                });
-        }
-    }
     /**
      * Sets up the navigation components and toolbar visibility.
      */
@@ -157,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     currentUser.setUserData(document);
                 // If the document does not exist, create a new user
                 } else {
-                    currentUser = new User(deviceId, "", "", false, false, false, "", "", "");
+                    currentUser = new User(deviceId, "", "", false, false, false, "", "", "","");
                     Map<String, Object> userData = createUserDataMap(currentUser);
                     db.collection("users").document(deviceId).set(userData)
                             .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())
@@ -192,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
         userData.put("name", user.getName());
         userData.put("phoneNumber", user.getPhoneNumber());
         userData.put("photoId", user.getProfilePictureUri());
+        userData.put("profilePath", user.getProfilePath());
         return userData;
     }
 
@@ -231,6 +219,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Returns the current user's facility data.
+     *
+     * @return The current Facility object or null if the facility does not exist.
+     */
+    public Facility getUserFacility() {
+        return userFacility;
+    }
+
+    /**
      * Sets the user to delete user's data.
      * Used for admin
      *
@@ -253,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 1; i <= 10; i++) {
             // Create a sample User object
             String id =Integer.toString(i);
-            User sampleUsers =  new User(id, "@gmail.com", "58888 north ave", false, false, false, "Jerry ", "213123123123", "");
+            User sampleUsers =  new User(id, "@gmail.com", "58888 north ave", false, false, false, "Jerry ", "213123123123", "","");
             Map<String, Object> userData = createUserDataMap(sampleUsers);
             db.collection("users").document(id).set(userData)
                     .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())

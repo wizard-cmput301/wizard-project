@@ -77,5 +77,20 @@
             app:layout_constraintTop_toBottomOf="@id/editTextPhone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Delete Profile Picture Button -->
+        <Button
+            android:id="@+id/buttonDeleteProfilePic"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="52dp"
+            android:backgroundTint="@color/lighter_purple"
+            android:text="@string/profile_pic_delete"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.506"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editTextPhone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
