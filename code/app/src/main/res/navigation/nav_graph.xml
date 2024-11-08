@@ -22,6 +22,10 @@
             android:id="@+id/action_HomeFragment_to_OrganizerFragment"
             app:destination="@id/OrganizerFragment" />
 
+        <!-- Manage Facility Button -->
+        <action
+            android:id="@+id/action_HomeFragment_to_EntrantFragment"
+            app:destination="@id/EntrantFragment" />
         <!-- Admin Button -->
         <action
             android:id="@+id/action_HomeFragment_to_AdminFragment"
