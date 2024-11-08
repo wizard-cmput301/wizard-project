@@ -24,6 +24,11 @@ jobs:
       run: chmod +x gradlew
       working-directory: code
 
+    - name: Decode and add google-services.json
+      env:
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      run: echo "$GOOGLE_SERVICES_JSON" | base64 --decode > code/app/google-services.json
+
     - name: Build with Gradle
       run: ./gradlew build
       working-directory: code
