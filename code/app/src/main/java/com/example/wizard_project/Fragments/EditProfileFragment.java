@@ -39,7 +39,7 @@ public class EditProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false);
-        photo = new PhotoHandler();
+        photo = new PhotoHandler(); // Initialize the photo handler
         return binding.getRoot();
     }
 
@@ -51,6 +51,7 @@ public class EditProfileFragment extends Fragment {
         MainActivity mainActivity = (MainActivity) requireActivity();
         currentUser = mainActivity.getCurrentUser();
 
+        // Set click listener for profile picture selection
         binding.editProfileImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -58,7 +59,7 @@ public class EditProfileFragment extends Fragment {
             }
         });
 
-        // Pre-fill the fields with the current user data
+        // Pre-fill profile fields with current user data, if available
         if (currentUser != null) {
             binding.editTextName.setText(currentUser.getName());
             binding.editTextEmail.setText(currentUser.getEmail());
@@ -69,9 +70,10 @@ public class EditProfileFragment extends Fragment {
             }
         }
 
-        // Set up the save button click listener
+        // Set click listener to save profile changes
         binding.buttonSaveProfile.setOnClickListener(v -> saveUserProfile());
 
+        // Set click listener to delete profile picture
         binding.buttonDeleteProfilePic.setOnClickListener(v -> {
             String imagePath = currentUser.getProfilePath();
             if(!imagePath.equals("")){
@@ -94,7 +96,7 @@ public class EditProfileFragment extends Fragment {
     }
 
     /**
-     * Saves the updated user profile information and navigates back to ProfileFragment.
+     * Saves the updated profile information to Firestore and navigates back to the ProfileFragment upon successful update.
      */
     private void saveUserProfile() {
         String newName = binding.editTextName.getText().toString().trim();
@@ -110,7 +112,6 @@ public class EditProfileFragment extends Fragment {
                 currentUser.setEmail(newEmail);
                 currentUser.setPhoneNumber(newPhone);
 
-                // Show a confirmation toast
                 Toast.makeText(requireContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show();
 
                 // Navigate back to ProfileFragment
@@ -126,6 +127,13 @@ public class EditProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Uploads the selected image to Firebase and updates the profile picture in the UI.
+     *
+     * @param requestCode The request code identifying the image pick request.
+     * @param resultCode The result code indicating success or failure.
+     * @param data The Intent data returned by the image picker.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -142,7 +150,6 @@ public class EditProfileFragment extends Fragment {
             photo.uploadImage(currentUser, imageUri,
                     uri -> Toast.makeText(requireContext(), "Upload Success", Toast.LENGTH_SHORT).show(),
                     e -> Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show());
-
         }
     }
     @Override
