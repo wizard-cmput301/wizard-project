@@ -41,32 +41,7 @@ public class EditFacilityFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Set up the navigation bar.
-        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
-
-        bottomNavigationView.getMenu().clear();
-        bottomNavigationView.inflateMenu(R.menu.organizer_nav_menu);
-
         NavController navController = NavHostFragment.findNavController(this);
-        NavController navBarController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-
-        NavigationUI.setupWithNavController(bottomNavigationView, navBarController);
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_home) {
-                navController.navigate(R.id.HomeFragment);
-                return true;
-            }
-            else if (item.getItemId() == R.id.nav_add_event) {
-                navController.navigate(R.id.EditEventFragment);
-                return true;
-            }
-            else {
-                navController.navigate(R.id.EventListFragment);
-                return true;
-            }
-        });
-
         MainActivity mainActivity = (MainActivity) requireActivity();
         currentUser = mainActivity.getCurrentUser();
         String userId = currentUser.getDeviceId();
