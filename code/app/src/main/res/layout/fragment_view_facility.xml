@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="Fragments.ViewFacilityFragment"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/facility_view_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/example_facility"/>
+
+    <Button
+        android:id="@+id/facility_edit_image_button"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:drawableLeft="@drawable/folder_icon"
+        app:layout_constraintTop_toBottomOf="@id/facility_view_imageview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/transparent"
+        android:textColor="@color/lighter_gray"
+        android:text="@string/upload_image_text"
+        android:layout_marginHorizontal="120dp"/>
+
+    <TextView
+        android:id="@+id/facility_view_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/facility_edit_image_button"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Facility Name: Example Rec Centre"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="30dp"/>
+
+    <TextView
+        android:id="@+id/facility_view_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/facility_view_name"
+        android:text="Location: Edmonton, AB"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="30dp"/>
+
+    <Button
+        android:id="@+id/edit_facility_button"
+        android:layout_width="140dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginLeft="10dp"
+        app:layout_constraintTop_toBottomOf="@id/facility_view_location"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@drawable/button_border"
+        android:textColor="@color/black"
+        android:text="@string/edit_facility_button"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

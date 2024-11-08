@@ -47,8 +47,22 @@ public class HomeFragment extends Fragment {
         // Set up buttons to navigate to other fragments
         binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EntrantFragment)); // Navigate to EntrantFragment
         binding.qrcodeButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment)); // Navigate to QRScannerFragment
-        binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_OrganizerFragment)); // Navigate to OrganizerFragment
 
+        // Button to navigate to OrganizerFragment
+        // Check if the user is an organizer
+        isOrganizer(isOrganizer -> {
+            // If the user is an organizer, navigate to the view facility fragment.
+            if (isOrganizer) {
+                binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_ViewFacilityFragment));
+            }
+            // If the user is not an organizer, navigate to the edit facility fragment to create one.
+            else {
+                binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment));
+            }
+        });
+
+
+        // Check if the user is an admin
         // Display the admin button if the user has admin privileges
         isAdmin(isAdmin -> {
             if (binding != null) { // Ensure binding is still valid
@@ -85,6 +99,30 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    /**
+     * Checks if the user is an organizer in the database.
+     *
+     * @param callback The callback to handle the result.
+     */
+    private void isOrganizer(organizerCheckCallback callback) {
+        // Get the device ID from the MainActivity
+        String deviceId = ((MainActivity) requireActivity()).retrieveDeviceId();
+
+        // Query the database for the user document
+        db.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
+            // Check if the document exists in the database
+            if (documentSnapshot.exists()) {
+                // Get the 'organizer' field from the document, pass the result to the callback
+                Boolean isOrganizer = documentSnapshot.getBoolean("isOrganizer");
+                callback.onResult(Boolean.TRUE.equals(isOrganizer));
+            } else {
+                callback.onResult(false); // If document does not exist, assume not organizer
+            }
+        }).addOnFailureListener(e -> {
+            callback.onResult(false); // If error, assume not organizer
+        });
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -96,5 +134,12 @@ public class HomeFragment extends Fragment {
      */
     public interface AdminCheckCallback {
         void onResult(boolean isAdmin);
+    }
+
+    /**
+     * Callback interface to handle the result of the organizer check.
+     */
+    public interface organizerCheckCallback {
+        void onResult(boolean isOrganizer);
     }
 }

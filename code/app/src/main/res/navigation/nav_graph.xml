@@ -17,15 +17,21 @@
             android:id="@+id/action_HomeFragment_to_QRScannerFragment"
             app:destination="@id/QRScannerFragment" />
 
-        <!-- Manage Facility Button -->
+        <!-- Create Facility Button -->
         <action
-            android:id="@+id/action_HomeFragment_to_OrganizerFragment"
-            app:destination="@id/OrganizerFragment" />
+            android:id="@+id/action_HomeFragment_to_EditFacilityFragment"
+            app:destination="@+id/EditFacilityFragment" />
 
         <!-- Manage Facility Button -->
         <action
+            android:id="@+id/action_HomeFragment_to_ViewFacilityFragment"
+            app:destination="@+id/ViewFacilityFragment" />
+
+        <!-- QR Scanner Button -->
+        <action
             android:id="@+id/action_HomeFragment_to_EntrantFragment"
             app:destination="@id/EntrantFragment" />
+
         <!-- Admin Button -->
         <action
             android:id="@+id/action_HomeFragment_to_AdminFragment"
@@ -44,14 +50,6 @@
         <action
             android:id="@+id/action_EntrantFragment_to_ProfileFragment"
             app:destination="@+id/ProfileFragment" />
-    </fragment>
-
-    <!-- Organizer Fragment -->
-    <fragment
-        android:id="@+id/OrganizerFragment"
-        android:name="com.example.wizard_project.Fragments.OrganizerFragment"
-        android:label="@string/organizer_fragment_label"
-        tools:layout="@layout/fragment_organizer">
     </fragment>
 
     <!-- Admin Fragment -->
@@ -95,6 +93,66 @@
         <action
             android:id="@+id/action_EditProfileFragment_to_ProfileFragment"
             app:destination="@+id/ProfileFragment" />
+    </fragment>
+
+    <!--View Facility Fragment -->
+    <fragment
+        android:id="@+id/ViewFacilityFragment"
+        android:name="com.example.wizard_project.Fragments.ViewFacilityFragment"
+        android:label="View Facility Fragment"
+        tools:layout="@layout/fragment_view_facility">
+
+        <action
+            android:id="@+id/action_ViewFacilityFragment_to_EditFacilityFragment"
+            app:destination="@+id/EditFacilityFragment" />
+    </fragment>
+
+    <!--Edit Facility Fragment -->
+    <fragment
+        android:id="@+id/EditFacilityFragment"
+        android:name="com.example.wizard_project.Fragments.EditFacilityFragment"
+        android:label="Edit Facility Fragment"
+        tools:layout="@layout/fragment_edit_facility">
+        <action
+            android:id="@+id/action_EditFacilityFragment_to_ViewFacilityFragment"
+            app:destination="@+id/ViewFacilityFragment" />
+    </fragment>
+
+    <!--Edit Event Fragment -->
+    <fragment
+        android:id="@+id/EditEventFragment"
+        android:name="com.example.wizard_project.Fragments.EditEventFragment"
+        android:label="Edit Event Fragment"
+        tools:layout="@layout/fragment_edit_event">
+        <action
+            android:id="@+id/action_EditEventFragment_to_ViewEventFragment"
+            app:destination="@+id/ViewEventFragment" />
+    </fragment>
+
+    <!--View Event Fragment -->
+    <fragment
+        android:id="@+id/ViewEventFragment"
+        android:name="com.example.wizard_project.Fragments.ViewEventFragment"
+        android:label="View Event Fragment"
+        tools:layout="@layout/fragment_view_event">
+        <action
+            android:id="@+id/action_ViewEventFragment_to_EditEventFragment"
+            app:destination="@+id/EditEventFragment" />
+
+        <action
+            android:id="@+id/action_ViewEventFragment_to_EntrantListFragment"
+            app:destination="@+id/EntrantListFragment" />
+    </fragment>
+
+    <!--Event List Fragment -->
+    <fragment
+        android:id="@+id/EventListFragment"
+        android:name="com.example.wizard_project.Fragments.EventListFragment"
+        android:label="Event List Fragment"
+        tools:layout="@layout/fragment_event_list">
+        <action
+            android:id="@+id/action_EventListFragment_to_ViewEventFragment"
+            app:destination="@+id/ViewEventFragment" />
     </fragment>
 
     <!-- QRScanner Fragment -->

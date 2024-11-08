@@ -75,6 +75,12 @@ public class ProfileFragment extends Fragment {
             // Load and display the user's profile picture if available
             if (!DisplayUser.getProfilePictureUri().equals("")) {
                 Uri imageUri = Uri.parse(DisplayUser.getProfilePictureUri());
+
+                Glide.with(requireContext()).load(imageUri).into(binding.profileImage);
+            }
+            // Error handling (user data not found)
+            if (!DisplayUser.getProfilePictureUri().equals("")) {
+                Uri imageUri = Uri.parse(DisplayUser.getProfilePictureUri());
                 Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.profileImage);
             }
         // Error handling if the user data is not available

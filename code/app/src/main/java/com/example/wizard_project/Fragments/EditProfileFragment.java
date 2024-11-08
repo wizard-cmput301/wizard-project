@@ -152,6 +152,7 @@ public class EditProfileFragment extends Fragment {
                     e -> Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show());
         }
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

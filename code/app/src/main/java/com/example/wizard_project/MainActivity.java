@@ -17,6 +17,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.wizard_project.Classes.Facility;
 import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -215,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
     public User getCurrentUser() {
         return currentUser;
     }
+
 
     /**
      * Sets the user to delete.
