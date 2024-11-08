@@ -1,14 +1,11 @@
 package com.example.wizard_project.Controllers;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.wizard_project.Classes.Facility;
-import com.google.firebase.Firebase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,11 +51,11 @@ public class FacilityController {
 
     /**
      * Retrieves a facility from the database.
-     * @param userId The device ID of the user.
+     *
+     * @param userId   The device ID of the user.
      * @param callback A callback containing the retrieved facility.
-     * @return The retrieved facility object.
      */
-    public Facility getFacility(String userId, facilityCallback callback) {
+    public void getFacility(String userId, facilityCallback callback) {
         // Create a new facility object.
         Facility newFacility = new Facility(userId, "", "");
 
@@ -78,7 +75,6 @@ public class FacilityController {
                     Log.e("RetrievalError", "Error retrieving facility data:", e);
                     callback.onCallback(null);
                 });
-        return newFacility;
     }
 
     /**
