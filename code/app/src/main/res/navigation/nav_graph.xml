@@ -52,7 +52,7 @@
             app:destination="@+id/ProfileFragment" />
     </fragment>
 
-    <!-- Admin Fragment -->
+    <!-- Admin Profile Fragment -->
     <fragment
         android:id="@+id/AdminFragment"
         android:name="com.example.wizard_project.Fragments.AdminProfileViewFragment"
@@ -64,6 +64,16 @@
             android:id="@+id/action_AdminProfileFragment_to_ProfileFragment"
             app:destination="@id/ProfileFragment" />
     </fragment>
+
+    <!-- Admin image Fragment -->
+    <fragment
+        android:id="@+id/AdminFragmentImageView"
+        android:name="com.example.wizard_project.Fragments.AdminImageViewFragment"
+        android:label="@string/admin_fragment_label_images"
+        tools:layout="@layout/fragment_admin_image">
+
+    </fragment>
+
 
     <!-- Profile Fragment -->
     <fragment

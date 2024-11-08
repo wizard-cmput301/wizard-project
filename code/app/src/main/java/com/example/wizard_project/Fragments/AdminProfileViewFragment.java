@@ -86,6 +86,9 @@ public class AdminProfileViewFragment extends Fragment {
             } else  if (item.getItemId() == R.id.nav_home) {
                 navController.navigate(R.id.HomeFragment);
                 return true;
+            }else if(item.getItemId() == R.id.nav_image_browse){
+                navController.navigate(R.id.AdminFragmentImageView);
+                return true;
             }
             // TODO: Event Browsing
             // TODO: Facility Browsing
