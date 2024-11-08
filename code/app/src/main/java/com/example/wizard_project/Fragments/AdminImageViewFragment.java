@@ -1,11 +1,14 @@
 package com.example.wizard_project.Fragments;
 
+import android.app.AlertDialog;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,13 +27,15 @@ import com.example.wizard_project.databinding.FragmentAdminImageBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
 public class AdminImageViewFragment extends Fragment {
     private FragmentAdminImageBinding binding;
     private ArrayList<ImageHolder> imageList = new ArrayList<>();
-    private BrowseProfileAdapter adapter;
+    private BrowseImageAdapter imageAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,7 +45,7 @@ public class AdminImageViewFragment extends Fragment {
         // Initialize the ListView with binding
         ListView imageListView = binding.imageListView;
 
-        BrowseImageAdapter imageAdapter = new BrowseImageAdapter(getContext(),imageList);
+        imageAdapter = new BrowseImageAdapter(getContext(),imageList);
         // Set the adapter to the ListView
         imageListView.setAdapter(imageAdapter);
 
@@ -50,8 +55,24 @@ public class AdminImageViewFragment extends Fragment {
         // Set the item click listener for the ListView
         imageListView.setOnItemClickListener((parent, view, position, id) -> {
             ImageHolder image_clicked = imageList.get(position);  // Get the clicked item
-            // TODO:create a box that asks if you want to delete.
-            deleteImage(image_clicked);
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Confirmation")
+                    .setMessage("Are you sure you want to delete this image?")
+                    // Yes button
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        // Handle the Yes button click here
+                        imageList.remove(position);
+                        deleteImage(image_clicked);
+                        imageAdapter.notifyDataSetChanged();
+                        dialog.dismiss(); // Close the dialog
+                    })
+                    // No button
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // Handle the No button click here
+                        dialog.dismiss(); // Close the dialog without any action
+                    })
+                    // Display the dialog
+                    .show();
         });
 
         return binding.getRoot();  // Return the root view of binding
@@ -81,33 +102,49 @@ public class AdminImageViewFragment extends Fragment {
             }else  if (item.getItemId() == R.id.nav_home) {
                 navController.navigate(R.id.HomeFragment);
                 return true;
+            }else if(item.getItemId() == R.id.nav_image_browse){
+                navController.navigate(R.id.AdminFragmentImageView);
+                return true;
+
             }
             return false;
         });
 
     }
 
-    private void loadImages(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        profileList.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            User profile = new User(null,null,null,false,false,false,null,null,null,null);
-                            profile.setUserData(document);
-                            profileList.add(profile);
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        Log.e("AdminProfileViewFragment", "Error getting documents", task.getException());
+    private void loadImages() {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/");
+
+        // List all items in the "images" folder
+        storageRef.listAll()
+                .addOnSuccessListener(listResult -> {
+                    for (StorageReference item : listResult.getItems()) {
+                        // For each item, get the download URL
+                        item.getDownloadUrl().addOnSuccessListener(uri -> {
+                            // Add image URL and path to the list
+                            imageList.add(new ImageHolder(uri.toString(), item.getPath()));
+
+                            // Notify adapter to update RecyclerView after adding all URLs
+                            imageAdapter.notifyDataSetChanged();
+                        });
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to load images", Toast.LENGTH_SHORT).show();
                 });
+
     }
+
     private void deleteImage(ImageHolder image_clicked) {
+        if(!image_clicked.getImagePath().equals("")) {
+            // Get a reference to the image in Firebase Storage
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(image_clicked.getImagePath());
+            // Delete the image
+            imageRef.delete();
+            image_clicked.setImagePath("");
+            image_clicked.setImageUrl("");
 
-
+        }
     }
 
     @Override
@@ -117,4 +154,4 @@ public class AdminImageViewFragment extends Fragment {
     }
 
 }
-}
+

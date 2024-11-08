@@ -19,7 +19,8 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.UUID;
 /**
- *  PhotoHandler is a Utility class that has the method functionality:
+ *  PhotoHandler is a Utility class used for the User profile picture
+ *  that has the method functionality:
  *  uploadImage - Upload an image to firebase storage
  *  DeleteImage - Deletes image from firebase storage
  *  loadImage - Loads an image from the firebase storage and uploads it into an image view
@@ -36,7 +37,7 @@ public class PhotoHandler {
      * @param failureListener the listener triggered on upload failure, returns an exception
      */
     public void uploadImage(User currentUser, Uri imageUri, OnSuccessListener<Uri> successListener, OnFailureListener failureListener) {
-        String path = UUID.randomUUID().toString();
+        String path = "images/" + UUID.randomUUID().toString();
         currentUser.setProfilePath(path);
         StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(path);
         imageRef.putFile(imageUri)

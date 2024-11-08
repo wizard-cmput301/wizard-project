@@ -28,8 +28,8 @@ public class EntrantFragment extends Fragment {
     private String eventName;
     private String eventDescription;
 
-    private String userId = "123"; // Replace with actual user ID (e.g., deviceId)
     private User currentUser; // To hold the User object after fetching data
+    private String userId = "123"; // Replace with actual user ID (e.g., deviceId)
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -51,7 +51,15 @@ public class EntrantFragment extends Fragment {
 
         // Fetch current user data from Firestore
         fetchCurrentUser();
+        // Set up navigation to ProfileFragment when the profile picture button is clicked
+        View profilePictureButton = requireActivity().findViewById(R.id.profilePictureButton);
 
+        profilePictureButton.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+            if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() != R.id.ProfileFragment) {
+                navController.navigate(R.id.action_EntrantFragment_to_ProfileFragment); // (temporary work around, this prevents app crashing when clicking the button twice)
+            }
+        });
         // Set up button listeners
         binding.joinButton.setOnClickListener(v -> joinWaitingList());
         binding.leaveButton.setOnClickListener(v -> leaveWaitingList());
