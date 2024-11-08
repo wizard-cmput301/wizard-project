@@ -26,10 +26,13 @@ import com.example.wizard_project.databinding.FragmentEventListBinding;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * EventListFragment represents a view of the list of all events for a facility.
+ */
 public class EventListFragment extends Fragment {
     private EventController eventController;
     private FragmentEventListBinding binding;
-    private ArrayList<Event> eventList = new ArrayList<>();
+    private ArrayList<Event> eventList = new ArrayList<Event>();
     private BrowseEventAdapter adapter;
     private User currentUser;
     private FacilityController facilityController;
@@ -54,21 +57,29 @@ public class EventListFragment extends Fragment {
         facilityController = new FacilityController();
         eventListView.setAdapter(adapter);
 
+        // Get the facility associated with the user.
         facilityController.getFacility(userId, new FacilityController.facilityCallback() {
             @Override
             public void onCallback(Facility facility) {
+                // Get the list of events for the facility.
                 eventController.getEventList(facility.getFacilityId(), new EventController.eventCallback() {
+
                     @Override
                     public void onCallback(ArrayList<Event> events) {
-                        eventList = events;
+                        // For each event, add it to the list to be displayed.
+                        eventList.clear();
+                        eventList.addAll(events);
+                        adapter.notifyDataSetChanged();
                     }
                 });
             }
         });
 
+        // Set the click listener for each item in the ListView.
         binding.eventListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                // Open the event viewer when an item is clicked.
                 Event selectedEvent = eventList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("event", selectedEvent);

@@ -47,6 +47,7 @@ public class EditEventFragment extends Fragment {
     private EventController eventController;
     private FacilityController facilityController;
     private User currentUser;
+    private String eventLocation = "";
 
 
 
@@ -91,27 +92,32 @@ public class EditEventFragment extends Fragment {
         Date currentTime = new Date();
         Event event;
 
+        // Get any passed Event object through the arguments.
         if (getArguments() != null) {
             event = (Event) getArguments().getSerializable("event");
             assert event != null;
-            long deadlineTimeRemaining = event.getEvent_deadline().getTime() - currentTime.getTime();
-            int daysRemaining = Math.round((float) deadlineTimeRemaining / (1000 * 60 * 60 * 24));
+
+            // Get the facilityId
             facilityId = event.getFacilityId();
 
+            // Pre-fill the EditText fields if editing an existing event.
             eventName.setText(String.format("Event Name: %s", event.getEvent_name()));
             eventPrice.setText(String.format("Price: %d", event.getEvent_price()));
-            eventWaitlist.setText(String.format("Availability: %d Spots", event.getRemainingWaitlistLimit()));
+            eventWaitlist.setText(String.format("Availability: %d Spots", event.getEvent_waitlist_limit()));
         }
         else {
+            // If no Event object was passed, get the facility details based on the user ID.
             event = null;
             facilityController.getFacility(userId, new FacilityController.facilityCallback() {
                 @Override
                 public void onCallback(Facility facility) {
                     facilityId = facility.getFacilityId();
+                    eventLocation = facility.getFacility_name();
                 }
             });
         }
 
+        // Submit the fields for the event attributes.
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,17 +139,24 @@ public class EditEventFragment extends Fragment {
                     eventDeadline.setError("Please enter a valid date.");
                 }
                 else {
+                    // If editing an event, update its attributes.
                     if (event != null) {
                         event.setEvent_name(newName);
                         event.setEvent_price(newPrice);
                         event.setEvent_waitlist(newWaitlistLimit);
                         event.setEvent_deadline(newDeadline);
                         eventController.updateEvent(event);
+
+                        // Pass the updated Event object to the ViewEventFragment and navigate.
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("event", event);
                         navController.navigate(R.id.action_EditEventFragment_to_ViewEventFragment, bundle);
                     } else {
-                        Event newEvent = eventController.createEvent(facilityId, newName, newPrice, newWaitlistLimit, newDeadline);
+                        // Create a new Event object.
+                        Event newEvent = eventController.createEvent(facilityId, newName, newPrice, newWaitlistLimit, newDeadline, eventLocation);
+                        newEvent.setEvent_location(eventLocation);
+
+                        // Pass the new Event object to the ViewEventFragment and navigate.
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("event", newEvent);
                         navController.navigate(R.id.action_EditEventFragment_to_ViewEventFragment, bundle);
@@ -152,6 +165,7 @@ public class EditEventFragment extends Fragment {
             }
         });
 
+        // Button to upload a promotional poster for the event.
         editPosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -159,13 +173,14 @@ public class EditEventFragment extends Fragment {
             }
         });
 
+        // Date selector button for the event deadline.
         selectDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        eventDeadline.setText(String.format("%d-%d-%d", year, month, day));
+                        eventDeadline.setText(String.format("%d-%d-%d", year, month+1, day));
 
                         Calendar calendar = Calendar.getInstance();
                         calendar.set(year, month, day);

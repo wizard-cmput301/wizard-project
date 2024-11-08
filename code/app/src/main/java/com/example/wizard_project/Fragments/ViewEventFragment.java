@@ -94,7 +94,7 @@ public class ViewEventFragment extends Fragment {
 
         // Populate text views with event data
         eventName.setText(String.format("Event Name: %s", event.getEvent_name()));
-        eventPrice.setText(String.format("Price: %d", event.getEvent_price()));
+        eventPrice.setText(String.format("Price: $%d", event.getEvent_price()));
         eventWaitlist.setText(String.format("Availability: %d Spots", event.getEvent_waitlist_limit()));
         eventDeadline.setText(String.format("Deadline: %d Days", daysRemaining));
 
@@ -104,6 +104,16 @@ public class ViewEventFragment extends Fragment {
             bundle.putSerializable("event", event);
             navController.navigate(R.id.action_ViewEventFragment_to_EditEventFragment, bundle);
         });
+
+        // TODO: Clear the event's data in memory ?
+        viewEntrantsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("event", event);
+                navController.navigate(R.id.action_ViewEventFragment_to_EntrantListFragment, bundle);
+            }
+        });
     }
 
     /**
@@ -112,8 +122,6 @@ public class ViewEventFragment extends Fragment {
     private void deleteEvent() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("events").document(currentEvent.getEventId());
-
-        // TODO: Clear the event's data in memory ?
 
         // Delete the event's document from Firestore
         docRef.delete()
@@ -130,4 +138,5 @@ public class ViewEventFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to delete event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
 }

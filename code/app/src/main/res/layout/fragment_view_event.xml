@@ -27,7 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:background="@color/transparent"
         android:textColor="@color/lighter_gray"
-        android:text="Upload Poster"
+        android:text="@string/upload_poster"
         android:layout_marginHorizontal="120dp"/>
 
     <TextView
@@ -83,7 +83,7 @@
             android:layout_height="40dp"
             android:background="@drawable/button_border"
             android:textColor="@color/black"
-            android:text="View Facility"/>
+            android:text="@string/view_facility"/>
 
         <Button
             android:id="@+id/edit_event_button"
@@ -92,7 +92,7 @@
             android:layout_marginTop="50dp"
             android:background="@drawable/button_border"
             android:textColor="@color/black"
-            android:text="Edit Event"/>
+            android:text="@string/edit_event"/>
 
         <Button
             android:id="@+id/view_entrants_button"
@@ -103,7 +103,7 @@
             android:layout_toEndOf="@id/edit_event_button"
             android:background="@drawable/button_border"
             android:textColor="@color/black"
-            android:text="Entrant List"/>
+            android:text="@string/entrant_list"/>
 
         <Button
             android:id="@+id/map_view_button"
@@ -112,7 +112,7 @@
             android:layout_marginTop="100dp"
             android:background="@drawable/button_border"
             android:textColor="@color/black"
-            android:text="Map View"/>
+            android:text="@string/map_view"/>
         <Button
             android:id="@+id/view_qr_button"
             android:layout_width="140dp"
@@ -130,6 +130,7 @@
             android:layout_height="wrap_content"
             android:text="Delete Event"
             android:visibility="gone" />
+            android:text="@string/view_qr_code"/>
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
