@@ -116,12 +116,26 @@ public class EntrantFragment extends Fragment {
             return;
         }
 
+        // Step 1: Check if the user is in the waiting list
         db.collection("events").document(eventId)
                 .collection("waitingList").document(userId)
-                .delete()
-                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Left the waiting list successfully!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to leave the waiting list.", Toast.LENGTH_SHORT).show());
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // User is in the waiting list, proceed to remove them
+                        db.collection("events").document(eventId)
+                                .collection("waitingList").document(userId)
+                                .delete()
+                                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Left the waiting list successfully!", Toast.LENGTH_SHORT).show())
+                                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to leave the waiting list.", Toast.LENGTH_SHORT).show());
+                    } else {
+                        // User is not in the waiting list
+                        Toast.makeText(getContext(), "You are not on the waiting list for this event.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error checking waiting list status.", Toast.LENGTH_SHORT).show());
     }
+
 
     @Override
     public void onDestroyView() {
