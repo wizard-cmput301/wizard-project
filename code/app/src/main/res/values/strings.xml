@@ -17,14 +17,16 @@
     <string name="admin_string">Admin</string>
     <string name="profile_pic_delete">Remove Profile Picture</string>
     <string name="save_button">Save</string>
-    <string name="deleteButton">Delete</string>qrCodebutton
+    <string name="deleteButton">Delete</string>
     <string name="qrCodebutton">QR Code Scanner</string>
-
+    <string name="doneButton">Done</string>
+    <string name="edit_facility_button">Edit Facility</string>
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
     <string name="menu_title">Menu</string>
     <string name="home_title">Home</string>
+    <string name="add_event_title">Add Event</string>
     <string name="image_title">Images</string>
     <string name="profile_title">Profiles</string>
     <string name="file_title">Events</string>
@@ -38,6 +40,7 @@
     <string name="eventwizard_logo_desc">EventWizard Logo</string>
     <string name="profile_picture_button_desc">Profile Picture Button</string>
     <string name="profile_picture_desc">Profile Picture</string>
+    <string name="upload_image_text">Upload Image</string>
 
     <!-- Edit Profile -->
     <string name="user_name">User Name</string>
@@ -47,4 +50,18 @@
     <string name="enter_email">Enter Email</string>
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="enter_name">Enter Name</string>
+
+    <!-- Edit Event -->
+    <string name="upload_poster_label">Upload Poster</string>
+    <string name="event_name_label">Event Name</string>
+    <string name="price_label">Price</string>
+    <string name="waiting_list_label">Waiting List</string>
+    <string name="deadline_label">Deadline</string>
+    <string name="select_a_date">Select a Date</string>
+
+    <!-- Edit Facility -->
+    <string name="facility_name_label">Facility Name</string>
+    <string name="location_label">Location</string>
+
+
 </resources>

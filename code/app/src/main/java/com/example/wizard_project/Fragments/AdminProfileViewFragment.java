@@ -26,7 +26,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 
 /**
- * AdminFragment provides the UI and functionality for admins.
+ * AdminProfileViewFragment provides the UI and functionality for admin users,
+ * allowing them to browse and select user profiles for further actions.
  */
 public class AdminProfileViewFragment extends Fragment {
 
@@ -39,24 +40,21 @@ public class AdminProfileViewFragment extends Fragment {
         // Use View Binding to inflate the layout
         binding = FragmentAdminBinding.inflate(inflater, container, false);
 
-        // Initialize the ListView with binding
+        // Initialize the ListView with the profile list adapter
         ListView profileListView = binding.profilelistListview;
-
-        // Create a new instance of ProfileAdapter with the context and profileList
         adapter = new BrowseProfileAdapter(getContext(), profileList);
-
-        // Set the adapter to the ListView
         profileListView.setAdapter(adapter);
 
-        // Load profiles from Firebase or another data source
+        // Load profiles from Firebase
         loadUsers();
 
-        // Set the item click listener for the ListView
+        // Set item click listener for profile selection
         binding.profilelistListview.setOnItemClickListener((parent, view, position, id) -> {
-            User selectedUser = profileList.get(position);  // Get the clicked item
+            User selectedUser = profileList.get(position);  // Get the clicked item (user)
             MainActivity mainActivity = (MainActivity) requireActivity();
             mainActivity.setDeleteUser(selectedUser);
-            // Navigate to ProfileFragment
+
+            // Navigate to ProfileFragment with the selected user data
             NavController navController = Navigation.findNavController(requireView());
             navController.navigate(R.id.action_AdminProfileFragment_to_ProfileFragment);
         });
@@ -67,46 +65,51 @@ public class AdminProfileViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Access the BottomNavigationView from the Activity
-        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
 
-        // Set up the admin-specific menu if we are in the AdminViewFragment
+
+        // Set up the admin-specific bottom navigation menu
+        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
         bottomNavigationView.getMenu().clear();
         bottomNavigationView.inflateMenu(R.menu.bottom_nav_admin);
 
-        // Access the NavController associated with the Activity's NavHostFragment
+        // Connect the NavController to the BottomNavigationView
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-
-        // Connect NavController to BottomNavigationView
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
+        // Set up item selection listener for navigation actions
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            // Home Button
+            // Profile browsing
             if (item.getItemId() == R.id.nav_profile_browse) {
                 navController.navigate(R.id.AdminFragment);
                 return true;
-            }else  if (item.getItemId() == R.id.nav_home) {
+            // Home page
+            } else  if (item.getItemId() == R.id.nav_home) {
                 navController.navigate(R.id.HomeFragment);
                 return true;
             }
+            // TODO: Event Browsing
+            // TODO: Facility Browsing
+            // TODO: Image Browsing
             return false;
         });
-
     }
 
+    /**
+     * Loads user profiles from Firestore and updates the profile list.
+     */
     private void loadUsers(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        profileList.clear();
+                        profileList.clear(); // Clear existing profiles before loading new ones
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             User profile = new User(null,null,null,false,false,false,null,null,null,null);
                             profile.setUserData(document);
-                            profileList.add(profile);
+                            profileList.add(profile); // Add each user profile to the list
                         }
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyDataSetChanged(); // Refresh the ListView with new data
                     } else {
                         Log.e("AdminProfileViewFragment", "Error getting documents", task.getException());
                     }
@@ -116,7 +119,5 @@ public class AdminProfileViewFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // reset the bottom nav bar
     }
-
 }

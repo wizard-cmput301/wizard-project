@@ -5,7 +5,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
- * Representation of the current user
+ * The User class represents a user in the application, and provides methods to manage user data.
+ * This class is designed to interact with Firestore to store and retrieve user data.
  */
 public class User {
     private String deviceId;

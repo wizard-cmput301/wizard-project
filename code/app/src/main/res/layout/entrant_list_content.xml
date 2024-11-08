@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/entrant_profile_image"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/rounded_profile_image"
+        android:src="@drawable/event_wizard_logo"/>
+
+    <TextView
+        android:id="@+id/entrant_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Name"
+        android:textSize="16sp"
+        android:textColor="@color/darker_gray"
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="15dp"
+        android:layout_toEndOf="@id/entrant_profile_image"/>
+
+    <TextView
+        android:id="@+id/entrant_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/lighter_gray"
+        android:text="Not Selected"
+        android:textSize="14sp"
+        android:layout_marginTop="19dp"
+        android:layout_marginStart="30dp"
+        android:layout_toEndOf="@id/entrant_user_name"/>
+
+    <CheckBox
+        android:id="@+id/entrant_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/entrant_status"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="80dp"/>
+</RelativeLayout>

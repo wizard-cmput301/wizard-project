@@ -99,7 +99,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/manage_facility_button" />
 
-        <!-- camera QR code Button -->
+        <!-- Camera QR Code Button -->
         <Button
             android:id="@+id/qrcode_button"
             android:layout_width="300dp"
