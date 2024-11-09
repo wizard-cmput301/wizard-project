@@ -31,6 +31,7 @@ import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEditEventBinding;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -48,6 +49,7 @@ public class EditEventFragment extends Fragment {
     private FacilityController facilityController;
     private User currentUser;
     private String eventLocation = "";
+    int newPrice = 0;
 
 
 
@@ -101,9 +103,13 @@ public class EditEventFragment extends Fragment {
             facilityId = event.getFacilityId();
 
             // Pre-fill the EditText fields if editing an existing event.
-            eventName.setText(String.format("Event Name: %s", event.getEvent_name()));
-            eventPrice.setText(String.format("Price: %d", event.getEvent_price()));
-            eventWaitlist.setText(String.format("Availability: %d Spots", event.getEvent_waitlist_limit()));
+            eventName.setText(String.format("%s", event.getEvent_name()));
+            eventPrice.setText(String.format("%d", event.getEvent_price()));
+            eventWaitlist.setText(String.format("%d", event.getEvent_waitlist_limit()));
+            selectedDeadlineDate = event.getEvent_deadline();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(selectedDeadlineDate);
+            eventDeadline.setText(String.format("%02d-%02d-%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH)));
         }
         else {
             // If no Event object was passed, get the facility details based on the user ID.
@@ -122,11 +128,18 @@ public class EditEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String newName = eventName.getText().toString();
-                int newPrice = Integer.parseInt(eventPrice.getText().toString());
                 Date newDeadline = selectedDeadlineDate;
 
-                if (!eventPrice.getText().toString().isEmpty()) {
-                    newWaitlistLimit = Integer.parseInt(eventWaitlist.getText().toString());
+
+                if(!eventWaitlist.getText().toString().isEmpty()) {
+                    newWaitlistLimit = Integer.valueOf(eventWaitlist.getText().toString());
+                }
+
+                if (eventPrice.getText().toString().trim().isEmpty()) {
+                    eventPrice.setError("Please enter a valid price.");
+                }
+                else {
+                    newPrice = Integer.parseInt(eventPrice.getText().toString());
                 }
 
                 if (newName.trim().isEmpty()) {
@@ -180,7 +193,7 @@ public class EditEventFragment extends Fragment {
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        eventDeadline.setText(String.format("%d-%d-%d", year, month+1, day));
+                        eventDeadline.setText(String.format("%02d-%02d-%02d", year, month+1, day));
 
                         Calendar calendar = Calendar.getInstance();
                         calendar.set(year, month, day);
