@@ -21,11 +21,19 @@ import com.google.android.material.shape.Shapeable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * BrowseEntrantAdapter is a custom ArrayAdapter to display the list of entrants for an event.
+ */
 public class BrowseEntrantAdapter extends ArrayAdapter<User> {
 
     private List<User> userList;
     private Context context;
 
+    /**
+     * Constructs a new BrowseEntrantAdapter with a list of entrants and the context data.
+     * @param context The context used for layout inflation.
+     * @param users The list of users to be displayed.
+     */
     public BrowseEntrantAdapter(Context context, ArrayList<User> users) {
         super(context, 0, users);
         this.context = context;

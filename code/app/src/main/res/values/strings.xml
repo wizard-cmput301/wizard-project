@@ -22,6 +22,16 @@
     <string name="qrCodebutton">QR Code Scanner</string>
     <string name="doneButton">Done</string>
     <string name="edit_facility_button">Edit Facility</string>
+    <string name="remove_entrant">Remove Entrant</string>
+    <string name="send_notification">Send Notification</string>
+    <string name="sample_attendees">Sample Attendees</string>
+    <string name="upload_poster">Upload Poster</string>
+    <string name="view_facility">View Facility</string>
+    <string name="edit_event">Edit Event</string>
+    <string name="entrant_list">Wait List</string>
+    <string name="map_view">Map View</string>
+    <string name="view_qr_code">View QR Code</string>
+
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>

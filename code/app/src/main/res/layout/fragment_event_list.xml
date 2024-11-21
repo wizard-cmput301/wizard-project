@@ -10,11 +10,13 @@
     <ListView
         android:id="@+id/event_listview"
         android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="15dp"
         android:padding="10dp"
+        android:layout_marginHorizontal="12dp"
         android:divider="@color/transparent"
         android:dividerHeight="12dp"
         tools:listitem="@layout/event_card" />
