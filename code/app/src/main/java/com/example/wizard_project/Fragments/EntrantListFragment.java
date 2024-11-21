@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,14 +18,16 @@ import com.example.wizard_project.Adapters.BrowseEntrantAdapter;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.EventController;
+import com.example.wizard_project.LotterySystem;
 import com.example.wizard_project.databinding.FragmentEntrantListBinding;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * EntrantListFragment represents a view of the list of entrants for an event.
  */
-public class EntrantListFragment extends Fragment {
+public class EntrantListFragment extends Fragment implements SampleAttendeeDialog.SampleAttendeesListener {
     private FragmentEntrantListBinding binding;
     private EventController eventController;
     private ArrayList<User> entrantList = new ArrayList<User>();
@@ -45,6 +48,16 @@ public class EntrantListFragment extends Fragment {
     }
 
     @Override
+    public void setDrawAmount(int drawAmount) {
+        drawEntrants(drawAmount);
+    }
+
+    private void drawEntrants(int drawAmount) {
+        LotterySystem lotterySystem = new LotterySystem();
+        List<User> selectedEntrants = lotterySystem.drawEntrants(entrantList, drawAmount, entrantList.size());
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEntrantListBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -56,9 +69,12 @@ public class EntrantListFragment extends Fragment {
 
         NavController navController = NavHostFragment.findNavController(this);
         eventController = new EventController();
+
         ListView entrantListView = binding.entrantListview;
         adapter = new BrowseEntrantAdapter(getContext(), entrantList);
         entrantListView.setAdapter(adapter);
+
+        Button sampleAttendeesButton = binding.sampleAttendeesButton;
 
         // Get the event object.
         assert getArguments() != null;
@@ -72,6 +88,14 @@ public class EntrantListFragment extends Fragment {
                 entrantList.clear();
                 entrantList.addAll(users);
                 adapter.notifyDataSetChanged();
+            }
+        });
+
+        sampleAttendeesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SampleAttendeeDialog dialog = SampleAttendeeDialog.newInstance(entrantList.size());
+                dialog.show(getChildFragmentManager(), "SampleAttendeesDialog");
             }
         });
 
