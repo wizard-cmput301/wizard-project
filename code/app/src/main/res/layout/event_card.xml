@@ -7,22 +7,24 @@
     android:layout_marginVertical="10dp"
     android:layout_marginHorizontal="50dp"
     app:cardCornerRadius="15dp"
-    app:cardElevation="10dp">
+    app:cardElevation="10dp" >
     
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content" >
 
+        <!-- Event Image -->
         <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/event_card_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:id="@+id/event_card_image"
             android:scaleType="centerCrop"
             android:src="@drawable/example_event"
             android:layout_marginVertical="10dp"
             android:layout_marginStart="10dp"
             app:shapeAppearanceOverlay="@style/rounded_event_image"/>
-        
+
+        <!-- Event Name -->
         <TextView
             android:layout_width="150dp"
             android:layout_height="20dp"
@@ -32,7 +34,7 @@
             android:text="Event Title"
             android:layout_toEndOf="@id/event_card_image"
             android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="10dp" />
 
         <TextView
             android:layout_width="150dp"
@@ -42,7 +44,7 @@
             android:text="$X per lesson, ages 3-5"
             android:layout_toEndOf="@id/event_card_image"
             android:layout_marginTop="30dp"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="10dp" />
 
         <TextView
             android:layout_width="150dp"
@@ -52,7 +54,7 @@
             android:text="Example Rec Centre"
             android:layout_toEndOf="@id/event_card_image"
             android:layout_marginTop="45dp"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="10dp" />
 
         <TextView
             android:layout_width="150dp"
@@ -62,7 +64,7 @@
             android:text="X Slots Available"
             android:layout_toEndOf="@id/event_card_image"
             android:layout_marginTop="85dp"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="10dp" />
 
         <TextView
             android:layout_width="150dp"
@@ -72,9 +74,6 @@
             android:text="Closes In: X Days"
             android:layout_toEndOf="@id/event_card_image"
             android:layout_marginTop="100dp"
-            android:layout_marginStart="10dp"/>
-
+            android:layout_marginStart="10dp" />
     </RelativeLayout>
-    
-
 </androidx.cardview.widget.CardView>

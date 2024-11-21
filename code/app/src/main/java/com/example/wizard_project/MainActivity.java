@@ -1,36 +1,25 @@
 package com.example.wizard_project;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.wizard_project.Classes.Facility;
 import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
+import com.example.wizard_project.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.example.wizard_project.databinding.ActivityMainBinding;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * MainActivity is the central activity for the EventWizard app, managing user authentication,
@@ -46,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private User currentUser;
     private User deleteUser;
     private PhotoHandler photo;
+    private boolean isAdminMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,26 +85,79 @@ public class MainActivity extends AppCompatActivity {
 
         // Handle bottom navigation item selection
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            // Home Button
-            if (item.getItemId() == R.id.nav_home) {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_home) {
+                if (isAdminMode) {
+                    exitAdminMode(bottomNavigationView);
+                }
                 navController.navigate(R.id.HomeFragment);
                 return true;
+            } else if (itemId == R.id.nav_camera) {
+                // TODO: Add camera functionality
+                return true;
+            } else if (itemId == R.id.nav_menu) {
+                // TODO: Add menu functionality
+                return true;
+            } else if (itemId == R.id.nav_profile_browse) {
+                navController.navigate(R.id.AdminFragment);
+                return true;
+            } else if (itemId == R.id.nav_events_browse) {
+                navController.navigate(R.id.AdminFragmentEventView);
+                return true;
+            } else if (itemId == R.id.nav_facility_browse) {
+                navController.navigate(R.id.AdminFragmentFacilityView);
+                return true;
+            } else if (itemId == R.id.nav_image_browse) {
+                navController.navigate(R.id.AdminFragmentImageView);
+                return true;
             }
-            // TODO: Camera Button
-            // TODO: Menu Button
             return false;
         });
 
-        // Toggle toolbar visibility based on the current fragment
+        // Listen for destination changes and adjust navigation as needed
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            // Entrant toolbar
-            if (destination.getId() == R.id.EntrantFragment) {
-                binding.entrantToolbar.setVisibility(View.VISIBLE);
-            } else {
-                binding.entrantToolbar.setVisibility(View.GONE);
+            if (isAdminFragment(destination.getId()) && !isAdminMode) {
+                enterAdminMode(bottomNavigationView);
+            } else if (destination.getId() == R.id.HomeFragment && isAdminMode) {
+                exitAdminMode(bottomNavigationView);
             }
-            // TODO: Create custom toolbars for other fragments
         });
+    }
+
+    /**
+     * Configures the bottom navigation bar for general use (default).
+     */
+    private void setupGeneralNavigation(BottomNavigationView bottomNavigationView) {
+        bottomNavigationView.getMenu().clear();
+        bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
+        isAdminMode = false;
+    }
+
+    /**
+     * Configures the bottom navigation bar for admin use.
+     */
+    private void enterAdminMode(BottomNavigationView bottomNavigationView) {
+        bottomNavigationView.getMenu().clear();
+        bottomNavigationView.inflateMenu(R.menu.bottom_nav_admin); // Admin menu resource
+        isAdminMode = true;
+    }
+
+    /**
+     * Resets the bottom navigation bar to general use when leaving admin mode.
+     */
+    private void exitAdminMode(BottomNavigationView bottomNavigationView) {
+        setupGeneralNavigation(bottomNavigationView);
+    }
+
+    /**
+     * Checks if the current destination is part of the admin section.
+     */
+    private boolean isAdminFragment(int destinationId) {
+        return destinationId == R.id.AdminFragment ||
+                destinationId == R.id.AdminFragmentEventView ||
+                destinationId == R.id.AdminFragmentFacilityView ||
+                destinationId == R.id.AdminFragmentImageView;
     }
 
     /**
@@ -129,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Initializes the user by fetching or creating the user document in Firestore.
      *
-     * @param deviceId The unique device ID used as the document ID in Firestore.
+     * @param deviceId          The unique device ID used as the document ID in Firestore.
      * @param onUserInitialized A callback to indicate when the user is initialized.
      */
     private void initializeUser(String deviceId, Runnable onUserInitialized) {
@@ -140,9 +183,9 @@ public class MainActivity extends AppCompatActivity {
                 if (document.exists()) {
                     currentUser = new User();
                     currentUser.setUserData(document);
-                // If the document does not exist, create a new user
+                    // If the document does not exist, create a new user
                 } else {
-                    currentUser = new User(deviceId, "", "", false, false, false, "", "", "","");
+                    currentUser = new User(deviceId, "", "", false, false, false, "", "", "", "");
                     Map<String, Object> userData = createUserDataMap(currentUser);
                     db.collection("users").document(deviceId).set(userData)
                             .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())
@@ -151,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(this, "Failed to create user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
                 }
-            // Error handling (unable to fetch document)
+                // Error handling (unable to fetch document)
             } else {
                 currentUser = null;
                 Toast.makeText(this, "Error fetching user data: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
@@ -196,12 +239,12 @@ public class MainActivity extends AppCompatActivity {
                 currentUser = new User();
                 currentUser.setUserData(documentSnapshot);
                 callback.onUserLoaded(currentUser);
-            // If the user document does not exist, set currentUser to null
+                // If the user document does not exist, set currentUser to null
             } else {
                 currentUser = null;
                 callback.onUserLoaded(null);
             }
-        // If there was an error retrieving the user document, set currentUser to null
+            // If there was an error retrieving the user document, set currentUser to null
         }).addOnFailureListener(e -> {
             currentUser = null;
             callback.onUserLoaded(null);
@@ -217,6 +260,15 @@ public class MainActivity extends AppCompatActivity {
         return currentUser;
     }
 
+    /**
+     * Retrieves the user marked for deletion.
+     * Used for admin functionality.
+     *
+     * @return The User object marked for deletion.
+     */
+    public User getDeleteUser() {
+        return deleteUser;
+    }
 
     /**
      * Sets the user to delete.
@@ -228,22 +280,12 @@ public class MainActivity extends AppCompatActivity {
         deleteUser = newUser;
     }
 
-    /**
-     * Retrieves the user marked for deletion.
-     * Used for admin functionality.
-     *
-     * @return The User object marked for deletion.
-     */
-    public User getDeleteUser() {
-        return deleteUser;
-    }
-
     // TODO: Delete when done testing
     public void addSampleUsersToDatabase() {
         for (int i = 1; i <= 10; i++) {
             // Create a sample User object
-            String id =Integer.toString(i);
-            User sampleUsers =  new User(id, "@gmail.com", "58888 north ave", false, false, false, "Jerry ", "213123123123", "","");
+            String id = Integer.toString(i);
+            User sampleUsers = new User(id, "@gmail.com", "58888 north ave", false, false, false, "Jerry ", "213123123123", "", "");
             Map<String, Object> userData = createUserDataMap(sampleUsers);
             db.collection("users").document(id).set(userData)
                     .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())
@@ -255,18 +297,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Interface for a callback when the current user is loaded.
-     */
-    public interface UserLoadCallback {
-        void onUserLoaded(User user);
-    }
-
-    /**
      * Retrieves the Firebase Storage reference.
      *
      * @return The root Firebase Storage reference.
      */
     public StorageReference getStorageRef() {
         return storageRef;
+    }
+
+    /**
+     * Interface for a callback when the current user is loaded.
+     */
+    public interface UserLoadCallback {
+        void onUserLoaded(User user);
     }
 }

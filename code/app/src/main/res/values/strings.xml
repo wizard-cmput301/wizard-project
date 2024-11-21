@@ -31,8 +31,7 @@
     <string name="image_title">Images</string>
     <string name="profile_title">Profiles</string>
     <string name="file_title">Events</string>
-
-
+    <string name="facility_title">Facilities</string>
 
     <!-- Text -->
     <string name="eventwizard_text">EventWizard</string>
@@ -65,6 +64,5 @@
     <string name="facility_name_label">Facility Name</string>
     <string name="location_label">Location</string>
     <string name="admin_fragment_label_event">admin_fragment_label_event</string>
-
-
+    <string name="admin_fragment_label_facility">admin_fragment_label_facility</string>
 </resources>

@@ -1,32 +1,21 @@
 package com.example.wizard_project.Fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.wizard_project.Adapters.BrowseEventAdapter;
-import com.example.wizard_project.Adapters.BrowseProfileAdapter;
-import com.example.wizard_project.Classes.User;
-import com.example.wizard_project.Controllers.EventController;
-import com.example.wizard_project.MainActivity;
-import com.example.wizard_project.R;
 import com.example.wizard_project.Classes.Event;
-import com.example.wizard_project.databinding.FragmentAdminBinding;
+import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEventListBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -37,8 +26,9 @@ import java.util.ArrayList;
  * allowing navigation to event details.
  */
 public class AdminEventViewFragment extends Fragment {
+
     private FragmentEventListBinding binding;
-    private ArrayList<Event> eventList = new ArrayList<>();
+    private final ArrayList<Event> eventList = new ArrayList<>();
     private BrowseEventAdapter adapter;
 
     @Override

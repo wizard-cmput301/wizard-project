@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:layout_marginVertical="10dp"
+    android:layout_marginHorizontal="50dp"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="10dp" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <!-- Facility Image -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/facility_card_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/example_facility"
+            android:layout_marginVertical="10dp"
+            android:layout_marginStart="10dp"
+            app:shapeAppearanceOverlay="@style/rounded_event_image"/>
+
+        <!-- Facility Name -->
+        <TextView
+            android:id="@+id/facility_card_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Facility Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_toEndOf="@id/facility_card_image"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp" />
+
+        <!-- Facility Location -->
+        <TextView
+            android:id="@+id/facility_card_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Facility Location"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/facility_card_image"
+            android:layout_below="@id/facility_card_name"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp" />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

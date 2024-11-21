@@ -24,7 +24,6 @@ import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEventListBinding;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class EventListFragment extends Fragment {
     private EventController eventController;
@@ -44,16 +43,22 @@ public class EventListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize variables
         MainActivity mainActivity = (MainActivity) requireActivity();
         NavController navController = NavHostFragment.findNavController(this);
         currentUser = mainActivity.getCurrentUser();
         String userId = currentUser.getDeviceId();
         ListView eventListView = binding.eventListview;
+
+        // Set up the ListView adapter
         adapter = new BrowseEventAdapter(getContext(), eventList);
         eventController = new EventController();
+
+        // Initialize controllers for events and facilities
         facilityController = new FacilityController();
         eventListView.setAdapter(adapter);
 
+        // Get the facility associated with the user, then load events for that facility
         facilityController.getFacility(userId, new FacilityController.facilityCallback() {
             @Override
             public void onCallback(Facility facility) {
@@ -66,6 +71,7 @@ public class EventListFragment extends Fragment {
             }
         });
 
+        // Handle item clicks to navigate to event details view
         binding.eventListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -75,10 +81,5 @@ public class EventListFragment extends Fragment {
                 navController.navigate(R.id.action_EventListFragment_to_ViewEventFragment, bundle);
             }
         });
-
-
-
-
-
     }
 }

@@ -86,6 +86,16 @@
             app:destination="@id/ViewEventFragment" />
     </fragment>
 
+    <!-- Admin Browse Facility Fragment -->
+    <fragment
+        android:id="@+id/AdminFragmentFacilityView"
+        android:name="com.example.wizard_project.Fragments.AdminFacilityViewFragment"
+        android:label="@string/admin_fragment_label_facility"
+        tools:layout="@layout/fragment_facility_list">
+        <action
+            android:id="@+id/action_AdminFragmentFacilityView_to_FacilityFragment"
+            app:destination="@id/ViewFacilityFragment" />
+    </fragment>
 
     <!-- Profile Fragment -->
     <fragment
