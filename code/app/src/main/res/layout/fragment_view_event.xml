@@ -130,7 +130,5 @@
             android:layout_height="wrap_content"
             android:text="Delete Event"
             android:visibility="gone" />
-            android:text="@string/view_qr_code"/>
     </RelativeLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
