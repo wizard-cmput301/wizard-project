@@ -13,14 +13,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.wizard_project.Classes.Event;
+import com.example.wizard_project.Controllers.FacilityController;
 import com.example.wizard_project.R;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Adapter to display event information in a list format for browsing.
+ */
+/**
+ * BrowseEventAdapter is a custom ArrayAdapter to display a list of events for a given facility.
  */
 public class BrowseEventAdapter extends ArrayAdapter<Event> {
     private List<Event> eventList;
@@ -31,6 +36,11 @@ public class BrowseEventAdapter extends ArrayAdapter<Event> {
      *
      * @param context The context in which the adapter is being used.
      * @param events  The list of events to be displayed.
+     */
+    /**
+     * Construct a new BrowseEventAdapter with a list of events and the context data.
+     * @param context The context used for layout inflation.
+     * @param events The list of events to be displayed.
      */
     public BrowseEventAdapter(Context context, ArrayList<Event> events) {
         super(context, 0, events);
@@ -54,6 +64,7 @@ public class BrowseEventAdapter extends ArrayAdapter<Event> {
         TextView eventLocation = convertView.findViewById(R.id.event_card_location);
         TextView eventAvailability = convertView.findViewById(R.id.event_card_availability);
         TextView eventDeadline = convertView.findViewById(R.id.event_card_deadline);
+        Date currentTime = new Date();
 
         // Bind event data to each view
         if (eventTitle != null) {
@@ -66,7 +77,7 @@ public class BrowseEventAdapter extends ArrayAdapter<Event> {
 
         if (eventLocation != null) {
             String location = currentEvent.getEvent_location() != null
-                    ? currentEvent.getEvent_location().getFacility_location()
+                    ? currentEvent.getEvent_location()
                     : "No Location";
             eventLocation.setText(location);
         }

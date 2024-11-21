@@ -198,4 +198,12 @@
             app:destination="@id/EntrantFragment" />
     </fragment>
 
+    <!-- Entrant List Fragment -->
+    <fragment
+        android:id="@+id/EntrantListFragment"
+        android:name="com.example.wizard_project.Fragments.EntrantListFragment"
+        android:label="Entrant List Fragment"
+        tools:layout="@layout/fragment_view_event">
+    </fragment>
+
 </navigation>

@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public class Event implements Serializable {
     private String event_name;
-    private Facility event_location;
+    private String event_location;
     private int event_price;
     private int event_waitlist_limit;
     private Date event_deadline;
@@ -25,6 +25,9 @@ public class Event implements Serializable {
     private String posterUri;
     private String eventId;
 
+    private int daysRemaining;
+
+
     /**
      * Constructor for initializing an Event instance with essential details.
      * @param event_name Name of the event.
@@ -33,7 +36,7 @@ public class Event implements Serializable {
      * @param event_deadline Deadline date to join the event.
      * @param facilityId ID of the facility where the event is held.
      */
-    public Event(String event_name, int event_price, int event_waitlist_limit, Date event_deadline, String facilityId) {
+    public Event(String event_name, int event_price, int event_waitlist_limit, Date event_deadline, String facilityId, String event_location) {
         this.event_name = event_name;
         this.event_price = event_price;
         this.event_waitlist_limit = event_waitlist_limit;
@@ -41,6 +44,8 @@ public class Event implements Serializable {
         this.facilityId = facilityId;
         this.eventId = eventId != null ? eventId : UUID.randomUUID().toString(); // Only generate if it's null
         this.waitlist = new ArrayList<>(); // Initialize the waitlist
+        this.event_location = event_location;
+        this.eventId = UUID.randomUUID().toString();
     }
 
     public String getEvent_name() {
@@ -51,11 +56,11 @@ public class Event implements Serializable {
         this.event_name = event_name;
     }
 
-    public Facility getEvent_location() {
+    public String getEvent_location() {
         return event_location;
     }
 
-    public void setEvent_location(Facility event_location) {
+    public void setEvent_location(String event_location) {
         this.event_location = event_location;
     }
 
@@ -154,6 +159,7 @@ public class Event implements Serializable {
      * @param document The Firestore document containing event data.
      */
     public void setEventData(DocumentSnapshot document) {
+        this.event_location = (String) document.get("location");
         this.eventId = document.getId(); // Assigns Firestore's document ID to eventId
         this.event_name = document.getString("name");
         this.facilityId = document.getString("facilityId");

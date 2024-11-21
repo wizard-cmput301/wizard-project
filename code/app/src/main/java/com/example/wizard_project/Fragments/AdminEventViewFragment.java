@@ -69,7 +69,7 @@ public class AdminEventViewFragment extends Fragment {
                     if (task.isSuccessful()) {
                         eventList.clear(); // Clear existing events before loading new ones
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            Event event = new Event(null, 0, 0, null, null);
+                            Event event = new Event(null, 0, 0, null, null, null);
                             event.setEventData(document);
                             eventList.add(event); // Add each event to the list
                         }
