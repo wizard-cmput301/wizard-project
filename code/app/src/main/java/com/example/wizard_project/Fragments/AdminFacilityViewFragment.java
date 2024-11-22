@@ -53,7 +53,7 @@ public class AdminFacilityViewFragment extends Fragment {
         binding.facilityListview.setOnItemClickListener((adapterView, itemView, position, id) -> {
             Facility selectedFacility = facilityList.get(position);
             Bundle bundle = new Bundle();
-            bundle.putSerializable("event", selectedFacility);
+            bundle.putSerializable("facility", selectedFacility);
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.action_AdminFragmentFacilityView_to_FacilityFragment, bundle);
         });

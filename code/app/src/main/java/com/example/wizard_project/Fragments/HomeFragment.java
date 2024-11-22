@@ -4,12 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.wizard_project.Controllers.FacilityController;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentHomeBinding;
@@ -48,15 +50,25 @@ public class HomeFragment extends Fragment {
         binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EntrantFragment)); // Navigate to EntrantFragment
         binding.qrcodeButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment)); // Navigate to QRScannerFragment
 
-        // Button to navigate to OrganizerFragment
         // Check if the user is an organizer
         isOrganizer(isOrganizer -> {
-            // If the user is an organizer, navigate to the view facility fragment.
             if (isOrganizer) {
-                binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_ViewFacilityFragment));
-            }
-            // If the user is not an organizer, navigate to the edit facility fragment to create one.
-            else {
+                // Fetch the organizer's facility
+                fetchFacilityForOrganizer(facility -> {
+                    if (facility != null) {
+                        // Pass the facility to ViewFacilityFragment
+                        binding.manageFacilityButton.setOnClickListener(v -> {
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("facility", facility);
+                            navController.navigate(R.id.action_HomeFragment_to_ViewFacilityFragment, bundle);
+                        });
+                    } else {
+                        Toast.makeText(requireContext(), "Facility not found. Please create one.", Toast.LENGTH_SHORT).show();
+                        binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment));
+                    }
+                });
+            } else {
+                // If the user is not an organizer, navigate to the edit facility fragment to create one.
                 binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment));
             }
         });
@@ -72,6 +84,24 @@ public class HomeFragment extends Fragment {
                 } else {
                     binding.adminButton.setVisibility(View.GONE);
                 }
+            }
+        });
+    }
+
+    /**
+     * Fetches the facility for the organizer.
+     *
+     * @param callback The callback to handle the fetched facility.
+     */
+    private void fetchFacilityForOrganizer(FacilityController.facilityCallback callback) {
+        String userId = ((MainActivity) requireActivity()).retrieveDeviceId();
+        FacilityController facilityController = new FacilityController();
+
+        facilityController.getFacility(userId, facility -> {
+            if (facility != null) {
+                callback.onCallback(facility);
+            } else {
+                callback.onCallback(null);
             }
         });
     }

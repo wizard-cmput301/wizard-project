@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         // TODO: Delete when done testing
-        //addSampleUsersToDatabase();
+        // addSampleUsersToDatabase();
 
         // Initialize Firebase components
         db = FirebaseFirestore.getInstance();
@@ -261,12 +261,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Retrieves the user marked for deletion.
+     * Retrieves the selected user.
      * Used for admin functionality.
      *
      * @return The User object marked for deletion.
      */
-    public User getDeleteUser() {
+    public User getSelectedUser() {
         return deleteUser;
     }
 

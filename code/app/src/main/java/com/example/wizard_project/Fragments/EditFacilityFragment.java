@@ -18,9 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.Facility;
@@ -30,7 +28,6 @@ import com.example.wizard_project.Controllers.FacilityController;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEditFacilityBinding;
 import com.example.wizard_project.MainActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -44,9 +41,12 @@ public class EditFacilityFragment extends Fragment {
     private User currentUser;
     private Facility userFacility;
     private final FacilityController controller = new FacilityController();
+    private PhotoHandler photo;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEditFacilityBinding.inflate(inflater, container, false);
+        photo = new PhotoHandler(); // Initialize the photo handler
         return binding.getRoot();
     }
 
@@ -54,102 +54,147 @@ public class EditFacilityFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Get the current user
         NavController navController = NavHostFragment.findNavController(this);
         MainActivity mainActivity = (MainActivity) requireActivity();
         currentUser = mainActivity.getCurrentUser();
         String userId = currentUser.getDeviceId();
-        EditText facilityName = binding.facilityEditName;
-        EditText facilityLocation = binding.facilityEditLocation;
-        Button doneButton = binding.facilityDoneButton;
-        Button uploadImageButton = binding.facilityEditImageButton;
-        ImageView facilityImage = binding.facilityEditImageview;
-        // Populate the text fields with existing facility info.
-        controller.getFacility(userId, new FacilityController.facilityCallback() {
-            @Override
-            public void onCallback(Facility facility) {
-                if (facility != null) {
-                    userFacility = facility;
-                    facilityName.setText(userFacility.getFacility_name());
-                    facilityLocation.setText(userFacility.getFacility_location());
-                    if(userFacility.getFacilitymagePath() != null){
-                        Uri imageUri = Uri.parse(facility.getposterUri());
-                        Glide.with(requireContext()).load(imageUri).into(facilityImage);
-                    }
+
+        // Initialize UI elements
+        ImageView facilityImage = binding.imageviewEditFacilityImage;
+        EditText facilityName = binding.edittextFacilityName;
+        EditText facilityLocation = binding.edittextFacilityLocation;
+        Button saveButton = binding.buttonSaveFacility;
+
+        // Get the facility passed to the fragment (if any)
+        userFacility = (Facility) (getArguments() != null ? getArguments().getSerializable("facility") : null);
+
+        // Check if the user is editing an existing facility, else create a new one.
+        if (userFacility == null) {
+            // Create a new facility
+            facilityName.setText("");
+            facilityLocation.setText("");
+            saveButton.setText("Create Facility");
+        } else {
+            // Edit an existing facility
+            if (userFacility != null) {
+                facilityName.setText(userFacility.getFacility_name());
+                facilityLocation.setText(userFacility.getFacility_location());
+                saveButton.setText("Save Changes");
+                if (userFacility.getFacilitymagePath() != null && !userFacility.getFacilitymagePath().isEmpty()) {
+                    Glide.with(requireContext()).load(userFacility.getFacilitymagePath()).into(facilityImage);
                 }
             }
+        }
+
+        // Handle image selection
+        facilityImage.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, PhotoHandler.PICK_IMAGE_REQUEST);
         });
 
-        // Submit the inputted facility info, direct user to facility view.
-        doneButton.setOnClickListener(new View.OnClickListener() {
+        // Set up save button listener
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String newName = facilityName.getText().toString();
                 String newLocation = facilityLocation.getText().toString();
 
-                if (newName.trim().isEmpty()) {
+                // Input Validation TODO: Add more validation
+                if (newName.isEmpty()) {
                     facilityName.setError("Please enter a valid facility name.");
+                    return;
+                }
+                if (newLocation.isEmpty()) {
+                    facilityLocation.setError("Please enter a valid facility location.");
+                    return;
+                }
 
-                } else if (newLocation.trim().isEmpty()) {
-                    facilityLocation.setError("Please enter a valid location.");
+                // If the user is not an organizer, create a new facility.
+                if (!currentUser.isOrganizer()) {
+                    // Create a new facility object with the inputted info.
+                    userFacility = new Facility(
+                            currentUser.getDeviceId(),
+                            UUID.randomUUID().toString(),
+                            newName,
+                            newLocation,
+                            "",
+                            ""
+                    );
+                    controller.createFacility(userFacility, currentUser.getDeviceId(), new FacilityController.createCallback() {
+                        @Override
+                        public void onSuccess() {
+                            currentUser.setOrganizer(true);
+                            navigateToViewFacility(navController, userFacility);
+                        }
 
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(requireContext(), "Failed to create facility", Toast.LENGTH_SHORT).show();
+                            Log.e("EditFacility", "Error creating facility", e);
+                        }
+                    });
                 } else {
-                    if (currentUser.isOrganizer()) {
-                        // Update existing facility info if the user is already an organizer.
-                        userFacility.setFacility_name(newName);
-                        userFacility.setFacility_location(newLocation);
-                        controller.updateFacility(userFacility);
-                        navController.navigate(R.id.action_EditFacilityFragment_to_ViewFacilityFragment);
+                    // If the user is an organizer, update the existing facility.
+                    userFacility.setFacility_name(newName);
+                    userFacility.setFacility_location(newLocation);
 
-                    } else {
-                        // Create new facility with the inputted info.
-                        userFacility = new Facility(currentUser.getDeviceId(), UUID.randomUUID().toString(), newName, newLocation,"","");
-                        controller.createFacility(userFacility);
-                        currentUser.setOrganizer(true);
-                        navController.navigate(R.id.action_EditFacilityFragment_to_ViewFacilityFragment);
-                    }
+                    controller.updateFacility(userFacility, new FacilityController.updateCallback() {
+                        @Override
+                        public void onSuccess() {
+                            navigateToViewFacility(navController, userFacility);
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(requireContext(), "Failed to update facility", Toast.LENGTH_SHORT).show();
+                            Log.e("EditFacility", "Error updating facility", e);
+                        }
+                    });
                 }
             }
         });
-
-        // Prompt the user to select a photo and add it to the database.
-        uploadImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, PhotoHandler.PICK_IMAGE_REQUEST);
-            }
-        });
     }
+
+
     /**
-     * Uploads the selected image to Firebase and updates the facility in the UI.
-     *
-     * @param requestCode The request code identifying the image pick request.
-     * @param resultCode The result code indicating success or failure.
-     * @param data The Intent data returned by the image picker.
+     * Handles image selection and uploads it to Firebase.
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             Uri imageUri = data.getData();
-            userFacility.setposterUri(imageUri.toString());
+            if (imageUri != null) {
+                String path = "images/" + UUID.randomUUID().toString();
+                StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(path);
 
-            // Load the selected image into the ImageView
-            Glide.with(requireContext()).load(imageUri).into(binding.facilityEditImageview);
-            // update the database with new image
-            String path = "images/" + UUID.randomUUID().toString();
-            userFacility.setFacilityImagePath(path);
-            userFacility.setposterUri(imageUri.toString());
-            controller.updateFeild(userFacility,"posterUri",imageUri.toString());
-            controller.updateFeild(userFacility,"facility_imagePath",path);
+                // Upload image to Firebase Storage
+                imageRef.putFile(imageUri)
+                        .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            userFacility.setposterUri(uri.toString());
+                            userFacility.setFacilityImagePath(path);
 
-            // Upload image to Firebase Storage
-            StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(path);
-            imageRef.putFile(imageUri).addOnFailureListener(e -> {
-                // Handle failure
-                Toast.makeText(requireContext(), "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            });
+                            controller.updateField(userFacility, "posterUri", uri.toString());
+                            controller.updateField(userFacility, "facility_imagePath", path);
 
+                            // Update ImageView
+                            Glide.with(requireContext()).load(uri).into(binding.imageviewEditFacilityImage);
+                            Toast.makeText(requireContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                        }))
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(requireContext(), "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Log.e("EditFacility", "Image upload error", e);
+                        });
+            }
         }
+    }
+
+    /**
+     * Navigates to the ViewFacilityFragment with the updated facility.
+     */
+    private void navigateToViewFacility(NavController navController, Facility facility) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("facility", facility);
+        navController.navigate(R.id.action_EditFacilityFragment_to_ViewFacilityFragment, bundle);
     }
 }

@@ -27,18 +27,13 @@ public class FacilityController {
     }
 
     /**
-     * Creates a new facility with its attributes and adds it to the database.
-     * @param userId The device ID of the user.
-     * @param facility_name The name of the facility.
-     * @param facility_location The location of the facility.
-     * @return The newly created Facility object.
-     * adds a facility to the database.
-     * @param newFacility a placeholder facility Object
-     * Adds a facility to the database.
+     * Creates a new facility with its attributes, adds it to the database, and updates the user's isOrganizer field.
      *
-     * @param newFacility The facility objet to add.
+     * @param newFacility The facility object to add.
+     * @param userId      The ID of the user creating the facility.
+     * @param callback    Callback for success or failure.
      */
-    public void createFacility(Facility newFacility) {
+    public void createFacility(Facility newFacility, String userId, createCallback callback) {
         Map<String, Object> facilityData = new HashMap<>();
         facilityData.put("userId", newFacility.getUserId());
         facilityData.put("name", newFacility.getFacility_name());
@@ -49,9 +44,26 @@ public class FacilityController {
 
         // Create the facility document in the database.
         db.collection("facilities").document(newFacility.getFacilityId()).set(facilityData)
-                .addOnSuccessListener(aVoid -> Log.d("FacilityCreated", "Successfully added facility."))
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("FacilityController", "Successfully added facility.");
+                    // Update the user's isOrganizer field
+                    updateIsOrganizer(userId, true, new updateCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("FacilityController", "User isOrganizer updated to true.");
+                            callback.onSuccess();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e("FacilityController", "Facility created but failed to update user role.", e);
+                            callback.onFailure(e);
+                        }
+                    });
+                })
                 .addOnFailureListener(e -> {
-                    Log.e("FacilityError", "Failed to create facility.", e);
+                    Log.e("FacilityController", "Failed to create facility.", e);
+                    callback.onFailure(e);
                 });
     }
 
@@ -62,22 +74,19 @@ public class FacilityController {
      * @param callback A callback interface containing the retrieved facility.
      */
     public void getFacility(String userId, facilityCallback callback) {
-        // Create a new facility object.
-        Facility newFacility = new Facility(userId, "", "", "", "", "");
-
-        // Populate the facility object with the facility info from the database.
         db.collection("facilities").whereEqualTo("userId", userId).get()
-                .addOnSuccessListener(documentSnapshots -> {
-                    if (!documentSnapshots.isEmpty()) {
-                        DocumentSnapshot facilityRef = documentSnapshots.getDocuments().get(0);
-                        newFacility.setFacilityData(facilityRef);
-                        callback.onCallback(newFacility);
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                        Facility facility = new Facility();
+                        facility.setFacilityData(documentSnapshot);
+                        callback.onCallback(facility);
                     } else {
                         callback.onCallback(null);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("RetrievalError", "Error retrieving facility data:", e);
+                    Log.e("FacilityController", "Error fetching facility", e);
                     callback.onCallback(null);
                 });
     }
@@ -85,28 +94,27 @@ public class FacilityController {
     /**
      * Updates a facility's details in the database.
      *
-     * @param facility The facility objet with updated values.
+     * @param facility The facility object with updated values.
      */
-    public void updateFacility(Facility facility) {
-        // Retrieve the facility document.
+    public void updateFacility(Facility facility, updateCallback callback) {
+        if (facility.getFacilityId() == null || facility.getFacilityId().isEmpty()) {
+            callback.onFailure(new IllegalArgumentException("Facility ID is null or empty"));
+            return;
+        }
+
         DocumentReference facilityRef = db.collection("facilities").document(facility.getFacilityId());
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", facility.getFacility_name());
+        updates.put("location", facility.getFacility_location());
 
-        // Update the facility fields.
-        facilityRef.update("name", facility.getFacility_name());
-        facilityRef.update("location", facility.getFacility_location());
-
-        // Update all related events.
-        db.collection("events").whereEqualTo("facilityId", facility.getFacilityId()).get()
-                .addOnSuccessListener(documentSnapshots -> {
-                    if (!documentSnapshots.isEmpty()) {
-                        for (int i = 0; i < documentSnapshots.size(); i++) {
-                            DocumentSnapshot doc = documentSnapshots.getDocuments().get(i);
-                            DocumentReference eventRef = doc.getReference();
-                            eventRef.update("location", facility.getFacility_name());
-                        }
-                    }
+        facilityRef.update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("FacilityController", "Facility updated successfully");
+                    callback.onSuccess();
                 })
-                .addOnFailureListener(e -> { Log.e("UpdateError", "Failed to retrieve events for a facility.", e);
+                .addOnFailureListener(e -> {
+                    Log.e("FacilityController", "Error updating facility", e);
+                    callback.onFailure(e);
                 });
     }
 
@@ -117,7 +125,7 @@ public class FacilityController {
      * @param field    The field to update
      * @param update   The new value for the field.
      */
-    public void updateFeild(Facility facility, String field, String update) {
+    public void updateField(Facility facility, String field, String update) {
         // Retrieve the facility document.
         DocumentReference facilityRef = db.collection("facilities").document(facility.getFacilityId());
 
@@ -128,16 +136,40 @@ public class FacilityController {
     /**
      * Deletes a facility from the database.
      *
-     * @param facility The facility to delete.
+     * @param facilityId The ID of the facility to delete.
+     * @param callback   Callback for success or failure.
      */
-    public void deleteFacility(Facility facility) {
-        db.collection("facilities").document(facility.getFacilityId()).delete()
-                .addOnSuccessListener(aVoid -> Log.d("FacilityDeleted", "Successfully deleted facility."))
+    public void deleteFacility(String facilityId, deleteCallback callback) {
+        db.collection("facilities").document(facilityId).delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("FacilityController", "Facility deleted successfully");
+                    callback.onSuccess();
+                })
                 .addOnFailureListener(e -> {
-                    Log.e("FacilityError", "Failed to delete facility.", e);
+                    Log.e("FacilityController", "Error deleting facility", e);
+                    callback.onFailure(e);
                 });
     }
 
+    /**
+     * Updates the isOrganizer field for a user in Firestore.
+     *
+     * @param userId      The ID of the user to update.
+     * @param isOrganizer The new value for the isOrganizer field.
+     * @param callback    Callback for success or failure.
+     */
+    public void updateIsOrganizer(String userId, boolean isOrganizer, updateCallback callback) {
+        db.collection("users").document(userId)
+                .update("isOrganizer", isOrganizer)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("FacilityController", "User isOrganizer updated to " + isOrganizer);
+                    callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FacilityController", "Error updating isOrganizer", e);
+                    callback.onFailure(e);
+                });
+    }
 
     /**
      * Retrieves a list of all facilities from the database.
@@ -175,5 +207,32 @@ public class FacilityController {
      */
     public interface facilitiesCallback {
         void onCallback(ArrayList<Facility> facilities);
+    }
+
+    /**
+     * Callback interface for delete operations.
+     */
+    public interface deleteCallback {
+        void onSuccess();
+
+        void onFailure(Exception e);
+    }
+
+    /**
+     * Callback interface for update operations.
+     */
+    public interface updateCallback {
+        void onSuccess();
+
+        void onFailure(Exception e);
+    }
+
+    /**
+     * Callback interface for create operations.
+     */
+    public interface createCallback {
+        void onSuccess();
+
+        void onFailure(Exception e);
     }
 }

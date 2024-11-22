@@ -18,7 +18,8 @@
     <string name="admin_string">Admin</string>
     <string name="profile_pic_delete">Remove Profile Picture</string>
     <string name="save_button">Save</string>
-    <string name="deleteButton">Delete</string>
+    <string name="delete_profile_button">Delete Profile</string>
+    <string name="delete_facility_button">Delete Facility</string>
     <string name="qrCodebutton">QR Code Scanner</string>
     <string name="doneButton">Done</string>
     <string name="edit_facility_button">Edit Facility</string>
@@ -31,7 +32,6 @@
     <string name="entrant_list">Wait List</string>
     <string name="map_view">Map View</string>
     <string name="view_qr_code">View QR Code</string>
-
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
@@ -51,6 +51,8 @@
     <string name="eventwizard_logo_desc">EventWizard Logo</string>
     <string name="profile_picture_button_desc">Profile Picture Button</string>
     <string name="profile_picture_desc">Profile Picture</string>
+    <string name="facility_picture_desc">Facility Picture</string>
+    <string name="edit_picture_icon_desc">Edit Icon</string>
     <string name="upload_image_text">Upload Image</string>
 
     <!-- Edit Profile -->
@@ -71,8 +73,17 @@
     <string name="select_a_date">Select a Date</string>
 
     <!-- Edit Facility -->
+    <string name="textview_facility_name">Facility Name</string>
+    <string name="textview_facility_location">Facility Location</string>
     <string name="facility_name_label">Facility Name</string>
-    <string name="location_label">Location</string>
+    <string name="facility_location_label">Facility Location</string>
+
     <string name="admin_fragment_label_event">admin_fragment_label_event</string>
     <string name="admin_fragment_label_facility">admin_fragment_label_facility</string>
+
+    <string name="edit_facility_name">Enter Facility Name</string>
+    <string name="edit_facility_location">Enter Facility Location</string>
+    <string name="delete_facility_image">Delete Facility Image</string>
+
+
 </resources>
