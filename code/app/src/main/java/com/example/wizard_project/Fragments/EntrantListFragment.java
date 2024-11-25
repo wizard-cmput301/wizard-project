@@ -1,12 +1,13 @@
 package com.example.wizard_project.Fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,11 +19,11 @@ import com.example.wizard_project.Adapters.BrowseEntrantAdapter;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.EventController;
-import com.example.wizard_project.LotterySystem;
+import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEntrantListBinding;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * EntrantListFragment represents a view of the list of entrants for an event.
@@ -32,6 +33,7 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
     private EventController eventController;
     private ArrayList<User> entrantList = new ArrayList<User>();
     private BrowseEntrantAdapter adapter;
+    private Event event;
 
     /**
      * Creates a new instance of EntrantListFragment with event information passed.
@@ -49,12 +51,7 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
 
     @Override
     public void setDrawAmount(int drawAmount) {
-        drawEntrants(drawAmount);
-    }
-
-    private void drawEntrants(int drawAmount) {
-        LotterySystem lotterySystem = new LotterySystem();
-        List<User> selectedEntrants = lotterySystem.drawEntrants(entrantList, drawAmount, entrantList.size());
+        eventController.setDrawCount(event, drawAmount);
     }
 
     @Override
@@ -67,29 +64,32 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ListView entrantListView = binding.entrantListview;
+
         NavController navController = NavHostFragment.findNavController(this);
         eventController = new EventController();
 
-        ListView entrantListView = binding.entrantListview;
-        adapter = new BrowseEntrantAdapter(getContext(), entrantList);
-        entrantListView.setAdapter(adapter);
-
-        Button sampleAttendeesButton = binding.sampleAttendeesButton;
-
         // Get the event object.
         assert getArguments() != null;
-        Event event = (Event) getArguments().getSerializable("event");
+        event = (Event) getArguments().getSerializable("event");
 
         // Add the users to the list to be displayed.
         assert event != null;
-        eventController.getWaitlistEntrants(event, new EventController.waitListCallback() {
+        eventController.getEntrants(event, new EventController.waitListCallback() {
             @Override
             public void onCallback(ArrayList<User> users) {
                 entrantList.clear();
                 entrantList.addAll(users);
+
+                adapter = new BrowseEntrantAdapter(getContext(), entrantList);
+                entrantListView.setAdapter(adapter);
+
                 adapter.notifyDataSetChanged();
             }
         });
+
+        Button sampleAttendeesButton = binding.sampleAttendeesButton;
+        Button filterButton = binding.filterButton;
 
         sampleAttendeesButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,6 +97,26 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
                 SampleAttendeeDialog dialog = SampleAttendeeDialog.newInstance(entrantList.size());
                 dialog.show(getChildFragmentManager(), "SampleAttendeesDialog");
             }
+        });
+
+        filterButton.setOnClickListener(filterView -> {
+            PopupMenu popupMenu = new PopupMenu(getContext(), filterView);
+            popupMenu.getMenuInflater().inflate(R.menu.entrant_filter_menu, popupMenu.getMenu());
+
+            popupMenu.setOnMenuItemClickListener(menuItem -> {
+                for (int i = 0; i < popupMenu.getMenu().size(); i++) {
+                    if (!(popupMenu.getMenu().getItem(i) == menuItem)) {
+                        popupMenu.getMenu().getItem(i).setChecked(false);
+                    }
+                }
+
+                menuItem.setChecked(true);
+
+                String filterStatus = Objects.requireNonNull(menuItem.getTitle()).toString();
+                adapter.getFilter().filter(filterStatus);
+                return true;
+            });
+            popupMenu.show();
         });
 
 

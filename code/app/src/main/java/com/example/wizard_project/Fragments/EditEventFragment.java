@@ -134,6 +134,10 @@ public class EditEventFragment extends Fragment {
                 if(!eventWaitlist.getText().toString().isEmpty()) {
                     newWaitlistLimit = Integer.valueOf(eventWaitlist.getText().toString());
                 }
+                else {
+                    // If no limit is entered, then any amount of users can join the waitlist.
+                    newWaitlistLimit = Integer.MAX_VALUE;
+                }
 
                 if (eventPrice.getText().toString().trim().isEmpty()) {
                     eventPrice.setError("Please enter a valid price.");
@@ -190,16 +194,20 @@ public class EditEventFragment extends Fragment {
         selectDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Calendar calendar = Calendar.getInstance();
+                int currentYear = calendar.get(Calendar.YEAR);
+                int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+                int currentMonth = calendar.get(Calendar.MONTH);
+
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                         eventDeadline.setText(String.format("%02d-%02d-%02d", year, month+1, day));
 
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(year, month, day);
+                        calendar.set(year, month, day, 23, 59, 59);
                         selectedDeadlineDate = calendar.getTime();
                     }
-                }, 2024, 10, 30);
+                }, currentYear, currentMonth, currentDay);
                 dialog.show();
             }
         });

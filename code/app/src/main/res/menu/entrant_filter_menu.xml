@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/filter_all"
+        android:checkable="true"
+        android:title="@string/all_text" />
+    <item
+        android:id="@+id/filter_cancelled"
+        android:checkable="true"
+        android:title="@string/cancelled_text" />
+    <item
+        android:id="@+id/filter_not_selected"
+        android:checkable="true"
+        android:title="@string/not_selected_text" />
+    <item
+        android:id="@+id/filter_selected"
+        android:checkable="true"
+        android:title="@string/selected_text" />
+    <item
+        android:id="@+id/filter_waitlisted"
+        android:checkable="true"
+        android:title="@string/waitlisted_text" />
+</menu>
