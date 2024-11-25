@@ -3,6 +3,7 @@ package com.example.wizard_project.Fragments;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,16 +95,33 @@ public class QRScannerFragment extends Fragment {
      * @param qrCodeData The scanned QR code content used to query the Firestore event.
      */
     private void checkEventInFirestore(String qrCodeData) {
-        db.collection("events").document(qrCodeData).get()
+        // Check if the QR code content starts with "Event ID: "
+        if (qrCodeData.startsWith("Event ID: ")) {
+            // Extract the eventId from the QR code content
+            String eventId = qrCodeData.substring(10).trim(); // Remove "Event ID: "
+            Log.d("QRScannerFragment", "Extracted Event ID: " + eventId);
+
+            // Query Firestore with the extracted eventId
+            queryFirestoreForEvent(eventId);
+        } else {
+            // Handle invalid QR code format
+            Toast.makeText(requireContext(), "Invalid QR Code format", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void queryFirestoreForEvent(String eventId) {
+        db.collection("events").document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
+                        Log.d("QRScannerFragment", "Event found: " + documentSnapshot.getId());
                         navigateToEventDetails(documentSnapshot);
                     } else {
                         Toast.makeText(requireContext(), "Event not found", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), "Failed to check event", Toast.LENGTH_SHORT).show();
+                    Log.e("QRScannerFragment", "Failed to query Firestore", e);
+                    Toast.makeText(requireContext(), "Failed to query event", Toast.LENGTH_SHORT).show();
                 });
     }
 

@@ -117,6 +117,13 @@ public class ViewEventFragment extends Fragment {
                 navController.navigate(R.id.action_ViewEventFragment_to_EntrantListFragment, bundle);
             }
         });
+
+        viewQRButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("eventId", event.getEventId()); // Pass event ID
+            navController.navigate(R.id.action_ViewEventFragment_to_ViewQRCodeFragment, bundle);
+        });
+
     }
 
     /**
