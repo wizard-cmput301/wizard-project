@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:fillViewport="true"
-    tools:context=".Fragments.HomeFragment" >
+    tools:context=".Fragments.HomeFragment">
 
     <!-- Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp" >
+        android:padding="16dp">
 
         <!-- EventWizard Logo -->
         <ImageView
@@ -25,7 +25,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias ="0.2" />
+            app:layout_constraintVertical_bias="0.2" />
 
         <!-- App Name -->
         <TextView
@@ -45,11 +45,11 @@
             android:id="@+id/enter_event_button"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
             android:backgroundTint="@color/lighter_purple"
             android:text="@string/enter_event_string"
             android:textColor="@color/white"
             android:textSize="20sp"
-            android:layout_marginTop="70dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/app_title" />
@@ -59,10 +59,10 @@
             android:id="@+id/or_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="@string/or_text"
             android:textColor="@color/black"
             android:textSize="20sp"
-            android:layout_marginTop="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/enter_event_button" />
@@ -73,11 +73,11 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
             android:backgroundTint="@color/lighter_purple"
             android:text="@string/create_manage_facility_string"
             android:textColor="@color/white"
             android:textSize="20sp"
-            android:layout_marginTop="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/or_text" />
@@ -113,6 +113,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/admin_button" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,9 +27,9 @@ import java.util.ArrayList;
  * FacilityListFragment allows the admin to browse facilities and manage them.
  */
 public class FacilityListFragment extends Fragment {
+    private final ArrayList<Facility> facilityList = new ArrayList<>();
     private FacilityController facilityController;
     private FragmentFacilityListBinding binding;
-    private final ArrayList<Facility> facilityList = new ArrayList<>();
     private BrowseFacilityAdapter adapter;
     private User currentUser;
 
@@ -43,40 +43,62 @@ public class FacilityListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize variables
+        // Initialize components and user data
         MainActivity mainActivity = (MainActivity) requireActivity();
-        NavController navController = NavHostFragment.findNavController(this);
         currentUser = mainActivity.getCurrentUser();
-        ListView facilityListView = binding.facilityListview;
-
-        // Set up the ListView adapter
-        adapter = new BrowseFacilityAdapter(getContext(), facilityList);
-        facilityListView.setAdapter(adapter);
-
-        // Initialize the FacilityController and load facilities
         facilityController = new FacilityController();
-        loadFacilities();
 
-        // Handle item click events to navigate to the facility detail view
+        setupListView();
+        loadFacilities();
+    }
+
+    /**
+     * Sets up the ListView and its adapter, and handles item clicks.
+     */
+    private void setupListView() {
+        adapter = new BrowseFacilityAdapter(requireContext(), facilityList);
+        binding.facilityListview.setAdapter(adapter);
+
+        // Handle ListView item clicks
         binding.facilityListview.setOnItemClickListener((adapterView, itemView, position, id) -> {
             Facility selectedFacility = facilityList.get(position);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("facility", selectedFacility);
-            navController.navigate(R.id.action_AdminFragmentFacilityView_to_FacilityFragment, bundle);
+            openFacilityDetails(selectedFacility);
         });
     }
 
     /**
-     * Loads all facilities from Firestore and updates the facility list.
+     * Loads facilities from Firestore and updates the ListView.
      */
     private void loadFacilities() {
         facilityController.getFacilities(new FacilityController.facilitiesCallback() {
             @Override
             public void onCallback(ArrayList<Facility> facilities) {
-                facilityList.clear();
-                facilityList.addAll(facilities); // Update the facility list
-                adapter.notifyDataSetChanged(); // Refresh the ListView
+                if (facilities != null && !facilities.isEmpty()) {
+                    facilityList.clear();
+                    facilityList.addAll(facilities);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(requireContext(), "No facilities available.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
+
+    /**
+     * Navigates to the FacilityFragment to view details of the selected facility.
+     *
+     * @param selectedFacility The facility selected by the user.
+     */
+    private void openFacilityDetails(Facility selectedFacility) {
+        NavController navController = NavHostFragment.findNavController(this);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("facility", selectedFacility);
+        navController.navigate(R.id.action_AdminFragmentFacilityView_to_FacilityFragment, bundle);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null; // Clear binding to prevent memory leaks
     }
 }

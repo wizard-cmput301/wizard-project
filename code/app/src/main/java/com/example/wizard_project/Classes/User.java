@@ -164,9 +164,8 @@ public class User {
 
     /**
      * Wipes the user's data from memory.
-     * TODO: rename
      */
-    public void DeleteUser() {
+    public void deleteUser() {
         this.deviceId = "";
         this.email = "";
         this.location = "";

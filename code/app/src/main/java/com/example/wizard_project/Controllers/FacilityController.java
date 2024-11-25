@@ -3,7 +3,6 @@ package com.example.wizard_project.Controllers;
 import android.util.Log;
 
 import com.example.wizard_project.Classes.Facility;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -14,7 +13,7 @@ import java.util.Map;
 
 /**
  * FacilityController acts as a communicator between the database and Facility objects.
- * Facilitates the addition, retrieval, and updating of Facility objects.
+ * It provides methods to create, retrieve, update, and delete facilities in the Firestore database.
  */
 public class FacilityController {
     private final FirebaseFirestore db;
@@ -39,7 +38,7 @@ public class FacilityController {
         facilityData.put("name", newFacility.getFacility_name());
         facilityData.put("location", newFacility.getFacility_location());
         facilityData.put("facilityId", newFacility.getFacilityId());
-        facilityData.put("facility_imagePath", newFacility.getFacilitymagePath());
+        facilityData.put("facility_imagePath", newFacility.getFacilityImagePath());
         facilityData.put("posterUri", newFacility.getposterUri());
 
         // Create the facility document in the database.
@@ -68,7 +67,7 @@ public class FacilityController {
     }
 
     /**
-     * Retrieves a facility from the database based on the user ID.
+     * Retrieves a facility associated with a specific user from Firestore.
      *
      * @param userId   The device ID of the user.
      * @param callback A callback interface containing the retrieved facility.
@@ -102,12 +101,11 @@ public class FacilityController {
             return;
         }
 
-        DocumentReference facilityRef = db.collection("facilities").document(facility.getFacilityId());
         Map<String, Object> updates = new HashMap<>();
         updates.put("name", facility.getFacility_name());
         updates.put("location", facility.getFacility_location());
 
-        facilityRef.update(updates)
+        db.collection("facilities").document(facility.getFacilityId()).update(updates)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("FacilityController", "Facility updated successfully");
                     callback.onSuccess();
@@ -126,11 +124,8 @@ public class FacilityController {
      * @param update   The new value for the field.
      */
     public void updateField(Facility facility, String field, String update) {
-        // Retrieve the facility document.
-        DocumentReference facilityRef = db.collection("facilities").document(facility.getFacilityId());
-
-        // Update the facility fields.
-        facilityRef.update(field, update);
+        db.collection("facilities").document(facility.getFacilityId()).update(field, update)
+                .addOnFailureListener(e -> Log.e("FacilityController", "Error updating field.", e));
     }
 
     /**
@@ -152,7 +147,34 @@ public class FacilityController {
     }
 
     /**
-     * Updates the isOrganizer field for a user in Firestore.
+     * Deletes a facility and all associated events from the database.
+     *
+     * @param facilityId The ID of the facility to delete.
+     * @param callback   Callback for success or failure.
+     */
+    public void deleteFacilityWithEvents(String facilityId, deleteCallback callback) {
+        // First, delete all events associated with the facility
+        db.collection("events").whereEqualTo("facilityId", facilityId).get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // Batch delete all events
+                        for (DocumentSnapshot eventDoc : querySnapshot.getDocuments()) {
+                            db.collection("events").document(eventDoc.getId()).delete()
+                                    .addOnSuccessListener(aVoid -> Log.d("FacilityController", "Deleted event: " + eventDoc.getId()))
+                                    .addOnFailureListener(e -> Log.e("FacilityController", "Failed to delete event: " + eventDoc.getId(), e));
+                        }
+                    }
+                    // After deleting events, delete the facility
+                    deleteFacility(facilityId, callback);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FacilityController", "Error fetching events for facility", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Updates the "isOrganizer" field for a user in Firestore.
      *
      * @param userId      The ID of the user to update.
      * @param isOrganizer The new value for the isOrganizer field.
@@ -177,8 +199,7 @@ public class FacilityController {
      * @param callback A callback containing the retrieved facilities.
      */
     public void getFacilities(facilitiesCallback callback) {
-        db.collection("facilities")
-                .get()
+        db.collection("facilities").get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         ArrayList<Facility> facilities = new ArrayList<>();
@@ -195,41 +216,27 @@ public class FacilityController {
                 });
     }
 
-    /**
-     * Callback interface for retrieving a single facility.
-     */
+    // Callback Interfaces
     public interface facilityCallback {
         void onCallback(Facility facility);
     }
 
-    /**
-     * Callback interface for retrieving a list of facilities.
-     */
     public interface facilitiesCallback {
         void onCallback(ArrayList<Facility> facilities);
     }
 
-    /**
-     * Callback interface for delete operations.
-     */
     public interface deleteCallback {
         void onSuccess();
 
         void onFailure(Exception e);
     }
 
-    /**
-     * Callback interface for update operations.
-     */
     public interface updateCallback {
         void onSuccess();
 
         void onFailure(Exception e);
     }
 
-    /**
-     * Callback interface for create operations.
-     */
     public interface createCallback {
         void onSuccess();
 

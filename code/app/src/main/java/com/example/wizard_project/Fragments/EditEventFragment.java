@@ -1,75 +1,66 @@
 package com.example.wizard_project.Fragments;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.service.controls.Control;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.PickVisualMediaRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.Facility;
+import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.Controllers.FacilityController;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEditEventBinding;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
 /**
  * EditEventFragment allows the user to create or edit their event.
  */
 public class EditEventFragment extends Fragment {
+    Date selectedRegistrationOpenDate;
+    Date selectedRegistrationCloseDate;
+    boolean geolocationCheckbox = false;
     private FragmentEditEventBinding binding;
-    Date selectedDeadlineDate;
-    int newWaitlistLimit = 0;
     private String facilityId;
+    private Event displayEvent;
     private EventController eventController;
     private FacilityController facilityController;
     private User currentUser;
     private String eventLocation = "";
-    int newPrice = 0;
-
-
-
-    /**
-     * Creates a new instance of EditEventFragment with event information passed.
-     * @param event The event with the information to be passed in a serialized format.
-     * @return A new instance of EditEventFragment containing the event as an argument.
-     */
-    public static EditEventFragment newInstance(Event event) {
-        Bundle args = new Bundle();
-        args.putSerializable("event", event);
-
-        EditEventFragment fragment = new EditEventFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private PhotoHandler photoHandler;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEditEventBinding.inflate(inflater, container, false);
+        photoHandler = new PhotoHandler(); // Initialize PhotoHandler
         return binding.getRoot();
     }
 
@@ -77,131 +68,252 @@ public class EditEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MainActivity mainActivity = (MainActivity) requireActivity();
-        NavController navController = NavHostFragment.findNavController(this);
-        currentUser = mainActivity.getCurrentUser();
-        String userId = currentUser.getDeviceId();
-        facilityController = new FacilityController();
+        // Initialize controllers
         eventController = new EventController();
-        EditText eventName = binding.eventNameEdittext;
-        EditText eventPrice = binding.eventPriceEdittext;
-        EditText eventWaitlist = binding.eventWaitlistEdittext;
-        TextView eventDeadline = binding.eventDeadlineText;
-        Button editPosterButton = binding.eventEditPosterButton;
-        Button doneButton = binding.eventDoneButton;
-        Button selectDateButton = binding.datePickerButton;
-        ImageView eventPoster = binding.eventEditImageview;
-        Date currentTime = new Date();
-        Event event;
+        facilityController = new FacilityController();
 
-        // Get any passed Event object through the arguments.
-        if (getArguments() != null) {
-            event = (Event) getArguments().getSerializable("event");
-            assert event != null;
+        // Get the current user
+        MainActivity mainActivity = (MainActivity) requireActivity();
+        currentUser = mainActivity.getCurrentUser();
+        NavController navController = NavHostFragment.findNavController(this);
+        String userId = currentUser.getDeviceId();
 
-            // Get the facilityId
-            facilityId = event.getFacilityId();
+        // Set up the UI elements
+        initializeUI();
 
-            // Pre-fill the EditText fields if editing an existing event.
-            eventName.setText(String.format("%s", event.getEvent_name()));
-            eventPrice.setText(String.format("%d", event.getEvent_price()));
-            eventWaitlist.setText(String.format("%d", event.getEvent_waitlist_limit()));
-            selectedDeadlineDate = event.getEvent_deadline();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(selectedDeadlineDate);
-            eventDeadline.setText(String.format("%02d-%02d-%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH)));
-        }
-        else {
-            // If no Event object was passed, get the facility details based on the user ID.
-            event = null;
-            facilityController.getFacility(userId, new FacilityController.facilityCallback() {
-                @Override
-                public void onCallback(Facility facility) {
+        // Handle save button clicks
+        binding.buttonSaveEvent.setOnClickListener(v -> handleSaveButtonClick(navController));
+
+        // Handle image selection
+        binding.eventEditImageview.setOnClickListener(v -> openImagePicker());
+
+        // Handle date selection
+        setupDatePickers();
+    }
+
+    /**
+     * Initializes the UI elements and populates fields if editing an existing event.
+     */
+    private void initializeUI() {
+        displayEvent = getArguments() != null ? (Event) getArguments().getSerializable("event") : null;
+
+        if (displayEvent == null) {
+            // Create a new event
+            binding.buttonSaveEvent.setText("Create Event");
+            facilityController.getFacility(currentUser.getDeviceId(), facility -> {
+                if (facility != null) {
                     facilityId = facility.getFacilityId();
                     eventLocation = facility.getFacility_name();
                 }
             });
+        } else {
+            // Populate fields for editing an existing event
+            facilityId = displayEvent.getFacilityId();
+            binding.edittextName.setText(displayEvent.getEvent_name());
+            binding.edittextEventDescription.setText(displayEvent.getEvent_description());
+            binding.edittextPrice.setText(String.valueOf(displayEvent.getEvent_price()));
+            binding.edittextMaxEntrants.setText(String.valueOf(displayEvent.getEvent_max_entrants()));
+            binding.switchGeolocationRequired.setChecked(displayEvent.isGeolocation_requirement());
+
+            if (displayEvent.getRegistration_open() != null) {
+                binding.buttonRegistrationOpen.setText(new SimpleDateFormat("yyyy-MM-dd").format(displayEvent.getRegistration_open()));
+            }
+            if (displayEvent.getRegistration_close() != null) {
+                binding.buttonRegistrationClose.setText(new SimpleDateFormat("yyyy-MM-dd").format(displayEvent.getRegistration_close()));
+            }
+
+            binding.buttonSaveEvent.setText("Save Changes");
         }
+    }
 
-        // Submit the fields for the event attributes.
-        doneButton.setOnClickListener(new View.OnClickListener() {
+    /**
+     * Sets up the date pickers for registration open and close dates.
+     */
+    private void setupDatePickers() {
+        binding.buttonRegistrationOpen.setOnClickListener(v -> showDatePicker((date) -> {
+            selectedRegistrationOpenDate = date;
+            binding.buttonRegistrationOpen.setText(new SimpleDateFormat("yyyy-MM-dd").format(date));
+        }));
+
+        binding.buttonRegistrationClose.setOnClickListener(v -> showDatePicker((date) -> {
+            selectedRegistrationCloseDate = date;
+            binding.buttonRegistrationClose.setText(new SimpleDateFormat("yyyy-MM-dd").format(date));
+        }));
+    }
+
+    /**
+     * Opens an image picker to select an event poster image.
+     */
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PhotoHandler.PICK_IMAGE_REQUEST);
+    }
+
+    /**
+     * Handles the save button click, creating or updating an event.
+     */
+    private void handleSaveButtonClick(NavController navController) {
+        String newName = binding.edittextName.getText().toString();
+        String newDescription = binding.edittextEventDescription.getText().toString();
+        String newPriceString = binding.edittextPrice.getText().toString();
+        String newMaxEntrantsString = binding.edittextMaxEntrants.getText().toString();
+        boolean geolocationRequired = binding.switchGeolocationRequired.isChecked();
+
+        if (!validateInputs(newName, newDescription, newPriceString, newMaxEntrantsString)) return;
+
+        int newPrice = Integer.parseInt(newPriceString);
+        int newMaxEntrants = Integer.parseInt(newMaxEntrantsString);
+
+        if (displayEvent == null) {
+            // Create a new event
+            Event newEvent = new Event(newName, newDescription, newPrice, newMaxEntrants,
+                    selectedRegistrationOpenDate, selectedRegistrationCloseDate, facilityId,
+                    eventLocation, geolocationRequired, "");
+
+            eventController.createEvent(newEvent, currentUser.getDeviceId(), new EventController.createCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(requireContext(), "Event created successfully!", Toast.LENGTH_SHORT).show();
+                    navigateToViewEvent(navController, newEvent);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(requireContext(), "Failed to create event.", Toast.LENGTH_SHORT).show();
+                    Log.e("EditEvent", "Error creating event", e);
+                }
+            });
+        } else {
+            // Update existing event
+            updateExistingEvent(newName, newDescription, newPrice, newMaxEntrants, geolocationRequired, navController);
+        }
+    }
+
+    /**
+     * Updates an existing event with new details.
+     */
+    private void updateExistingEvent(String newName, String newDescription, int newPrice, int newMaxEntrants,
+                                     boolean geolocationRequired, NavController navController) {
+        displayEvent.setEvent_name(newName);
+        displayEvent.setEvent_description(newDescription);
+        displayEvent.setEvent_price(newPrice);
+        displayEvent.setEvent_max_entrants(newMaxEntrants);
+        displayEvent.setRegistration_open(selectedRegistrationOpenDate);
+        displayEvent.setRegistration_close(selectedRegistrationCloseDate);
+        displayEvent.setGeolocation_requirement(geolocationRequired);
+
+        eventController.updateEvent(displayEvent, new EventController.updateCallback() {
             @Override
-            public void onClick(View view) {
-                String newName = eventName.getText().toString();
-                Date newDeadline = selectedDeadlineDate;
+            public void onSuccess() {
+                Toast.makeText(requireContext(), "Event updated successfully!", Toast.LENGTH_SHORT).show();
+                navigateToViewEvent(navController, displayEvent);
+            }
 
-
-                if(!eventWaitlist.getText().toString().isEmpty()) {
-                    newWaitlistLimit = Integer.valueOf(eventWaitlist.getText().toString());
-                }
-
-                if (eventPrice.getText().toString().trim().isEmpty()) {
-                    eventPrice.setError("Please enter a valid price.");
-                }
-                else {
-                    newPrice = Integer.parseInt(eventPrice.getText().toString());
-                }
-
-                if (newName.trim().isEmpty()) {
-                    eventName.setError("Please enter a valid event name.");
-                }
-                else if (newWaitlistLimit < 1) {
-                    eventWaitlist.setError("Please enter a valid waitlist limit.");
-                }
-                else if (selectedDeadlineDate == null) {
-                    eventDeadline.setError("Please enter a valid date.");
-                }
-                else {
-                    // If editing an event, update its attributes.
-                    if (event != null) {
-                        event.setEvent_name(newName);
-                        event.setEvent_price(newPrice);
-                        event.setEvent_waitlist(newWaitlistLimit);
-                        event.setEvent_deadline(newDeadline);
-                        eventController.updateEvent(event);
-
-                        // Pass the updated Event object to the ViewEventFragment and navigate.
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("event", event);
-                        navController.navigate(R.id.action_EditEventFragment_to_ViewEventFragment, bundle);
-                    } else {
-                        // Create a new Event object.
-                        Event newEvent = eventController.createEvent(facilityId, newName, newPrice, newWaitlistLimit, newDeadline, eventLocation);
-                        newEvent.setEvent_location(eventLocation);
-
-                        // Pass the new Event object to the ViewEventFragment and navigate.
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("event", newEvent);
-                        navController.navigate(R.id.action_EditEventFragment_to_ViewEventFragment, bundle);
-                    }
-                }
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to update event.", Toast.LENGTH_SHORT).show();
+                Log.e("EditEvent", "Error updating event", e);
             }
         });
+    }
 
-        // Button to upload a promotional poster for the event.
-        editPosterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+    /**
+     * Validates the user inputs for creating or editing an event.
+     */
+    private boolean validateInputs(String name, String description, String price, String maxEntrants) {
+        if (name.isEmpty()) {
+            binding.edittextName.setError("Please enter a valid event name.");
+            return false;
+        }
+        if (description.isEmpty()) {
+            binding.edittextEventDescription.setError("Please enter a valid event description.");
+            return false;
+        }
+        if (price.isEmpty() || !price.matches("\\d+")) {
+            binding.edittextPrice.setError("Please enter a valid price.");
+            return false;
+        }
+        if (maxEntrants.isEmpty() || !maxEntrants.matches("\\d+")) {
+            binding.edittextMaxEntrants.setError("Please enter a valid max entrants.");
+            return false;
+        }
+        if (selectedRegistrationOpenDate == null) {
+            Toast.makeText(requireContext(), "Please select a registration open date.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (selectedRegistrationCloseDate == null) {
+            Toast.makeText(requireContext(), "Please select a registration close date.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 
+    /**
+     * Handles image selection and uploads it to Firebase.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            if (imageUri != null) {
+                String path = "images/" + UUID.randomUUID().toString();
+                StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(path);
+
+                // Upload image to Firebase Storage
+                imageRef.putFile(imageUri)
+                        .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            displayEvent.setPosterUri(uri.toString());
+                            displayEvent.setEvent_image_path(path); // TODO: Update this in event class
+
+                            eventController.updateField(displayEvent, "posterUri", uri.toString());
+                            eventController.updateField(displayEvent, "event_image_path", path);
+
+                            // Update ImageView
+                            Glide.with(requireContext()).load(uri).into(binding.eventEditImageview);
+                            Toast.makeText(requireContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                        }))
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(requireContext(), "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Log.e("EditEvent", "Image upload error", e);
+                        });
             }
-        });
+        }
+    }
 
-        // Date selector button for the event deadline.
-        selectDateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DatePickerDialog dialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        eventDeadline.setText(String.format("%02d-%02d-%02d", year, month+1, day));
+    /**
+     * Navigates to the ViewEventFragment with the updated event.
+     */
+    private void navigateToViewEvent(NavController navController, Event event) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("event", event);
+        navController.navigate(R.id.action_EditEventFragment_to_ViewEventFragment, bundle);
+    }
 
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(year, month, day);
-                        selectedDeadlineDate = calendar.getTime();
-                    }
-                }, 2024, 10, 30);
-                dialog.show();
-            }
-        });
+    /**
+     * Displays a DatePickerDialog and returns the selected date through a callback.
+     *
+     * @param onDateSelected A callback that receives the selected date.
+     */
+    private void showDatePicker(OnDateSelectedCallback onDateSelected) {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePicker = new DatePickerDialog(requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(year, month, dayOfMonth);
+                    Date selectedDate = calendar.getTime();
+                    onDateSelected.onDateSelected(selectedDate);
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        datePicker.show();
+    }
+
+    /**
+     * Callback interface for returning the selected date from the DatePickerDialog.
+     */
+    @FunctionalInterface
+    private interface OnDateSelectedCallback {
+        void onDateSelected(Date date);
     }
 }

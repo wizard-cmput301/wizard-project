@@ -1,152 +1,344 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="Fragments.EditEventFragment"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context="Fragments.EditEventFragment">
 
+    <!-- Event Image -->
     <ImageView
         android:id="@+id/event_edit_imageview"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="200dp"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/example_event"
         app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/example_event"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Edit Event Image Button -->
     <Button
         android:id="@+id/event_edit_poster_button"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
+        android:background="@color/transparent"
         android:drawableLeft="@drawable/folder_icon"
-        app:layout_constraintTop_toBottomOf="@id/event_edit_imageview"
-        app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/transparent"
-        android:textColor="@color/lighter_gray"
         android:text="@string/upload_poster_label"
-        android:layout_marginHorizontal="120dp"/>
+        android:textColor="@color/lighter_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/event_edit_imageview" />
 
-    <TextView
-        android:id="@+id/event_name_label"
-        android:layout_width="wrap_content"
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/event_edit_poster_button" />
+
+    <!-- Event Name Row -->
+    <LinearLayout
+        android:id="@+id/linearlayout_event_name_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/event_name_label"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/event_edit_poster_button"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="80dp" />
+        app:layout_constraintTop_toBottomOf="@id/view_divider">
 
-    <EditText
-        android:id="@+id/event_name_edittext"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:hint="Adult Swim"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/event_name_label"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="80dp"
-        android:background="@drawable/edittext_border"/>
+        <!-- Event Name Label -->
+        <TextView
+            android:id="@+id/textview_event_name_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/event_name_label"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/event_price_label"
-        android:layout_width="wrap_content"
+        <!-- Edit Event Name Field -->
+        <EditText
+            android:id="@+id/edittext_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:background="@null"
+            android:gravity="start"
+            android:hint="@string/enter_event_name"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_divider_2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_event_name_row" />
+
+    <!-- Event Description Row -->
+    <LinearLayout
+        android:id="@+id/linearlayout_event_description_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/event_name_edittext"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/price_label"
-        android:textSize="16sp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="80dp" />
+        app:layout_constraintTop_toBottomOf="@id/view_divider_2">
 
-    <EditText
-        android:id="@+id/event_price_edittext"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:hint="$25 per Lesson"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/event_price_label"
-        app:layout_constraintStart_toStartOf="parent"
-        android:inputType="number"
-        android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="80dp"
-        android:background="@drawable/edittext_border"/>
+        <!-- Price Label -->
+        <TextView
+            android:id="@+id/textview_event_description_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/event_description_label"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/event_waitlist_label"
-        android:layout_width="wrap_content"
+        <!-- Edit Event Name Field -->
+        <EditText
+            android:id="@+id/edittext_event_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:background="@null"
+            android:gravity="start"
+            android:hint="@string/enter_event_description"
+            android:maxLines="3"
+            android:minLines="3"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_divider_3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_event_description_row" />
+
+    <!-- Price Row -->
+    <LinearLayout
+        android:id="@+id/linearlayout_event_price_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/waiting_list_label"
-        app:layout_constraintTop_toBottomOf="@id/event_price_edittext"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:textSize="16sp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="80dp" />
+        app:layout_constraintTop_toBottomOf="@id/view_divider_3">
 
-    <EditText
-        android:id="@+id/event_waitlist_edittext"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:hint="20 Spots Available"
-        app:layout_constraintTop_toBottomOf="@id/event_waitlist_label"
-        app:layout_constraintStart_toStartOf="parent"
-        android:textSize="16sp"
-        android:inputType="number"
-        android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="80dp"
-        android:background="@drawable/edittext_border"/>
+        <!-- Price Label -->
+        <TextView
+            android:id="@+id/textview_event_price_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/event_price_label"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/event_deadline_label"
-        android:layout_width="wrap_content"
+        <!-- Edit Event Name Field -->
+        <EditText
+            android:id="@+id/edittext_price"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:background="@null"
+            android:gravity="start"
+            android:hint="@string/enter_event_price"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_name_divider_4"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_event_price_row" />
+
+    <!-- Max Entrants Row -->
+    <LinearLayout
+        android:id="@+id/linearlayout_event_max_entrants_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/deadline_label"
-        app:layout_constraintTop_toBottomOf="@id/event_waitlist_edittext"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:textSize="16sp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="80dp" />
+        app:layout_constraintTop_toBottomOf="@id/view_name_divider_4">
 
+        <!-- Max Entrants Label -->
+        <TextView
+            android:id="@+id/textview_event_max_entrants_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/event_max_entrants_label"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <!-- Edit Event Name Field -->
+        <EditText
+            android:id="@+id/edittext_max_entrants"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:background="@null"
+            android:gravity="start"
+            android:hint="@string/enter_event_max_entrants"
+            android:inputType="number"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_name_divider_5"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_event_max_entrants_row" />
+
+    <!-- Geolocation Required Row -->
+    <LinearLayout
+        android:id="@+id/linearlayout_event_geolocation_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_name_divider_5">
+
+        <!-- Geolocation Label -->
+        <TextView
+            android:id="@+id/textview_event_geolocation_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/geolocation_label"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <!-- Geolocation Switch -->
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_geolocation_required"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:checked="false"
+            android:hint="@string/geolocation_required"
+            android:textOff="@string/no_text"
+            android:textOn="@string/yes_text"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_name_divider_6"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_event_geolocation_row" />
+
+    <!-- Registration Row -->
+    <LinearLayout
+        android:id="@+id/linearlayout_event_registration_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_name_divider_6">
+
+        <!-- Registration Label -->
+        <TextView
+            android:id="@+id/textview_event_registration_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/event_registration_label"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <!-- Registration Open Button -->
+        <Button
+            android:id="@+id/button_registration_open"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/white"
+            android:drawableLeft="@drawable/registration_icon"
+            android:text="@string/select_date_button"
+            android:textColor="?android:attr/textColorHint"
+            android:textSize="14sp" />
+
+        <!-- Divider/Dash -->
+        <TextView
+            android:id="@+id/textview_registration_divider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="8dp"
+            android:gravity="center"
+            android:text="@string/dash_text"
+            android:textColor="?android:attr/textColorHint"
+            android:textSize="30sp" />
+
+        <!-- Registration Close Button -->
+        <Button
+            android:id="@+id/button_registration_close"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/white"
+            android:drawableLeft="@drawable/registration_icon"
+            android:text="@string/select_date_button"
+            android:textColor="?android:attr/textColorHint"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Save Event Button -->
     <Button
-        android:id="@+id/date_picker_button"
-        android:layout_width="48dp"
-        android:layout_height="40dp"
-        app:layout_constraintTop_toBottomOf="@id/event_deadline_label"
-        app:layout_constraintStart_toStartOf="@id/event_deadline_text"
-        android:background="@color/transparent"
-        android:layout_marginStart="160dp"
-        android:layout_marginTop="5dp"
-        android:drawableRight="@drawable/calendar_icon"/>
-
-    <TextView
-        android:id="@+id/event_deadline_text"
-        android:layout_width="150dp"
-        android:layout_height="40dp"
-        app:layout_constraintTop_toBottomOf="@id/event_deadline_label"
+        android:id="@+id/button_save_event"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/lighter_purple"
+        android:text="@string/save_button"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/select_a_date"
-        android:gravity="center_vertical"
-        android:background="@drawable/edittext_border"
-        android:textSize="16sp"
-        android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="80dp" />
-
-    <Button
-        android:id="@+id/event_done_button"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/event_deadline_text"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginHorizontal="150dp"
-        android:background="@drawable/button_border"
-        android:textColor="@color/black"
-        android:text="@string/doneButton"/>
-
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_event_registration_row" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,9 +14,9 @@
         android:layout_height="match_parent"
         android:padding="16dp">
 
-        <!-- Profile Picture Container-->
+        <!-- Profile Picture Container -->
         <FrameLayout
-            android:id="@+id/profilePictureContainer"
+            android:id="@+id/framelayout_profile_picture_container"
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_gravity="center"
@@ -27,7 +27,7 @@
 
             <!-- Profile Picture -->
             <ImageView
-                android:id="@+id/editProfileImage"
+                android:id="@+id/imageview_profile_picture"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
@@ -37,74 +37,163 @@
 
             <!-- Edit Icon -->
             <ImageView
-                android:id="@+id/edit_icon"
+                android:id="@+id/imageview_edit_icon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_gravity="bottom|end"
                 android:layout_margin="4dp"
                 android:background="@drawable/circle_background"
-                android:contentDescription="Edit profile picture icon"
+                android:contentDescription="@string/edit_profile_picture_icon_desc"
                 android:padding="4dp"
                 android:src="@drawable/camera_icon"
                 app:tint="@color/white" />
         </FrameLayout>
 
-        <!-- Edit Name Field -->
-        <EditText
-            android:id="@+id/editTextName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/enter_name"
-            android:inputType="textPersonName"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profilePictureContainer"
-            app:layout_constraintVertical_bias="0.1" />
+        <!-- Divider Line -->
+        <View
+            android:id="@+id/view_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/lighter_gray"
+            app:layout_constraintTop_toBottomOf="@id/framelayout_profile_picture_container" />
 
-        <!-- Edit Email Field -->
-        <EditText
-            android:id="@+id/editTextEmail"
-            android:layout_width="0dp"
+        <!-- Name Row -->
+        <LinearLayout
+            android:id="@+id/linearlayout_name_row"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/enter_email"
-            android:inputType="textEmailAddress"
-            android:textSize="18sp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editTextName" />
+            app:layout_constraintTop_toBottomOf="@id/view_divider">
 
-        <!-- Edit Phone Field -->
-        <EditText
-            android:id="@+id/editTextPhone"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/enter_phone_number"
-            android:inputType="phone"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editTextEmail" />
+            <!-- Name Label -->
+            <TextView
+                android:id="@+id/textview_name_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="@string/name_label"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
 
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/buttonSaveProfile"
-            android:layout_width="300dp"
+            <!-- Edit Name Field -->
+            <EditText
+                android:id="@+id/edittext_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@null"
+                android:gravity="start"
+                android:hint="@string/enter_name"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Divider Line -->
+        <View
+            android:id="@+id/view_divider_2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/lighter_gray"
+            app:layout_constraintTop_toBottomOf="@id/linearlayout_name_row" />
+
+        <!-- Email Row -->
+        <LinearLayout
+            android:id="@+id/linearlayout_email_row"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/lighter_purple"
-            android:text="@string/save_button"
-            android:textColor="@color/white"
-            android:textSize="18sp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editTextPhone" />
+            app:layout_constraintTop_toBottomOf="@id/view_divider_2">
+
+            <!-- Email Label -->
+            <TextView
+                android:id="@+id/textview_email_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="@string/email_label"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <!-- Edit Email Field -->
+            <EditText
+                android:id="@+id/edittext_email"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@null"
+                android:gravity="start"
+                android:hint="@string/enter_email"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Divider Line -->
+        <View
+            android:id="@+id/view_divider_3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/lighter_gray"
+            app:layout_constraintTop_toBottomOf="@id/linearlayout_email_row" />
+
+        <!-- Phone Number Row -->
+        <LinearLayout
+            android:id="@+id/linearlayout_phone_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_divider_3">
+
+            <!-- Phone Number Label -->
+            <TextView
+                android:id="@+id/textview_phone_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="@string/phone_label"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <!-- Edit Phone Number Field -->
+            <EditText
+                android:id="@+id/edittext_phone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@null"
+                android:gravity="start"
+                android:hint="@string/enter_phone_number"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Divider Line -->
+        <View
+            android:id="@+id/view_divider_4"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/lighter_gray"
+            app:layout_constraintTop_toBottomOf="@id/linearlayout_phone_row" />
 
         <!-- Delete Profile Picture Button -->
         <Button
             android:id="@+id/buttonDeleteProfilePic"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="52dp"
+            android:layout_marginTop="10dp"
             android:backgroundTint="@color/lighter_purple"
             android:text="@string/profile_pic_delete"
             android:textColor="@color/white"
@@ -112,6 +201,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.506"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editTextPhone" />
+            app:layout_constraintTop_toBottomOf="@id/view_divider_4" />
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/buttonSaveProfile"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/lighter_purple"
+            android:text="@string/save_button"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonDeleteProfilePic" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

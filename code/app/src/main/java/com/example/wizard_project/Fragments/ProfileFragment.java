@@ -46,29 +46,60 @@ public class ProfileFragment extends Fragment {
         currentUser = mainActivity.getCurrentUser();
         displayUser = currentUser; // Default to the current logged-in user
 
-        // Check if the user is viewing as an admin
         NavController navController = Navigation.findNavController(view);
-        int previousDestinationId = navController.getPreviousBackStackEntry().getDestination().getId();
 
-        // If viewing as admin, display the chosen user's data
-        if (previousDestinationId == R.id.AdminFragment) {
+        // Determine if the user is viewing as an admin
+        if (isViewingAsAdmin(navController)) {
             displayUser = mainActivity.getSelectedUser();
-            binding.buttonDeleteProfile.setVisibility(View.VISIBLE); // Show delete button for admins
-            binding.buttonEditProfile.setVisibility(View.INVISIBLE); // Hide edit button for admins
-            binding.buttonDeleteProfile.setOnClickListener(v -> DeleteProfile(displayUser));
+            setupAdminView(navController);
+        } else {
+            setupUserView(navController);
         }
 
-        // Bind the displayUser data to the UI
+        // Bind the display user's data to the UI
         bindUserDataToUI(displayUser);
-
-        // Navigate to EditProfileFragment when edit profile button is clicked
-        binding.buttonEditProfile.setOnClickListener(v -> {
-            navController.navigate(R.id.action_ProfileFragment_to_EditProfileFragment);
-        });
     }
 
     /**
-     * Binds the given user's data to the UI elements in the fragment.
+     * Checks if the current view is accessed by an admin.
+     *
+     * @param navController The NavController for navigation state checks.
+     * @return True if the previous destination was AdminFragment.
+     */
+    private boolean isViewingAsAdmin(NavController navController) {
+        int previousDestinationId = navController.getPreviousBackStackEntry().getDestination().getId();
+        return previousDestinationId == R.id.AdminFragment;
+    }
+
+    /**
+     * Sets up the admin view, showing options to delete the displayed user.
+     *
+     * @param navController The NavController for navigation.
+     */
+    private void setupAdminView(NavController navController) {
+        binding.buttonDeleteProfile.setVisibility(View.VISIBLE); // Show delete button
+        binding.buttonEditProfile.setVisibility(View.INVISIBLE); // Hide edit button
+
+        binding.buttonDeleteProfile.setOnClickListener(v -> deleteProfile(displayUser, navController));
+    }
+
+    /**
+     * Sets up the regular user view, allowing profile editing.
+     *
+     * @param navController The NavController for navigation.
+     */
+    private void setupUserView(NavController navController) {
+        binding.buttonDeleteProfile.setVisibility(View.GONE); // Hide delete button
+
+        binding.buttonEditProfile.setOnClickListener(v ->
+                navController.navigate(R.id.action_ProfileFragment_to_EditProfileFragment)
+        );
+    }
+
+    /**
+     * Binds the given user's data to the UI elements.
+     *
+     * @param user The user whose data is being displayed.
      */
     private void bindUserDataToUI(User user) {
         if (user != null) {
@@ -82,10 +113,13 @@ public class ProfileFragment extends Fragment {
                     user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() ? user.getPhoneNumber() : "No phone number provided"
             );
 
-            // Load and display the user's profile picture if available
             if (user.getProfilePictureUri() != null && !user.getProfilePictureUri().isEmpty()) {
-                Uri imageUri = Uri.parse(user.getProfilePictureUri());
-                Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.imageviewProfileImage);
+                Glide.with(requireContext())
+                        .load(Uri.parse(user.getProfilePictureUri()))
+                        .circleCrop()
+                        .into(binding.imageviewProfileImage);
+            } else {
+                binding.imageviewProfileImage.setImageResource(R.drawable.event_wizard_logo); // Placeholder image
             }
         } else {
             binding.textviewProfileName.setText("User not found");
@@ -94,33 +128,34 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Deletes the profile of the user currently being viewed by an admin.
-     * After deletion, navigates back to the admin view.
+     * Deletes the profile of the specified user.
+     *
+     * @param userToDelete The user to delete.
+     * @param navController The NavController for navigation after deletion.
      */
-    private void DeleteProfile(User userToDelete) {
+    private void deleteProfile(User userToDelete, NavController navController) {
         if (userToDelete == null) return;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("users").document(userToDelete.getDeviceId());
 
-        // Clear the user's data in memory
-        userToDelete.DeleteUser();
+        userToDelete.deleteUser(); // Clear in-memory data
 
-        // Delete the user's document from Firestore
         docRef.delete()
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("TAG", "Document successfully deleted!");
-                    NavController navController = Navigation.findNavController(requireView());
+                    Log.d("ProfileFragment", "Profile deleted successfully");
+                    Toast.makeText(requireContext(), "Profile deleted.", Toast.LENGTH_SHORT).show();
                     navController.navigate(R.id.action_ProfileFragment_to_AdminFragment);
                 })
                 .addOnFailureListener(e -> {
-                    Log.w("TAG", "Error deleting document", e);
+                    Log.e("ProfileFragment", "Error deleting profile", e);
+                    Toast.makeText(requireContext(), "Error deleting profile.", Toast.LENGTH_SHORT).show();
                 });
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
+        binding = null; // Avoid memory leaks
     }
 }

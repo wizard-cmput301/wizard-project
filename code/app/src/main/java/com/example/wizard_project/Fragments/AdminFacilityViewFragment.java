@@ -25,8 +25,8 @@ import java.util.ArrayList;
  * allowing navigation to facility details.
  */
 public class AdminFacilityViewFragment extends Fragment {
-    private FragmentFacilityListBinding binding;
     private final ArrayList<Facility> facilityList = new ArrayList<>();
+    private FragmentFacilityListBinding binding;
     private BrowseFacilityAdapter adapter;
     private FacilityController facilityController;
 
@@ -43,19 +43,18 @@ public class AdminFacilityViewFragment extends Fragment {
         // Initialize the FacilityController and adapter
         facilityController = new FacilityController();
         adapter = new BrowseFacilityAdapter(getContext(), facilityList);
+
+        // Set up the ListView and adapter
         ListView facilityListView = binding.facilityListview;
         facilityListView.setAdapter(adapter);
 
-        // Load all events for the admin view
+        // Load all facilities from the database
         loadFacilities();
 
         // Handle item clicks to navigate to event details
         binding.facilityListview.setOnItemClickListener((adapterView, itemView, position, id) -> {
             Facility selectedFacility = facilityList.get(position);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("facility", selectedFacility);
-            NavController navController = NavHostFragment.findNavController(this);
-            navController.navigate(R.id.action_AdminFragmentFacilityView_to_FacilityFragment, bundle);
+            navigateToFacilityDetails(selectedFacility);
         });
     }
 
@@ -64,10 +63,22 @@ public class AdminFacilityViewFragment extends Fragment {
      */
     private void loadFacilities() {
         facilityController.getFacilities(facilities -> {
-            facilityList.clear(); // Clear the list before adding new data
-            facilityList.addAll(facilities);
-            adapter.notifyDataSetChanged(); // Refresh the ListView
+            facilityList.clear(); // Clear the current list to avoid duplicates
+            facilityList.addAll(facilities); // Add new facilities
+            adapter.notifyDataSetChanged(); // Notify the adapter to refresh the ListView
         });
+    }
+
+    /**
+     * Navigates to the facility details fragment with the selected facility.
+     *
+     * @param selectedFacility The facility selected by the user.
+     */
+    private void navigateToFacilityDetails(Facility selectedFacility) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("facility", selectedFacility);
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(R.id.action_AdminFragmentFacilityView_to_FacilityFragment, bundle);
     }
 
     @Override

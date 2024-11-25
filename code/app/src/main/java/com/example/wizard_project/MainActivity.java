@@ -22,12 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * MainActivity is the central activity for the EventWizard app, managing user authentication,
- * navigation between fragments, and Firestore data storage. This class also handles user-specific
- * tasks, including retrieving and storing profile data and configuring the UI based on user roles.
+ * MainActivity is the central activity for the EventWizard app.
+ * It manages user authentication, navigation, and data storage in Firestore.
+ * Features include:
+ * - Retrieving and storing user data.
+ * - Configuring UI based on user roles.
+ * - Navigation between fragments for different user roles.
  */
 public class MainActivity extends AppCompatActivity {
-
     private ActivityMainBinding binding;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
