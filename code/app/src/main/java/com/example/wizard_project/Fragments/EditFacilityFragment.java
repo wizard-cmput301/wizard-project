@@ -132,6 +132,16 @@ public class EditFacilityFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+
+
+            if (!userFacility.getFacilitymagePath().isEmpty() && !userFacility.getposterUri().isEmpty()){
+                String imagePath = userFacility.getFacilitymagePath();
+                // Get a reference to the image in Firebase Storage
+                StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
+                // Delete the image
+                imageRef.delete();
+            }
+
             Uri imageUri = data.getData();
             userFacility.setposterUri(imageUri.toString());
 

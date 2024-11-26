@@ -138,9 +138,17 @@ public class EditProfileFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+
+            if (!currentUser.getProfilePictureUri().isEmpty() && !currentUser.getProfilePath().isEmpty()){
+                String imagePath = currentUser.getProfilePath();
+                // Get a reference to the image in Firebase Storage
+                StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
+                // Delete the image
+                imageRef.delete();
+            }
+
             Uri imageUri = data.getData();
             currentUser.setProfilePictureUri(imageUri.toString());
-
             // Load the selected image into the ImageView
             Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.editProfileImage);
 
