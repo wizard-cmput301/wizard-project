@@ -22,6 +22,16 @@
     <string name="qrCodebutton">QR Code Scanner</string>
     <string name="doneButton">Done</string>
     <string name="edit_facility_button">Edit Facility</string>
+    <string name="remove_entrant">Remove Entrant</string>
+    <string name="send_notification">Send Notification</string>
+    <string name="sample_attendees">Sample Attendees</string>
+    <string name="upload_poster">Upload Poster</string>
+    <string name="view_facility">View Facility</string>
+    <string name="edit_event">Edit Event</string>
+    <string name="entrant_list">Entrant List</string>
+    <string name="map_view">Map View</string>
+    <string name="view_qr_code">View QR Code</string>
+
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
@@ -65,6 +75,13 @@
     <string name="facility_name_label">Facility Name</string>
     <string name="location_label">Location</string>
     <string name="admin_fragment_label_event">admin_fragment_label_event</string>
+
+    <!-- Filters -->
+    <string name="waitlisted_text">Waitlisted</string>
+    <string name="selected_text">Selected</string>
+    <string name="not_selected_text">Not Selected</string>
+    <string name="cancelled_text">Cancelled</string>
+    <string name="all_text">All</string>
 
 
 </resources>

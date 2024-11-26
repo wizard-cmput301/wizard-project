@@ -75,8 +75,6 @@ public class EditFacilityFragment extends Fragment {
                         Uri imageUri = Uri.parse(facility.getposterUri());
                         Glide.with(requireContext()).load(imageUri).into(facilityImage);
                     }
-                }else{
-                    userFacility = new Facility(currentUser.getDeviceId(),UUID.randomUUID().toString(),"","","","");
                 }
             }
         });
@@ -104,6 +102,7 @@ public class EditFacilityFragment extends Fragment {
 
                     } else {
                         // Create new facility with the inputted info.
+                        userFacility = new Facility(currentUser.getDeviceId(), UUID.randomUUID().toString(), newName, newLocation,"","");
                         controller.createFacility(userFacility);
                         currentUser.setOrganizer(true);
                         navController.navigate(R.id.action_EditFacilityFragment_to_ViewFacilityFragment);

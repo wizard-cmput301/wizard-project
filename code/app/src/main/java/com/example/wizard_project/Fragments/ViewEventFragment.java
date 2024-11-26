@@ -1,5 +1,6 @@
 package com.example.wizard_project.Fragments;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +26,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.util.Date;
 
@@ -50,7 +54,6 @@ public class ViewEventFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentViewEventBinding.inflate(inflater, container, false);
@@ -94,7 +97,7 @@ public class ViewEventFragment extends Fragment {
 
         // Populate text views with event data
         eventName.setText(String.format("Event Name: %s", event.getEvent_name()));
-        eventPrice.setText(String.format("Price: %d", event.getEvent_price()));
+        eventPrice.setText(String.format("Price: $%d", event.getEvent_price()));
         eventWaitlist.setText(String.format("Availability: %d Spots", event.getEvent_waitlist_limit()));
         eventDeadline.setText(String.format("Deadline: %d Days", daysRemaining));
 
@@ -104,6 +107,23 @@ public class ViewEventFragment extends Fragment {
             bundle.putSerializable("event", event);
             navController.navigate(R.id.action_ViewEventFragment_to_EditEventFragment, bundle);
         });
+
+        // TODO: Clear the event's data in memory ?
+        viewEntrantsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("event", event);
+                navController.navigate(R.id.action_ViewEventFragment_to_EntrantListFragment, bundle);
+            }
+        });
+
+        viewQRButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("eventId", event.getEventId()); // Pass event ID
+            navController.navigate(R.id.action_ViewEventFragment_to_ViewQRCodeFragment, bundle);
+        });
+
     }
 
     /**
@@ -112,8 +132,6 @@ public class ViewEventFragment extends Fragment {
     private void deleteEvent() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("events").document(currentEvent.getEventId());
-
-        // TODO: Clear the event's data in memory ?
 
         // Delete the event's document from Firestore
         docRef.delete()
@@ -130,4 +148,5 @@ public class ViewEventFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to delete event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
 }

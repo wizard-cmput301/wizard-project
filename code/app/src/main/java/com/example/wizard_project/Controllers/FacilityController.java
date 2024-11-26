@@ -11,20 +11,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * FacilityController acts as a communicator between the database and facility objects.
- * Facilitates the addition, retrieval, and updating of facility objects.
+ * FacilityController acts as a communicator between the database and Facility objects.
+ * Facilitates the addition, retrieval, and updating of Facility objects.
  */
 public class FacilityController {
     private FirebaseFirestore db;
 
     /**
-     * Constructs a FacilityController with the database instance.
+     * Constructs a FacilityController with a database instance.
      */
     public FacilityController() {
         this.db = FirebaseFirestore.getInstance();
     }
 
     /**
+     * Creates a new facility with its attributes and adds it to the database.
+     * @param userId The device ID of the user.
+     * @param facility_name The name of the facility.
+     * @param facility_location The location of the facility.
+     * @return The newly created Facility object.
      * adds a facility to the database.
      * @param newFacility a placeholder facility Object
      */
@@ -52,7 +57,7 @@ public class FacilityController {
      * Retrieves a facility from the database.
      *
      * @param userId   The device ID of the user.
-     * @param callback A callback containing the retrieved facility.
+     * @param callback A callback interface containing the retrieved facility.
      */
     public void getFacility(String userId, facilityCallback callback) {
         // Create a new facility object.
@@ -87,6 +92,20 @@ public class FacilityController {
         // Update the facility fields.
         facilityRef.update("name", facility.getFacility_name());
         facilityRef.update("location", facility.getFacility_location());
+
+        // Update all related events.
+        db.collection("events").whereEqualTo("facilityId", facility.getFacilityId()).get()
+                .addOnSuccessListener(documentSnapshots -> {
+                    if (!documentSnapshots.isEmpty()) {
+                        for (int i = 0; i < documentSnapshots.size(); i++) {
+                            DocumentSnapshot doc = documentSnapshots.getDocuments().get(i);
+                            DocumentReference eventRef = doc.getReference();
+                            eventRef.update("location", facility.getFacility_name());
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> { Log.e("UpdateError", "Failed to retrieve events for a facility.", e);
+                });
     }
     /**
      * Updates the values of a facility in the database.
