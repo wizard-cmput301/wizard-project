@@ -81,14 +81,15 @@ public class EditEventFragment extends Fragment {
         // Set up the UI elements
         initializeUI();
 
-        // Handle save button clicks
-        binding.buttonSaveEvent.setOnClickListener(v -> handleSaveButtonClick(navController));
-
         // Handle image selection
         binding.eventEditImageview.setOnClickListener(v -> openImagePicker());
 
         // Handle date selection
         setupDatePickers();
+
+        // Handle save button clicks
+        binding.buttonSaveEvent.setOnClickListener(v -> handleSaveButtonClick(navController));
+
     }
 
     /**
@@ -116,10 +117,12 @@ public class EditEventFragment extends Fragment {
             binding.switchGeolocationRequired.setChecked(displayEvent.isGeolocation_requirement());
 
             if (displayEvent.getRegistration_open() != null) {
-                binding.buttonRegistrationOpen.setText(new SimpleDateFormat("yyyy-MM-dd").format(displayEvent.getRegistration_open()));
+                selectedRegistrationOpenDate = displayEvent.getRegistration_open();
+                binding.buttonRegistrationOpen.setText(new SimpleDateFormat("yyyy-MM-dd").format(selectedRegistrationOpenDate));
             }
             if (displayEvent.getRegistration_close() != null) {
-                binding.buttonRegistrationClose.setText(new SimpleDateFormat("yyyy-MM-dd").format(displayEvent.getRegistration_close()));
+                selectedRegistrationCloseDate = displayEvent.getRegistration_close();
+                binding.buttonRegistrationClose.setText(new SimpleDateFormat("yyyy-MM-dd").format(selectedRegistrationCloseDate));
             }
 
             binding.buttonSaveEvent.setText("Save Changes");
@@ -163,7 +166,16 @@ public class EditEventFragment extends Fragment {
         int newMaxEntrants = newMaxEntrantsString.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(newMaxEntrantsString);
 
         if (!validateInputs(newName, newDescription, newPriceString, newMaxEntrants)) return;
+
         int newPrice = Integer.parseInt(newPriceString);
+
+        // Use existing dates if no new ones are selected
+        if (selectedRegistrationOpenDate == null) {
+            selectedRegistrationOpenDate = displayEvent.getRegistration_open();
+        }
+        if (selectedRegistrationCloseDate == null) {
+            selectedRegistrationCloseDate = displayEvent.getRegistration_close();
+        }
 
         if (displayEvent == null) {
             // Create a new event

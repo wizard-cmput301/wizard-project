@@ -130,11 +130,10 @@ public class ViewEventFragment extends Fragment {
      * @param navController The NavController for navigation.
      */
     private void setupOrganizerView(NavController navController) {
-        binding.buttonViewWaitlist.setVisibility(View.VISIBLE);
+        binding.buttonViewEntrants.setVisibility(View.VISIBLE);
         binding.buttonViewQrCode.setVisibility(View.VISIBLE);
         binding.buttonViewMap.setVisibility(View.VISIBLE);
         binding.buttonEditEvent.setVisibility(View.VISIBLE);
-        binding.buttonViewEntrants.setVisibility(View.VISIBLE);
 
         // Set up the view entrants button
         binding.buttonViewEntrants.setOnClickListener(v -> {
@@ -159,7 +158,7 @@ public class ViewEventFragment extends Fragment {
      * Configures the UI for entrants.
      */
     private void setupEntrantView() {
-        binding.buttonViewWaitlist.setVisibility(View.VISIBLE);
+        binding.buttonViewEntrants.setVisibility(View.VISIBLE);
         binding.buttonViewFacility.setVisibility(View.VISIBLE);
 
         hideUnusedButtonsForEntrant();
@@ -227,7 +226,7 @@ public class ViewEventFragment extends Fragment {
      * Hides buttons that are not used by admin users.
      */
     private void hideUnusedButtonsForAdmin() {
-        binding.buttonViewWaitlist.setVisibility(View.GONE);
+        binding.buttonViewEntrants.setVisibility(View.GONE);
         binding.buttonViewFacility.setVisibility(View.GONE);
         binding.buttonViewQrCode.setVisibility(View.GONE);
         binding.buttonViewMap.setVisibility(View.GONE);

@@ -185,14 +185,14 @@
             android:textSize="18sp" />
     </LinearLayout>
 
-    <!-- Waitlist Button -->
+    <!-- Entrant List Button -->
     <Button
-        android:id="@+id/button_view_waitlist"
+        android:id="@+id/button_view_entrants"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:backgroundTint="@color/lighter_purple"
-        android:text="@string/view_waitlist_button"
+        android:text="@string/entrant_list"
         android:textColor="@color/white"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -211,7 +211,7 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_view_waitlist" />
+        app:layout_constraintTop_toBottomOf="@id/button_view_entrants" />
 
     <!-- View QR Code Button -->
     <Button
@@ -225,7 +225,7 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_view_waitlist" />
+        app:layout_constraintTop_toBottomOf="@id/button_view_entrants" />
 
     <!-- Map View Button -->
     <Button
@@ -255,26 +255,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/button_view_map" />
 
-    <!-- View Entrants Button -->
-    <Button
-        android:id="@+id/button_view_entrants"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:backgroundTint="@color/lighter_purple"
-        android:text="@string/entrant_list"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_edit_event" />
-
     <!-- Admin Delete Event Button-->
     <Button
         android:id="@+id/button_delete_event"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:backgroundTint="@color/lighter_purple"
         android:text="@string/delete_event_button"
         android:textColor="@color/white"
