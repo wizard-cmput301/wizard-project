@@ -1,6 +1,10 @@
 package com.example.wizard_project.Fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +20,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.example.wizard_project.Classes.WaitingList;
+
+import java.util.UUID;
 
 /**
  * EntrantFragment represents the UI and functionality for entrants.
@@ -28,8 +35,9 @@ public class EntrantFragment extends Fragment {
     private String eventName;
     private String eventDescription;
 
-    private User currentUser; // To hold the User object after fetching data
-    private String userId = "123"; // Replace with actual user ID (e.g., deviceId)
+    private User currentUser;
+    private String userId;
+    private WaitingList waitingList;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,9 +53,11 @@ public class EntrantFragment extends Fragment {
             eventDescription = getArguments().getString("eventDescription");
         }
 
+        waitingList = new WaitingList(eventId);
+
         // Set event details in UI
         binding.eventName.setText(eventName);
-        binding.eventDescription.setText(eventDescription);
+        binding.eventDescription.setText(eventDescription != null ? eventDescription : "No Event Description");
 
         // Fetch current user data from Firestore
         fetchCurrentUser();
@@ -67,19 +77,56 @@ public class EntrantFragment extends Fragment {
         return binding.getRoot();
     }
 
+    private String getDeviceId() {
+        try {
+            String deviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+            if (deviceId != null && !deviceId.isEmpty()) {
+                return deviceId;
+            }
+        } catch (Exception e) {
+            Log.e("EntrantFragment", "Failed to get device ID", e);
+        }
+
+        // Fallback if ANDROID_ID fails
+        SharedPreferences prefs = requireContext().getSharedPreferences("APP_PREFS", Context.MODE_PRIVATE);
+        String deviceId = prefs.getString("DEVICE_ID", null);
+        if (deviceId == null) {
+            deviceId = UUID.randomUUID().toString();
+            prefs.edit().putString("DEVICE_ID", deviceId).apply();
+        }
+        return deviceId;
+    }
+
     private void fetchCurrentUser() {
-        // Fetch user data from Firestore
-        db.collection("users").document(userId)
+        // Get the device ID
+        String deviceId = getDeviceId();
+        Log.d("EntrantFragment", "Device ID: " + deviceId);
+
+        // Query Firestore to find the user by device ID
+        db.collection("users")
+                .whereEqualTo("deviceId", deviceId)
                 .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // Populate currentUser with the data from Firestore
-                        currentUser = documentSnapshot.toObject(User.class); // Assuming Firestore can deserialize to User
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // User found
+                        DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
+                        currentUser = documentSnapshot.toObject(User.class);
+                        if (currentUser != null) {
+                            userId = deviceId;
+                            Log.d("EntrantFragment", "User data fetched successfully: " + documentSnapshot.getData());
+
+                        }
                     } else {
-                        Toast.makeText(getContext(), "User not found in Firestore.", Toast.LENGTH_SHORT).show();
+                        // User not found
+                        Log.d("EntrantFragment", "No user found with this device ID.");
+                        Toast.makeText(getContext(), "No user found with this device ID.", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error fetching user data.", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    // Error fetching user data
+                    Log.e("EntrantFragment", "Error fetching user data: " + e.getMessage(), e);
+                    Toast.makeText(getContext(), "Error fetching user data.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void joinWaitingList() {
@@ -88,34 +135,32 @@ public class EntrantFragment extends Fragment {
             return;
         }
 
-        // Step 1: Check if user is registered as an entrant in Firestore
-        if (!currentUser.isEntrant()) {
-            Toast.makeText(getContext(), "You must be an entrant to join the waiting list.", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        // Step 2: Check if the user is already in the waiting list for the event
-        db.collection("events").document(eventId)
-                .collection("waitingList").document(userId)
-                .get()
-                .addOnSuccessListener(waitingListSnapshot -> {
-                    if (waitingListSnapshot.exists()) {
-                        Toast.makeText(getContext(), "You are already on the waiting list.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Step 3: Add user to waiting list
-                        addUserToWaitingList();
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error checking waiting list.", Toast.LENGTH_SHORT).show());
-    }
+        waitingList.isUserOnWaitingList(userId, new WaitingList.OnCheckCompleteListener() {
+            @Override
+            public void onComplete(boolean isOnList) {
+                if (isOnList) {
+                    Toast.makeText(getContext(), "You are already on the waiting list.", Toast.LENGTH_SHORT).show();
+                } else {
+                    waitingList.addUserToWaitingList(currentUser, userId, new WaitingList.OnActionCompleteListener() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(getContext(), "Joined waiting list successfully!", Toast.LENGTH_SHORT).show();
+                        }
 
-    private void addUserToWaitingList() {
-        // Add currentUser to the event's waiting list
-        db.collection("events").document(eventId)
-                .collection("waitingList").document(userId)
-                .set(currentUser) // Add the full user object if Firestore supports User serialization
-                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Joined waiting list successfully!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to join waiting list.", Toast.LENGTH_SHORT).show());
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(getContext(), "Failed to join waiting list.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(getContext(), "Error checking waiting list.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void leaveWaitingList() {
@@ -124,26 +169,32 @@ public class EntrantFragment extends Fragment {
             return;
         }
 
-        // Step 1: Check if the user is in the waiting list
-        db.collection("events").document(eventId)
-                .collection("waitingList").document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // User is in the waiting list, proceed to remove them
-                        db.collection("events").document(eventId)
-                                .collection("waitingList").document(userId)
-                                .delete()
-                                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Left the waiting list successfully!", Toast.LENGTH_SHORT).show())
-                                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to leave the waiting list.", Toast.LENGTH_SHORT).show());
-                    } else {
-                        // User is not in the waiting list
-                        Toast.makeText(getContext(), "You are not on the waiting list for this event.", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error checking waiting list status.", Toast.LENGTH_SHORT).show());
-    }
+        waitingList.isUserOnWaitingList(userId, new WaitingList.OnCheckCompleteListener() {
+            @Override
+            public void onComplete(boolean isOnList) {
+                if (isOnList) {
+                    waitingList.removeUserFromWaitingList(userId, new WaitingList.OnActionCompleteListener() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(getContext(), "Left the waiting list successfully!", Toast.LENGTH_SHORT).show();
+                        }
 
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(getContext(), "Failed to leave the waiting list.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    Toast.makeText(getContext(), "You are not on the waiting list for this event.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(getContext(), "Error checking waiting list status.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     @Override
     public void onDestroyView() {

@@ -174,6 +174,10 @@
         <action
             android:id="@+id/action_ViewEventFragment_to_EntrantListFragment"
             app:destination="@+id/EntrantListFragment" />
+        <action
+            android:id="@+id/action_ViewEventFragment_to_ViewQRCodeFragment"
+            app:destination="@+id/ViewQRCodeFragment" />
+
     </fragment>
 
     <!--Event List Fragment -->
@@ -205,5 +209,16 @@
         android:label="Entrant List Fragment"
         tools:layout="@layout/fragment_view_event">
     </fragment>
+
+    <!-- ViewQRCode Fragment -->
+    <fragment
+        android:id="@+id/ViewQRCodeFragment"
+        android:name="com.example.wizard_project.Fragments.ViewQRCodeFragment"
+        android:label="QR Code"
+        tools:layout="@layout/fragment_view_qr_code" />
+    <action
+        android:id="@+id/action_ViewEventFragment_to_ViewQRCodeFragment"
+        app:destination="@id/ViewQRCodeFragment" />
+
 
 </navigation>

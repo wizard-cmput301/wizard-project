@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.User;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -129,25 +131,48 @@ public class EventController {
      * @param event    The event whose waiting list is checked.
      * @param callback A callback interface containing the list of waitlisted users.
      */
-    public void getWaitlistEntrants(Event event, waitListCallback callback) {
-        ArrayList<User> waitingList = new ArrayList<>();
+    public void getEntrants(Event event, waitListCallback callback) {
+        ArrayList<User> entrantList = new ArrayList<>();
 
-        db.collection("events").document(event.getEventId()).collection("waitingList").get()
+        db.collection("events").document(event.getEventId()).collection("entrantList").get()
                 .addOnSuccessListener(documentSnapshots -> {
                     if (!documentSnapshots.isEmpty()) {
-                        for (int i = 0; i < documentSnapshots.size(); i++) {
-                            DocumentSnapshot userRef = documentSnapshots.getDocuments().get(i);
-                            User newUser = new User();
-                            newUser.setUserData(userRef);
-                            waitingList.add(newUser);
+                        List<Task<DocumentSnapshot>> userTasks = new ArrayList<>();
+
+                        for (DocumentSnapshot entrant: documentSnapshots) {
+                            String userId = entrant.getString("userId");
+                            String entrantStatus = entrant.getString("status");
+                            Task<DocumentSnapshot> userTask = db.collection("users").document(userId).get();
+                            userTasks.add(userTask);
+
+                            userTask.addOnSuccessListener(documentSnapshot -> {
+                                if(documentSnapshot.exists()) {
+                                    User newUser = new User();
+                                    newUser.setUserData(documentSnapshot);
+                                    newUser.setStatus(entrantStatus);
+                                    entrantList.add(newUser);
+                                }
+                            });
                         }
-                        callback.onCallback(waitingList);
+
+                        Tasks.whenAllComplete(userTasks).addOnCompleteListener(task -> {
+                            callback.onCallback(entrantList);
+                        });
+                    }
+                    else {
+                        callback.onCallback(entrantList);
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e("UserRetrievalError", "Error retrieving waitlisted users: ", e);
-                    callback.onCallback(waitingList);
+                    callback.onCallback(entrantList);
                 });
+    }
+
+    public void setDrawCount(Event event, int drawCount) {
+        DocumentReference eventRef = db.collection("events").document(event.getEventId());
+
+        eventRef.update("drawCount", drawCount);
     }
 
     /**

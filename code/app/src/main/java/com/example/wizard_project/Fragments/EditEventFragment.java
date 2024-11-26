@@ -162,7 +162,7 @@ public class EditEventFragment extends Fragment {
         if (!validateInputs(newName, newDescription, newPriceString, newMaxEntrantsString)) return;
 
         int newPrice = Integer.parseInt(newPriceString);
-        int newMaxEntrants = Integer.parseInt(newMaxEntrantsString);
+        int newMaxEntrants = newMaxEntrantsString.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(newMaxEntrantsString);
 
         if (displayEvent == null) {
             // Create a new event
@@ -233,7 +233,7 @@ public class EditEventFragment extends Fragment {
             binding.edittextPrice.setError("Please enter a valid price.");
             return false;
         }
-        if (maxEntrants.isEmpty() || !maxEntrants.matches("\\d+")) {
+        if (Integer.parseInt(maxEntrants) <= 0) {
             binding.edittextMaxEntrants.setError("Please enter a valid max entrants.");
             return false;
         }
@@ -264,7 +264,7 @@ public class EditEventFragment extends Fragment {
                 imageRef.putFile(imageUri)
                         .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                             displayEvent.setPosterUri(uri.toString());
-                            displayEvent.setEvent_image_path(path); // TODO: Update this in event class
+                            displayEvent.setEvent_image_path(path);
 
                             eventController.updateField(displayEvent, "posterUri", uri.toString());
                             eventController.updateField(displayEvent, "event_image_path", path);

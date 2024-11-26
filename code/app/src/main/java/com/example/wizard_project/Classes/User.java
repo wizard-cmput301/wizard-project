@@ -20,6 +20,7 @@ public class User {
     private String phoneNumber;
     private String profilePictureUri;
     private String profilePath;
+    private String status = "Waitlisted";
     private DocumentReference userRef;
 
     /**
@@ -160,6 +161,14 @@ public class User {
     public void setProfilePath(String profilePath) {
         this.profilePath = profilePath;
         updateFieldInDatabase("profilePath", profilePath);
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     /**

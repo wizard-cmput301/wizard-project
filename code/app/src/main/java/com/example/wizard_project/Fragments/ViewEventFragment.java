@@ -169,6 +169,13 @@ public class ViewEventFragment extends Fragment {
                 Log.e("ViewEventFragment", "Event deletion failed", e);
             }
         });
+
+        viewQRButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("eventId", event.getEventId()); // Pass event ID
+            navController.navigate(R.id.action_ViewEventFragment_to_ViewQRCodeFragment, bundle);
+        });
+
     }
 
     /**
