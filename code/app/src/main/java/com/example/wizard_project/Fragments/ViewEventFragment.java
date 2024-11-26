@@ -134,6 +134,14 @@ public class ViewEventFragment extends Fragment {
         binding.buttonViewQrCode.setVisibility(View.VISIBLE);
         binding.buttonViewMap.setVisibility(View.VISIBLE);
         binding.buttonEditEvent.setVisibility(View.VISIBLE);
+        binding.buttonViewEntrants.setVisibility(View.VISIBLE);
+
+        // Set up the view entrants button
+        binding.buttonViewEntrants.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("event", displayEvent); // Pass the current event
+            navController.navigate(R.id.action_ViewEventFragment_to_EntrantListFragment, bundle);
+        });
 
         // Set up the view QR button
         binding.buttonViewQrCode.setOnClickListener(v -> {
