@@ -29,7 +29,7 @@
     <string name="upload_poster">Upload Poster</string>
     <string name="view_facility">View Facility</string>
     <string name="edit_event_button">Edit Event</string>
-    <string name="entrant_list">Wait List</string>
+    <string name="entrant_list">Entrant List</string>
     <string name="map_view">Map View</string>
     <string name="view_qr_code">View QR Code</string>
     <string name="delete_event_button">Delete Event</string>
@@ -122,4 +122,11 @@
     <string name="facility_name">Facility Name</string>
     <string name="facility_location">Facility Location</string>
     <string name="select_date_button">Select Date</string>
+
+    <!-- Filters -->
+    <string name="waitlisted_text">Waitlisted</string>
+    <string name="selected_text">Selected</string>
+    <string name="not_selected_text">Not Selected</string>
+    <string name="cancelled_text">Cancelled</string>
+    <string name="all_text">All</string>
 </resources>

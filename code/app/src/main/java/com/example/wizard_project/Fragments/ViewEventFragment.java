@@ -135,6 +135,13 @@ public class ViewEventFragment extends Fragment {
         binding.buttonViewMap.setVisibility(View.VISIBLE);
         binding.buttonEditEvent.setVisibility(View.VISIBLE);
 
+        // Set up the view QR button
+        binding.buttonViewQrCode.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("eventId", displayEvent.getEventId()); // Pass event ID
+            navController.navigate(R.id.action_ViewEventFragment_to_ViewQRCodeFragment, bundle);
+        });
+
         binding.buttonEditEvent.setOnClickListener(v -> navigateToEditEvent(navController));
 
         setupBottomNavigationForOrganizer(navController);
@@ -169,13 +176,6 @@ public class ViewEventFragment extends Fragment {
                 Log.e("ViewEventFragment", "Event deletion failed", e);
             }
         });
-
-        viewQRButton.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putString("eventId", event.getEventId()); // Pass event ID
-            navController.navigate(R.id.action_ViewEventFragment_to_ViewQRCodeFragment, bundle);
-        });
-
     }
 
     /**

@@ -159,10 +159,11 @@ public class EditEventFragment extends Fragment {
         String newMaxEntrantsString = binding.edittextMaxEntrants.getText().toString();
         boolean geolocationRequired = binding.switchGeolocationRequired.isChecked();
 
-        if (!validateInputs(newName, newDescription, newPriceString, newMaxEntrantsString)) return;
-
-        int newPrice = Integer.parseInt(newPriceString);
+        // Check if max_entrants is empty, set to Integer.MAX_VALUE if so
         int newMaxEntrants = newMaxEntrantsString.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(newMaxEntrantsString);
+
+        if (!validateInputs(newName, newDescription, newPriceString, newMaxEntrants)) return;
+        int newPrice = Integer.parseInt(newPriceString);
 
         if (displayEvent == null) {
             // Create a new event
@@ -220,7 +221,7 @@ public class EditEventFragment extends Fragment {
     /**
      * Validates the user inputs for creating or editing an event.
      */
-    private boolean validateInputs(String name, String description, String price, String maxEntrants) {
+    private boolean validateInputs(String name, String description, String price, int maxEntrants) {
         if (name.isEmpty()) {
             binding.edittextName.setError("Please enter a valid event name.");
             return false;
@@ -233,7 +234,7 @@ public class EditEventFragment extends Fragment {
             binding.edittextPrice.setError("Please enter a valid price.");
             return false;
         }
-        if (Integer.parseInt(maxEntrants) <= 0) {
+        if (maxEntrants < 0) {
             binding.edittextMaxEntrants.setError("Please enter a valid max entrants.");
             return false;
         }

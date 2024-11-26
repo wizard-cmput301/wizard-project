@@ -7,12 +7,14 @@ import com.example.wizard_project.Classes.User;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -133,39 +135,41 @@ public class EventController {
      */
     public void getEntrants(Event event, waitListCallback callback) {
         ArrayList<User> entrantList = new ArrayList<>();
-
         db.collection("events").document(event.getEventId()).collection("entrantList").get()
                 .addOnSuccessListener(documentSnapshots -> {
                     if (!documentSnapshots.isEmpty()) {
-                        List<Task<DocumentSnapshot>> userTasks = new ArrayList<>();
+                        List<Task<DocumentSnapshot>> userTasks = new ArrayList<>(); // Ensure correct type
 
-                        for (DocumentSnapshot entrant: documentSnapshots) {
+                        for (DocumentSnapshot entrant : documentSnapshots) {
                             String userId = entrant.getString("userId");
                             String entrantStatus = entrant.getString("status");
-                            Task<DocumentSnapshot> userTask = db.collection("users").document(userId).get();
-                            userTasks.add(userTask);
 
-                            userTask.addOnSuccessListener(documentSnapshot -> {
-                                if(documentSnapshot.exists()) {
-                                    User newUser = new User();
-                                    newUser.setUserData(documentSnapshot);
-                                    newUser.setStatus(entrantStatus);
-                                    entrantList.add(newUser);
-                                }
-                            });
+                            if (userId != null) {
+                                Task<DocumentSnapshot> userTask = db.collection("users").document(userId).get();
+                                userTasks.add(userTask); // Correctly add the userTask
+
+                                userTask.addOnSuccessListener(documentSnapshot -> {
+                                    if (documentSnapshot.exists()) {
+                                        User newUser = new User();
+                                        newUser.setUserData(documentSnapshot);
+                                        newUser.setStatus(entrantStatus);
+                                        entrantList.add(newUser);
+                                    }
+                                });
+                            }
                         }
 
+                        // Wait for all userTasks to complete
                         Tasks.whenAllComplete(userTasks).addOnCompleteListener(task -> {
                             callback.onCallback(entrantList);
                         });
-                    }
-                    else {
-                        callback.onCallback(entrantList);
+                    } else {
+                        callback.onCallback(entrantList); // Return empty list if no entrants
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e("UserRetrievalError", "Error retrieving waitlisted users: ", e);
-                    callback.onCallback(entrantList);
+                    callback.onCallback(entrantList); // Return empty list on failure
                 });
     }
 

@@ -262,7 +262,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:backgroundTint="@color/lighter_purple"
-        android:text="@string/view_entrants_button"
+        android:text="@string/entrant_list"
         android:textColor="@color/white"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
