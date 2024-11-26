@@ -1,4 +1,7 @@
+# macOS system file
 .DS_Store
+
+# Build files and directories
 /build
 /captures
 .externalNativeBuild

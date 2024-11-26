@@ -1,80 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="120dp"
-    android:layout_marginVertical="10dp"
     android:layout_marginHorizontal="50dp"
+    android:layout_marginVertical="10dp"
     app:cardCornerRadius="15dp"
     app:cardElevation="10dp">
-    
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Event Image -->
         <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/event_card_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:id="@+id/event_card_image"
-            android:scaleType="centerCrop"
-            android:src="@drawable/example_event"
             android:layout_marginVertical="10dp"
             android:layout_marginStart="10dp"
-            app:shapeAppearanceOverlay="@style/rounded_event_image"/>
-        
+            android:scaleType="centerCrop"
+            android:src="@drawable/example_event"
+            app:shapeAppearanceOverlay="@style/rounded_event_image" />
+
+        <!-- Event Name -->
         <TextView
-            android:layout_width="150dp"
-            android:layout_height="20dp"
-            android:textStyle="bold"
-            android:textSize="16sp"
             android:id="@+id/event_card_title"
-            android:text="Event Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/event_card_image"
+            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"/>
+            android:text="@string/event_name"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
+        <!-- Event Description -->
         <TextView
-            android:layout_width="150dp"
-            android:layout_height="20dp"
-            android:textSize="11sp"
-            android:id="@+id/event_card_details"
-            android:text="$X per lesson, ages 3-5"
+            android:id="@+id/event_card_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/event_card_title"
+            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
-            android:layout_marginTop="30dp"
-            android:layout_marginStart="10dp"/>
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:minLines="2"
+            android:text="@string/event_description"
+            android:textSize="12sp" />
 
+        <!-- Event Location -->
         <TextView
-            android:layout_width="150dp"
-            android:layout_height="20dp"
-            android:textSize="11sp"
             android:id="@+id/event_card_location"
-            android:text="Example Rec Centre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/event_card_description"
+            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
-            android:layout_marginTop="45dp"
-            android:layout_marginStart="10dp"/>
+            android:text="@string/event_location"
+            android:textSize="11sp" />
 
+        <!-- Event Availability -->
         <TextView
-            android:layout_width="150dp"
-            android:layout_height="20dp"
-            android:textSize="11sp"
             android:id="@+id/event_card_availability"
-            android:text="X Slots Available"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/event_card_location"
+            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
-            android:layout_marginTop="85dp"
-            android:layout_marginStart="10dp"/>
+            android:text="@string/event_availability"
+            android:textSize="11sp" />
 
+        <!-- Event Deadline -->
         <TextView
-            android:layout_width="150dp"
-            android:layout_height="20dp"
-            android:textSize="11sp"
             android:id="@+id/event_card_deadline"
-            android:text="Closes In: X Days"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/event_card_availability"
+            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
-            android:layout_marginTop="100dp"
-            android:layout_marginStart="10dp"/>
-
+            android:text="@string/event_deadline"
+            android:textSize="11sp" />
     </RelativeLayout>
-    
-
 </androidx.cardview.widget.CardView>

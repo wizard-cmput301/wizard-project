@@ -11,15 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.wizard_project.Adapters.BrowseProfileAdapter;
+import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
-import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.databinding.FragmentAdminBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -32,7 +29,7 @@ import java.util.ArrayList;
 public class AdminProfileViewFragment extends Fragment {
 
     private FragmentAdminBinding binding;
-    private ArrayList<User> profileList = new ArrayList<>();
+    private final ArrayList<User> profileList = new ArrayList<>();
     private BrowseProfileAdapter adapter;
 
     /**
@@ -67,44 +64,12 @@ public class AdminProfileViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Set up the admin-specific bottom navigation menu
-        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
-        bottomNavigationView.getMenu().clear();
-        bottomNavigationView.inflateMenu(R.menu.bottom_nav_admin);
-
-        // Connect the NavController to the BottomNavigationView
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-        NavigationUI.setupWithNavController(bottomNavigationView, navController);
-
-        // Set up item selection listener for navigation actions
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            // Profile browsing
-            if (item.getItemId() == R.id.nav_profile_browse) {
-                navController.navigate(R.id.AdminFragment);
-                return true;
-            // Home page
-            } else  if (item.getItemId() == R.id.nav_home) {
-                navController.navigate(R.id.HomeFragment);
-                return true;
-            // Event browsing
-            } else  if (item.getItemId() == R.id.nav_events_browse) {
-                navController.navigate(R.id.AdminFragmentEventView);
-                return true;
-            }else if(item.getItemId() == R.id.nav_image_browse){
-                navController.navigate(R.id.AdminFragmentImageView);
-                return true;
-            }
-            // TODO: Facility Browsing
-            // TODO: Image Browsing
-            return false;
-        });
     }
 
     /**
      * Loads user profiles from Firestore and updates the profile list.
      */
-    private void loadUsers(){
+    private void loadUsers() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
                 .get()
@@ -112,7 +77,7 @@ public class AdminProfileViewFragment extends Fragment {
                     if (task.isSuccessful()) {
                         profileList.clear(); // Clear existing profiles before loading new ones
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            User profile = new User(null,null,null,false,false,false,null,null,null,null);
+                            User profile = new User(null, null, null, false, false, false, null, null, null, null);
                             profile.setUserData(document);
                             profileList.add(profile); // Add each user profile to the list
                         }

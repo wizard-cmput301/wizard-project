@@ -1,9 +1,7 @@
 package com.example.wizard_project.Fragments;
 
 import android.app.AlertDialog;
-import android.media.Image;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,21 +10,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.wizard_project.Adapters.BrowseImageAdapter;
-import com.example.wizard_project.Adapters.BrowseProfileAdapter;
 import com.example.wizard_project.Classes.ImageHolder;
-import com.example.wizard_project.Classes.User;
-import com.example.wizard_project.MainActivity;
-import com.example.wizard_project.R;
-import com.example.wizard_project.databinding.FragmentAdminBinding;
 import com.example.wizard_project.databinding.FragmentAdminImageBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -37,7 +24,7 @@ import java.util.ArrayList;
  */
 public class AdminImageViewFragment extends Fragment {
     private FragmentAdminImageBinding binding;
-    private ArrayList<ImageHolder> imageList = new ArrayList<>();
+    private final ArrayList<ImageHolder> imageList = new ArrayList<>();
     private BrowseImageAdapter imageAdapter;
 
     @Override
@@ -46,7 +33,7 @@ public class AdminImageViewFragment extends Fragment {
 
         // Initialize the ListView with binding
         ListView imageListView = binding.imageListView;
-        imageAdapter = new BrowseImageAdapter(getContext(),imageList);
+        imageAdapter = new BrowseImageAdapter(getContext(), imageList);
         imageListView.setAdapter(imageAdapter);
 
         // Load images from Firebase
@@ -81,34 +68,6 @@ public class AdminImageViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Set up the admin-specific bottom navigation menu
-        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
-        bottomNavigationView.getMenu().clear();
-        bottomNavigationView.inflateMenu(R.menu.bottom_nav_admin);
-
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-        NavigationUI.setupWithNavController(bottomNavigationView, navController);
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            // Profile browsing
-            if (item.getItemId() == R.id.nav_profile_browse) {
-                navController.navigate(R.id.AdminFragment);
-                return true;
-                // Home page
-            } else  if (item.getItemId() == R.id.nav_home) {
-                navController.navigate(R.id.HomeFragment);
-                return true;
-                // Event browsing
-            } else  if (item.getItemId() == R.id.nav_events_browse) {
-                navController.navigate(R.id.AdminFragmentEventView);
-                return true;
-            }else if(item.getItemId() == R.id.nav_image_browse){
-                navController.navigate(R.id.AdminFragmentImageView);
-                return true;
-            }
-            return false;
-        });
     }
 
     /**
@@ -139,10 +98,11 @@ public class AdminImageViewFragment extends Fragment {
 
     /**
      * Deletes the specified image from Firebase Storage.
+     *
      * @param imageToDelete The ImageHolder containing information of the image to delete.
      */
     private void deleteImage(ImageHolder imageToDelete) {
-        if(!imageToDelete.getImagePath().equals("")) {
+        if (!imageToDelete.getImagePath().equals("")) {
             // Get a reference to the image in Firebase Storage
             StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imageToDelete.getImagePath());
             // Delete the image

@@ -6,71 +6,71 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:fillViewport="true"
-    tools:context=".Fragments.ProfileFragment" >
+    tools:context=".Fragments.ProfileFragment">
 
     <!-- Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp" >
+        android:padding="16dp">
 
         <!-- Profile Picture -->
         <ImageView
-            android:id="@+id/profileImage"
+            android:id="@+id/imageview_profile_image"
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_gravity="center"
+            android:contentDescription="@string/profile_picture_desc"
             android:scaleType="centerCrop"
             android:src="@drawable/event_wizard_logo"
-            android:contentDescription="@string/profile_picture_desc"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.1" />
 
         <!-- User Name -->
         <TextView
-            android:id="@+id/profileName"
+            android:id="@+id/textview_profile_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/user_name"
+            android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/profileImage"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageview_profile_image"
             app:layout_constraintVertical_bias="0.1" />
 
         <!-- User Email -->
         <TextView
-            android:id="@+id/profileEmail"
+            android:id="@+id/textview_profile_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/user_email"
-            android:textSize="18sp"
             android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/profileName"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_profile_name"
             app:layout_constraintVertical_bias="0.1" />
 
         <!-- User Phone -->
         <TextView
-            android:id="@+id/profilePhone"
+            android:id="@+id/textview_profile_phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/phone_number"
-            android:textSize="18sp"
             android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/profileEmail"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_profile_email"
             app:layout_constraintVertical_bias="0.1" />
 
         <!-- Edit Profile Button -->
         <Button
-            android:id="@+id/editProfileButton"
+            android:id="@+id/button_edit_profile"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -78,23 +78,23 @@
             android:text="@string/edit_profile"
             android:textColor="@color/white"
             android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@id/profilePhone"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/textview_profile_phone" />
+
         <!-- Admin Delete Profile Button -->
         <Button
-            android:id="@+id/deleteProfileButton"
-            android:layout_width="111dp"
-            android:layout_height="56dp"
-            android:layout_marginTop="100dp"
+            android:id="@+id/button_delete_profile"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:backgroundTint="@color/lighter_purple"
-            android:text="@string/deleteButton"
+            android:text="@string/delete_profile_button"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.149"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profilePhone" />
+            app:layout_constraintTop_toBottomOf="@id/textview_profile_phone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
