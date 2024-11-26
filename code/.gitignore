@@ -1,4 +1,7 @@
+# macOS system file
 .DS_Store
+
+# Build files and directories
 /build
 /captures
 .externalNativeBuild
@@ -36,4 +39,4 @@ render.experimental.xml
 google-services.json
 
 # Android Profiling
-*.hprof.DS_Store
+*.hprof
