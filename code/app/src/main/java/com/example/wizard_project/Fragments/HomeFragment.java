@@ -52,7 +52,7 @@ public class HomeFragment extends Fragment {
      */
     private void setupNavigationButtons(NavController navController) {
         binding.enterEventButton.setOnClickListener(v ->
-                navController.navigate(R.id.action_HomeFragment_to_EntrantFragment)
+                navController.navigate(R.id.action_HomeFragment_to_EntrantEventFragment)
         );
 
         binding.qrcodeButton.setOnClickListener(v ->

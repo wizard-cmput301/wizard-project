@@ -29,27 +29,13 @@
 
         <!-- QR Scanner Button -->
         <action
-            android:id="@+id/action_HomeFragment_to_EntrantFragment"
-            app:destination="@id/EntrantFragment" />
+            android:id="@+id/action_HomeFragment_to_EntrantEventFragment"
+            app:destination="@id/EntrantEventFragment" />
 
         <!-- Admin Button -->
         <action
             android:id="@+id/action_HomeFragment_to_AdminFragment"
             app:destination="@id/AdminFragment" />
-    </fragment>
-
-
-    <!-- Entrant Fragment -->
-    <fragment
-        android:id="@+id/EntrantFragment"
-        android:name="com.example.wizard_project.Fragments.EntrantFragment"
-        android:label="@string/entrant_fragment_label"
-        tools:layout="@layout/fragment_entrant">
-
-        <!-- Profile Button -->
-        <action
-            android:id="@+id/action_EntrantFragment_to_ProfileFragment"
-            app:destination="@+id/ProfileFragment" />
     </fragment>
 
     <!-- Admin Profile Fragment -->
@@ -178,6 +164,10 @@
             android:id="@+id/action_ViewEventFragment_to_ViewQRCodeFragment"
             app:destination="@+id/ViewQRCodeFragment" />
 
+        <!-- Profile Button -->
+        <action
+            android:id="@+id/action_ViewEventFragment_to_ProfileFragment"
+            app:destination="@+id/ProfileFragment"/>
     </fragment>
 
     <!--Event List Fragment -->
@@ -198,8 +188,8 @@
         android:label="QR Scanner"
         tools:layout="@layout/fragment_qrscanner">
         <action
-            android:id="@+id/action_QRScannerFragment_to_EntrantFragment"
-            app:destination="@id/EntrantFragment" />
+            android:id="@+id/action_QRScannerFragment_to_ViewEventFragment"
+            app:destination="@id/ViewEventFragment" />
     </fragment>
 
     <!-- Entrant List Fragment -->
@@ -219,6 +209,25 @@
     <action
         android:id="@+id/action_ViewEventFragment_to_ViewQRCodeFragment"
         app:destination="@id/ViewQRCodeFragment" />
+
+
+    <!-- EntrantEvent List Fragment -->
+    <fragment
+        android:id="@+id/EntrantEventFragment"
+        android:name="com.example.wizard_project.Fragments.EntrantEventFragment"
+        android:label="EntrantEventFragment"
+        tools:layout="@layout/fragment_entrant_event_list">
+
+        <action
+            android:id="@+id/action_EntrantEventFragment_to_EventFragment"
+            app:destination="@id/ViewEventFragment"/>
+
+        <!-- Profile Button -->
+        <action
+            android:id="@+id/action_EntrantEventFragment_to_ProfileFragment"
+            app:destination="@+id/ProfileFragment"/>
+    </fragment>
+
 
 
 </navigation>

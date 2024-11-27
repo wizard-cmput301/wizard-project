@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import android.content.Intent;
+import com.example.wizard_project.Classes.Event;
 
 /**
  * QRScannerFragment provides functionality to scan QR codes and check event details in Firestore.
@@ -114,7 +115,23 @@ public class QRScannerFragment extends Fragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         Log.d("QRScannerFragment", "Event found: " + documentSnapshot.getId());
-                        navigateToEventDetails(documentSnapshot);
+
+                        // Create and populate the Event object
+                        Event event = new Event(
+                                documentSnapshot.getString("event_name"),
+                                documentSnapshot.getString("event_description"),
+                                documentSnapshot.getDouble("event_price").intValue(),
+                                documentSnapshot.getLong("event_max_entrants").intValue(),
+                                documentSnapshot.getDate("registration_open"),
+                                documentSnapshot.getDate("registration_close"),
+                                documentSnapshot.getString("facilityId"),
+                                documentSnapshot.getString("event_location"),
+                                documentSnapshot.getBoolean("geolocation_requirement"),
+                                documentSnapshot.getString("event_image_path")
+                        );
+
+                        // Navigate to ViewEventFragment with the Event object
+                        navigateToViewEventFragment(event);
                     } else {
                         Toast.makeText(requireContext(), "Event not found", Toast.LENGTH_SHORT).show();
                     }
@@ -130,13 +147,11 @@ public class QRScannerFragment extends Fragment {
      *
      * @param documentSnapshot The Firestore document snapshot containing event details.
      */
-    private void navigateToEventDetails(DocumentSnapshot documentSnapshot) {
-        Bundle bundle = new Bundle();
-        bundle.putString("eventId", documentSnapshot.getId());
-        bundle.putString("eventName", documentSnapshot.getString("name"));
-        bundle.putString("eventDescription", documentSnapshot.getString("description"));
 
-        // Navigate to EventDetailsFragment or EntrantFragment with the event details
-        NavHostFragment.findNavController(this).navigate(R.id.action_QRScannerFragment_to_EntrantFragment, bundle);
+    private void navigateToViewEventFragment(Event event) {
+        // Pass the Event object directly to the destination fragment
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("event", event); // Use Serializable to pass the Event object
+        NavHostFragment.findNavController(this).navigate(R.id.action_QRScannerFragment_to_ViewEventFragment, bundle);
     }
 }
