@@ -284,4 +284,34 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/button_delete_event" />
+
+    <!-- Entrant Join Waitlist Button-->
+    <Button
+        android:id="@+id/button_join_waiting_list"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="@color/lighter_purple"
+        android:text="@string/join_waiting_list_button"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_view_facility" />
+
+    <!-- Entrant Leave Waitlist Button-->
+    <Button
+        android:id="@+id/button_leave_waiting_list"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="@color/lighter_purple"
+        android:text="@string/leave_waiting_list_button"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_join_waiting_list" />
 </androidx.constraintlayout.widget.ConstraintLayout>

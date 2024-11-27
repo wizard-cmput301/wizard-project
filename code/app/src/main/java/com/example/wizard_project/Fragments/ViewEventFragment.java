@@ -18,6 +18,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.User;
+import com.example.wizard_project.Controllers.WaitingListController;
 import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
@@ -37,16 +38,31 @@ public class ViewEventFragment extends Fragment {
     private FragmentViewEventBinding binding;
     private User currentUser; // The current logged-in user
     private Event displayEvent; // The event being viewed
+    private WaitingListController waitingListController; //
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentViewEventBinding.inflate(inflater, container, false);
+
+        // Set up navigation to ProfileFragment when the profile picture button is clicked
+        View profilePictureButton = requireActivity().findViewById(R.id.profilePictureButton);
+
+        profilePictureButton.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+            if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() != R.id.ProfileFragment) {
+                navController.navigate(R.id.action_ViewEventFragment_to_ProfileFragment); // (temporary work around, this prevents app crashing when clicking the button twice)
+            }
+        });
+
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //Initialize waiting list controller
+        waitingListController = new WaitingListController();
 
         // Get the current user from MainActivity
         MainActivity mainActivity = (MainActivity) requireActivity();
@@ -60,6 +76,11 @@ public class ViewEventFragment extends Fragment {
             configureViewBasedOnRole(view);
         } else {
             Toast.makeText(requireContext(), "Event data unavailable", Toast.LENGTH_SHORT).show();
+        }
+
+        // Retrieve the event passed from QRScannerFragment
+        if (getArguments() != null) {
+            displayEvent = (Event) getArguments().getSerializable("event");
         }
     }
 
@@ -158,11 +179,79 @@ public class ViewEventFragment extends Fragment {
      * Configures the UI for entrants.
      */
     private void setupEntrantView() {
-        binding.buttonViewEntrants.setVisibility(View.VISIBLE);
-        binding.buttonViewFacility.setVisibility(View.VISIBLE);
 
         hideUnusedButtonsForEntrant();
+
+        // Use WaitingListController to check waiting list status
+        waitingListController.isUserOnWaitingList(displayEvent.getEventId(), currentUser.getDeviceId(), new WaitingListController.OnCheckCompleteListener() {
+            @Override
+            public void onComplete(boolean isOnWaitingList) {
+                if (isOnWaitingList) {
+                    binding.buttonLeaveWaitingList.setVisibility(View.VISIBLE);
+                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                } else {
+                    binding.buttonJoinWaitingList.setVisibility(View.VISIBLE);
+                    binding.buttonLeaveWaitingList.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("ViewEventFragment", "Error checking waiting list status", e);
+                Toast.makeText(requireContext(), "Unable to check waiting list status.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Set up listeners for join and leave buttons
+        binding.buttonJoinWaitingList.setOnClickListener(v -> joinWaitingList());
+        binding.buttonLeaveWaitingList.setOnClickListener(v -> leaveWaitingList());
     }
+
+
+    /**
+     * Places the current user to the waitlist in the Firestore.
+     *
+     */
+
+    private void joinWaitingList() {
+        waitingListController.addUserToWaitingList(displayEvent.getEventId(), currentUser, currentUser.getDeviceId(), new WaitingListController.OnActionCompleteListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(requireContext(), "You have joined the waiting list.", Toast.LENGTH_SHORT).show();
+                binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                binding.buttonLeaveWaitingList.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to join the waiting list.", Toast.LENGTH_SHORT).show();
+                Log.e("ViewEventFragment", "Error joining waiting list", e);
+            }
+        });
+    }
+
+    /**
+     * Deletes the current user from the waitlist in the Firestore.
+     *
+     */
+
+    private void leaveWaitingList() {
+        waitingListController.removeUserFromWaitingList(displayEvent.getEventId(), currentUser.getDeviceId(), new WaitingListController.OnActionCompleteListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(requireContext(), "You have left the waiting list.", Toast.LENGTH_SHORT).show();
+                binding.buttonLeaveWaitingList.setVisibility(View.GONE);
+                binding.buttonJoinWaitingList.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to leave the waiting list.", Toast.LENGTH_SHORT).show();
+                Log.e("ViewEventFragment", "Error leaving waiting list", e);
+            }
+        });
+    }
+
 
     /**
      * Deletes the current event from Firestore.
@@ -242,5 +331,8 @@ public class ViewEventFragment extends Fragment {
         binding.buttonEditEvent.setVisibility(View.GONE);
         binding.buttonDeleteEvent.setVisibility(View.GONE);
         binding.buttonDeleteEventQrData.setVisibility(View.GONE);
+        binding.buttonViewEntrants.setVisibility(View.GONE);
+        binding.buttonViewFacility.setVisibility(View.GONE);
+
     }
 }

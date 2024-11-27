@@ -38,6 +38,9 @@
     <string name="view_waitlist_button">Waitlist</string>
     <string name="view_qr_code_button">View QR Code</string>
     <string name="view_map_button">Map View</string>
+    <string name="join_waiting_list_button">Join Waiting List</string>
+    <string name="leave_waiting_list_button">Leave Waiting List</string>
+
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
