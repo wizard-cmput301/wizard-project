@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * This class is designed to interact with Firestore to store and retrieve user data.
  */
 public class User {
+    private final FirebaseFirestore db;
     private String deviceId;
     private String email;
     private String location;
@@ -20,9 +21,6 @@ public class User {
     private String profilePictureUri;
     private String profilePath;
     private String status = "Waitlisted";
-
-
-    private FirebaseFirestore db;
     private DocumentReference userRef;
 
     /**
@@ -56,10 +54,9 @@ public class User {
      * @param name              The user's name.
      * @param phoneNumber       The user's phone number.
      * @param profilePictureUri The URI for the user's profile picture.
-     * @param profilePath The URI for the user's profile picture.
-
+     * @param profilePath       The URI for the user's profile picture.
      */
-    public User(String deviceId, String email, String location, boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri,String profilePath) {
+    public User(String deviceId, String email, String location, boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri, String profilePath) {
         db = FirebaseFirestore.getInstance();
         this.deviceId = deviceId;
         initializeDocumentReference();
@@ -156,6 +153,7 @@ public class User {
         this.profilePictureUri = profilePictureUri;
         updateFieldInDatabase("photoId", profilePictureUri);
     }
+
     public String getProfilePath() {
         return this.profilePath;
     }
@@ -175,9 +173,8 @@ public class User {
 
     /**
      * Wipes the user's data from memory.
-     * TODO: rename
      */
-    public void DeleteUser() {
+    public void deleteUser() {
         this.deviceId = "";
         this.email = "";
         this.location = "";

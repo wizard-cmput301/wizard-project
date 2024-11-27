@@ -31,15 +31,14 @@ import com.google.firebase.storage.StorageReference;
  * EditProfileFragment allows the user to edit their profile information.
  */
 public class EditProfileFragment extends Fragment {
-
     private FragmentEditProfileBinding binding;
     private User currentUser;
-    private PhotoHandler photo;
+    private PhotoHandler photoHandler;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false);
-        photo = new PhotoHandler(); // Initialize the photo handler
+        photoHandler = new PhotoHandler(); // Initialize photoHandler
         return binding.getRoot();
     }
 
@@ -51,79 +50,118 @@ public class EditProfileFragment extends Fragment {
         MainActivity mainActivity = (MainActivity) requireActivity();
         currentUser = mainActivity.getCurrentUser();
 
-        // Set click listener for profile picture selection
-        binding.editProfileImage.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, PhotoHandler.PICK_IMAGE_REQUEST);
-            }
-        });
+        // Pre-fill profile fields with current user data
+        populateUserProfile();
 
-        // Pre-fill profile fields with current user data, if available
-        if (currentUser != null) {
-            binding.editTextName.setText(currentUser.getName());
-            binding.editTextEmail.setText(currentUser.getEmail());
-            binding.editTextPhone.setText(currentUser.getPhoneNumber());
-            if (!currentUser.getProfilePictureUri().equals("")) {
-                Uri imageUri = Uri.parse(currentUser.getProfilePictureUri());
-                Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.editProfileImage);
-            }
-        }
-
-        // Set click listener to save profile changes
-        binding.buttonSaveProfile.setOnClickListener(v -> saveUserProfile());
-
-        // Set click listener to delete profile picture
-        binding.buttonDeleteProfilePic.setOnClickListener(v -> {
-            String imagePath = currentUser.getProfilePath();
-            if(!imagePath.equals("")){
-                photo.deleteImage(imagePath, aVoid -> {
-                            Toast.makeText(getContext(), "Image deleted successfully", Toast.LENGTH_SHORT).show();
-                            // Update user data and UI after successful deletion
-                            currentUser.setProfilePictureUri("");
-                            currentUser.setProfilePath("");
-                            binding.editProfileImage.setImageResource(R.drawable.event_wizard_logo); // Set default image
-                        },
-                        e -> {
-                            Toast.makeText(getContext(), "Failed to delete image", Toast.LENGTH_SHORT).show();
-                        }
-                );
-            } else {
-                Toast.makeText(getContext(), "No profile picture to delete", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        // Set up listeners
+        setupListeners();
     }
 
     /**
-     * Saves the updated profile information to Firestore and navigates back to the ProfileFragment upon successful update.
+     * Pre-fills the profile fields with the current user's data, if available.
+     */
+    private void populateUserProfile() {
+        if (currentUser != null) {
+            binding.edittextName.setText(currentUser.getName());
+            binding.edittextEmail.setText(currentUser.getEmail());
+            binding.edittextPhone.setText(currentUser.getPhoneNumber());
+
+            String profilePictureUri = currentUser.getProfilePictureUri();
+            if (profilePictureUri != null && !profilePictureUri.isEmpty()) {
+                Glide.with(requireContext())
+                        .load(Uri.parse(profilePictureUri))
+                        .circleCrop()
+                        .into(binding.imageviewProfilePicture);
+            } else {
+                binding.imageviewProfilePicture.setImageResource(R.drawable.event_wizard_logo); // Default profile picture
+            }
+        }
+    }
+
+    /**
+     * Sets up listeners for profile picture selection, saving changes, and deleting the profile picture.
+     */
+    private void setupListeners() {
+        // Profile picture selection
+        binding.framelayoutProfilePictureContainer.setOnClickListener(v -> openImagePicker());
+
+        // Save profile changes
+        binding.buttonSaveProfile.setOnClickListener(v -> saveUserProfile());
+
+        // Delete profile picture
+        binding.buttonDeleteProfilePic.setOnClickListener(v -> deleteProfilePicture());
+    }
+
+    /**
+     * Opens an image picker to select a profile picture.
+     */
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PhotoHandler.PICK_IMAGE_REQUEST);
+    }
+
+
+    /**
+     * Saves the updated profile information to the user object and navigates back to the ProfileFragment.
      */
     private void saveUserProfile() {
-        String newName = binding.editTextName.getText().toString().trim();
-        String newEmail = binding.editTextEmail.getText().toString().trim();
-        String newPhone = binding.editTextPhone.getText().toString().trim();
+        String newName = binding.edittextName.getText().toString().trim();
+        String newEmail = binding.edittextEmail.getText().toString().trim();
+        String newPhone = binding.edittextPhone.getText().toString().trim();
 
-        // TODO: Add validation for name, email, and phone number
+        if (!validateInputs(newName, newEmail)) return;
 
         if (currentUser != null) {
-            // Update the user's profile information in Firestore
-            try {
-                currentUser.setName(newName);
-                currentUser.setEmail(newEmail);
-                currentUser.setPhoneNumber(newPhone);
+            // Update user information
+            currentUser.setName(newName);
+            currentUser.setEmail(newEmail);
+            currentUser.setPhoneNumber(newPhone);
 
-                Toast.makeText(requireContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show();
 
-                // Navigate back to ProfileFragment
-                NavController navController = Navigation.findNavController(requireView());
-                navController.navigate(R.id.action_EditProfileFragment_to_ProfileFragment);
-            // Error handling (user data could not be updated)
-            } catch (Exception e) {
-                Toast.makeText(requireContext(), "Error updating profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        // Error handling (user data not found)
+            // Navigate back to ProfileFragment
+            NavController navController = Navigation.findNavController(requireView());
+            navController.navigate(R.id.action_EditProfileFragment_to_ProfileFragment);
         } else {
             Toast.makeText(requireContext(), "Failed to update profile. User data not available.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Validates user inputs for the profile fields.
+     *
+     * @param name  The user's name.
+     * @param email The user's email address.
+     * @return True if all inputs are valid; false otherwise.
+     */
+    private boolean validateInputs(String name, String email) {
+        if (name.isEmpty()) {
+            binding.edittextName.setError("Name cannot be empty.");
+            return false;
+        }
+        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.edittextEmail.setError("Enter a valid email address.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Deletes the user's profile picture and updates the UI.
+     */
+    private void deleteProfilePicture() {
+        String imagePath = currentUser.getProfilePath();
+        if (imagePath != null && !imagePath.isEmpty()) {
+            photoHandler.deleteImage(imagePath,
+                    aVoid -> {
+                        currentUser.setProfilePictureUri("");
+                        currentUser.setProfilePath("");
+                        binding.imageviewProfilePicture.setImageResource(R.drawable.event_wizard_logo); // Set default image
+                        Toast.makeText(requireContext(), "Profile picture deleted successfully.", Toast.LENGTH_SHORT).show();
+                    },
+                    e -> Toast.makeText(requireContext(), "Failed to delete profile picture.", Toast.LENGTH_SHORT).show());
+        } else {
+            Toast.makeText(requireContext(), "No profile picture to delete.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -150,7 +188,7 @@ public class EditProfileFragment extends Fragment {
             Uri imageUri = data.getData();
             currentUser.setProfilePictureUri(imageUri.toString());
             // Load the selected image into the ImageView
-            Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.editProfileImage);
+            Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.imageviewProfilePicture);
 
             // Upload the image to Firebase
             PhotoHandler photo = new PhotoHandler();
@@ -159,6 +197,21 @@ public class EditProfileFragment extends Fragment {
                     uri -> Toast.makeText(requireContext(), "Upload Success", Toast.LENGTH_SHORT).show(),
                     e -> Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show());
         }
+    }
+
+    /**
+     * Uploads the selected profile picture to Firebase and updates the user's profile picture URI.
+     *
+     * @param imageUri The URI of the selected image.
+     */
+    private void uploadProfilePicture(Uri imageUri) {
+        photoHandler.uploadImage(currentUser, imageUri,
+                uri -> {
+                    currentUser.setProfilePictureUri(uri.toString());
+                    Glide.with(requireContext()).load(uri).circleCrop().into(binding.imageviewProfilePicture);
+                    Toast.makeText(requireContext(), "Profile picture updated successfully.", Toast.LENGTH_SHORT).show();
+                },
+                e -> Toast.makeText(requireContext(), "Failed to upload profile picture.", Toast.LENGTH_SHORT).show());
     }
 
     @Override

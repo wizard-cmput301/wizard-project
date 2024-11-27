@@ -4,16 +4,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.wizard_project.Controllers.FacilityController;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentHomeBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
@@ -22,18 +23,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * the entrant, organizer, and admin screens.
  */
 public class HomeFragment extends Fragment {
-
     private FragmentHomeBinding binding; // View binding accessing UI elements
     private FirebaseFirestore db; // Firestore instance for database operations
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout using View Binding
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-
-        // Initialize Firestore instance
-        db = FirebaseFirestore.getInstance();
-
+        db = FirebaseFirestore.getInstance(); // Initialize Firestore instance
         return binding.getRoot();
     }
 
@@ -44,102 +40,133 @@ public class HomeFragment extends Fragment {
         // Get the NavController for navigating between fragments
         NavController navController = NavHostFragment.findNavController(this);
 
-        // Set up buttons to navigate to other fragments
-        binding.enterEventButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EntrantFragment)); // Navigate to EntrantFragment
-        binding.qrcodeButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment)); // Navigate to QRScannerFragment
 
-        // Button to navigate to OrganizerFragment
-        // Check if the user is an organizer
-        isOrganizer(isOrganizer -> {
-            // If the user is an organizer, navigate to the view facility fragment.
+        setupNavigationButtons(navController);
+        setupUserRoles(navController);
+    }
+
+    /**
+     * Sets up navigation for the entrant and QR code scanner buttons.
+     *
+     * @param navController The NavController for navigating between fragments.
+     */
+    private void setupNavigationButtons(NavController navController) {
+        binding.enterEventButton.setOnClickListener(v ->
+                navController.navigate(R.id.action_HomeFragment_to_EntrantEventFragment)
+        );
+
+        binding.qrcodeButton.setOnClickListener(v ->
+                navController.navigate(R.id.action_HomeFragment_to_QRScannerFragment)
+        );
+    }
+
+    /**
+     * Configures visibility and navigation based on the user's roles.
+     *
+     * @param navController The NavController for navigating between fragments.
+     */
+    private void setupUserRoles(NavController navController) {
+        checkIfOrganizer(isOrganizer -> {
             if (isOrganizer) {
-                binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_ViewFacilityFragment));
-            }
-            // If the user is not an organizer, navigate to the edit facility fragment to create one.
-            else {
-                binding.manageFacilityButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment));
+                configureOrganizerButton(navController);
+            } else {
+                binding.manageFacilityButton.setOnClickListener(v ->
+                        navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment)
+                );
             }
         });
 
-
-        // Check if the user is an admin
-        // Display the admin button if the user has admin privileges
-        isAdmin(isAdmin -> {
+        checkIfAdmin(isAdmin -> {
             if (binding != null) { // Ensure binding is still valid
+                binding.adminButton.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
                 if (isAdmin) {
-                    binding.adminButton.setVisibility(View.VISIBLE);
-                    binding.adminButton.setOnClickListener(v -> navController.navigate(R.id.action_HomeFragment_to_AdminFragment));
-                } else {
-                    binding.adminButton.setVisibility(View.GONE);
+                    binding.adminButton.setOnClickListener(v ->
+                            navController.navigate(R.id.action_HomeFragment_to_AdminFragment)
+                    );
                 }
             }
         });
     }
 
     /**
-     * Checks if the current user has admin privileges by querying Firestore.
-     * If the user is an admin, the admin button is made visible.
+     * Configures the manage facility button for organizers.
      *
-     * @param callback A callback to handle the result of the admin check.
+     * @param navController The NavController for navigating between fragments.
      */
-    private void isAdmin(AdminCheckCallback callback) {
-        // Get the device ID from the MainActivity
-        String deviceId = ((MainActivity) requireActivity()).retrieveDeviceId();
-
-        // Query Firestore to check if the user has admin privileges
-        db.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                Boolean isAdmin = documentSnapshot.getBoolean("IsAdmin");
-                callback.onResult(isAdmin != null && isAdmin);
+    private void configureOrganizerButton(NavController navController) {
+        fetchFacilityForOrganizer(facility -> {
+            if (facility != null) {
+                binding.manageFacilityButton.setOnClickListener(v -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("facility", facility);
+                    navController.navigate(R.id.action_HomeFragment_to_ViewFacilityFragment, bundle);
+                });
             } else {
-                callback.onResult(false); // If document does not exist, assume not admin
+                Toast.makeText(requireContext(), "Facility not found. Please create one.", Toast.LENGTH_SHORT).show();
+                binding.manageFacilityButton.setOnClickListener(v ->
+                        navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment)
+                );
             }
-        }).addOnFailureListener(e -> {
-            callback.onResult(false); // If error, assume not admin
         });
     }
 
     /**
-     * Checks if the user is an organizer in the database.
+     * Fetches the facility associated with the organizer.
      *
-     * @param callback The callback to handle the result.
+     * @param callback A callback to handle the retrieved facility.
      */
-    private void isOrganizer(organizerCheckCallback callback) {
-        // Get the device ID from the MainActivity
+    private void fetchFacilityForOrganizer(FacilityController.facilityCallback callback) {
+        String userId = ((MainActivity) requireActivity()).retrieveDeviceId();
+        FacilityController facilityController = new FacilityController();
+
+        facilityController.getFacility(userId, callback::onCallback);
+    }
+
+    /**
+     * Checks if the current user has admin privileges.
+     *
+     * @param callback A callback to handle the result of the admin check.
+     */
+    private void checkIfAdmin(AdminCheckCallback callback) {
         String deviceId = ((MainActivity) requireActivity()).retrieveDeviceId();
 
-        // Query the database for the user document
         db.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
-            // Check if the document exists in the database
-            if (documentSnapshot.exists()) {
-                // Get the 'organizer' field from the document, pass the result to the callback
-                Boolean isOrganizer = documentSnapshot.getBoolean("isOrganizer");
-                callback.onResult(Boolean.TRUE.equals(isOrganizer));
-            } else {
-                callback.onResult(false); // If document does not exist, assume not organizer
-            }
-        }).addOnFailureListener(e -> {
-            callback.onResult(false); // If error, assume not organizer
-        });
+            Boolean isAdmin = documentSnapshot.getBoolean("IsAdmin");
+            callback.onResult(Boolean.TRUE.equals(isAdmin));
+        }).addOnFailureListener(e -> callback.onResult(false));
+    }
+
+    /**
+     * Checks if the user is an organizer.
+     *
+     * @param callback A callback to handle the result of the organizer check.
+     */
+    private void checkIfOrganizer(OrganizerCheckCallback callback) {
+        String deviceId = ((MainActivity) requireActivity()).retrieveDeviceId();
+
+        db.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
+            Boolean isOrganizer = documentSnapshot.getBoolean("isOrganizer");
+            callback.onResult(Boolean.TRUE.equals(isOrganizer));
+        }).addOnFailureListener(e -> callback.onResult(false));
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
+        binding = null; // Clear binding to avoid memory leaks
     }
 
     /**
-     * Callback interface to handle the result of the admin check.
+     * Callback interface for checking admin privileges.
      */
     public interface AdminCheckCallback {
         void onResult(boolean isAdmin);
     }
 
     /**
-     * Callback interface to handle the result of the organizer check.
+     * Callback interface for checking organizer privileges.
      */
-    public interface organizerCheckCallback {
+    public interface OrganizerCheckCallback {
         void onResult(boolean isOrganizer);
     }
 }

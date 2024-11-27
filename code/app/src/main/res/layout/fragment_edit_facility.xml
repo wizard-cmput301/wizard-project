@@ -1,95 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="Fragments.EditFacilityFragment"
-    android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context="Fragments.EditFacilityFragment">
 
+    <!-- Facility Image -->
     <ImageView
-        android:id="@+id/facility_edit_imageview"
+        android:id="@+id/imageview_edit_facility_image"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="200dp"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/example_facility"
         app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/example_facility"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Edit Facility Image Button -->
     <Button
-        android:id="@+id/facility_edit_image_button"
+        android:id="@+id/event_facility_poster_button"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        app:layout_constraintTop_toBottomOf="@id/facility_edit_imageview"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:drawableLeft="@drawable/folder_icon"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="120dp"
         android:background="@color/transparent"
+        android:drawableLeft="@drawable/folder_icon"
+        android:text="@string/upload_poster_label"
         android:textColor="@color/lighter_gray"
-        android:text="@string/upload_image_text"
-        android:layout_marginHorizontal="120dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageview_edit_facility_image" />
 
-    <TextView
-        android:id="@+id/facility_name_label"
-        android:layout_width="wrap_content"
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/event_facility_poster_button" />
+
+    <!-- Facility Name Row -->
+    <LinearLayout
+        android:id="@+id/linearlayout_facility_name_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/facility_edit_image_button"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/facility_name_label"
-        android:textSize="16sp"
-        android:layout_marginTop="40dp"
-        android:layout_marginStart="80dp" />
-
-    <EditText
-        android:id="@+id/facility_edit_name"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        app:layout_constraintTop_toBottomOf="@id/facility_name_label"
-        app:layout_constraintStart_toStartOf="parent"
-        android:hint="Example Rec Centre"
-        android:textSize="16sp"
-        android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="80dp"
-        android:background="@drawable/edittext_border"/>
-
-    <TextView
-        android:id="@+id/facility_location_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/facility_edit_name"
-        android:text="@string/location_label"
-        android:textSize="16sp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="80dp" />
-
-    <EditText
-        android:id="@+id/facility_edit_location"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/facility_location_label"
-        android:hint="Edmonton, AB"
-        android:textSize="16sp"
-        android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="80dp"
-        android:background="@drawable/edittext_border"/>
-
-    <Button
-        android:id="@+id/facility_done_button"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginBottom="100dp"
-        android:layout_marginHorizontal="150dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@drawable/button_border"
-        android:textColor="@color/black"
-        android:text="@string/doneButton"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_divider">
 
+        <!-- Facility Name Label -->
+        <TextView
+            android:id="@+id/textview_facility_name_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/facility_name_label"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
+        <!-- Edit Facility Name Field -->
+        <EditText
+            android:id="@+id/edittext_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:background="@null"
+            android:gravity="start"
+            android:hint="@string/enter_facility_name"
+            android:textSize="16sp" />
+    </LinearLayout>
 
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_divider_2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_facility_name_row" />
+
+    <!-- Facility Location Row -->
+    <LinearLayout
+        android:id="@+id/linearlayout_facility_location_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_divider_2">
+
+        <!-- Location Label -->
+        <TextView
+            android:id="@+id/textview_facility_location_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/facility_location_label"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <!-- Edit Event Name Field -->
+        <EditText
+            android:id="@+id/edittext_facility_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:background="@null"
+            android:gravity="start"
+            android:hint="@string/enter_facility_location"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_divider_3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_facility_location_row" />
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/button_save_facility"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/lighter_purple"
+        android:text="@string/save_button"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_divider_3" />
+
+    <!-- Delete Facility Image Button -->
+    <Button
+        android:id="@+id/button_delete_facility_image"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/lighter_purple"
+        android:text="@string/delete_facility_image"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_save_facility" />
 </androidx.constraintlayout.widget.ConstraintLayout>

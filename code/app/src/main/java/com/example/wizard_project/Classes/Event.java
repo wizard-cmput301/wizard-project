@@ -1,13 +1,9 @@
 package com.example.wizard_project.Classes;
 
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentSnapshot;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -15,39 +11,53 @@ import java.util.UUID;
  */
 public class Event implements Serializable {
     private String event_name;
-    private String event_location;
+    private String event_description;
     private int event_price;
-    private int event_waitlist_limit;
-    private Date event_deadline;
-    private String facilityId;
-    private List<User> entrant_list;
-    private List<User> waitlist;
+    private int event_max_entrants;
+    private boolean geolocation_requirement;
+    private Date registration_open;
+    private Date registration_close;
+    private final String event_location;
+    private String event_image_path;
+    private final String facilityId;
+    private final List<User> entrant_list;
+    private final List<User> waitlist;
     private String posterUri;
     private String eventId;
 
-    private int daysRemaining;
-
-
     /**
      * Constructor for initializing an Event instance with essential details.
-     * @param event_name Name of the event.
-     * @param event_price Cost to enter the event.
-     * @param event_waitlist_limit Maximum number of users on the waitlist.
-     * @param event_deadline Deadline date to join the event.
-     * @param facilityId ID of the facility where the event is held.
+     *
+     * @param event_name              Name of the event.
+     * @param event_description       Description of the event.
+     * @param event_price             Cost to enter the event.
+     * @param event_max_entrants      Maximum number of entrants.
+     * @param registration_open       Date when registration opens.
+     * @param registration_close      Date when registration closes.
+     * @param facilityId              ID of the facility where the event is held.
+     * @param event_location          Location of the event (facility location).
+     * @param geolocation_requirement Whether geolocation is required for the event.
+     * @param event_image_path        Path to the facility's image.
      */
-    public Event(String event_name, int event_price, int event_waitlist_limit, Date event_deadline, String facilityId, String event_location) {
+    public Event(String event_name, String event_description, int event_price, int event_max_entrants, Date registration_open,
+                 Date registration_close, String facilityId, String event_location, boolean geolocation_requirement, String event_image_path) {
         this.event_name = event_name;
+        this.event_description = event_description;
         this.event_price = event_price;
-        this.event_waitlist_limit = event_waitlist_limit;
-        this.event_deadline = event_deadline;
+        this.event_max_entrants = event_max_entrants;
+        this.geolocation_requirement = geolocation_requirement;
+        this.registration_open = registration_open;
+        this.registration_close = registration_close;
         this.facilityId = facilityId;
-        this.eventId = eventId != null ? eventId : UUID.randomUUID().toString(); // Only generate if it's null
-        this.waitlist = new ArrayList<>(); // Initialize the waitlist
+        this.event_image_path = event_image_path;
         this.event_location = event_location;
-        this.eventId = UUID.randomUUID().toString();
+        this.eventId = eventId != null ? eventId : UUID.randomUUID().toString(); // Only generate if it's null
+        this.waitlist = new ArrayList<>();
+        this.entrant_list = new ArrayList<>();
+        this.posterUri = null; // Initialize to null by default
     }
 
+    // Getters and setters
     public String getEvent_name() {
         return event_name;
     }
@@ -56,28 +66,12 @@ public class Event implements Serializable {
         this.event_name = event_name;
     }
 
-    public String getEvent_location() {
-        return event_location;
+    public String getEvent_description() {
+        return event_description;
     }
 
-    public void setEvent_location(String event_location) {
-        this.event_location = event_location;
-    }
-
-    public int getEvent_waitlist_limit() {
-        return event_waitlist_limit;
-    }
-
-    public void setEvent_waitlist(int event_waitlist_limit) {
-        this.event_waitlist_limit = event_waitlist_limit;
-    }
-
-    public Date getEvent_deadline() {
-        return event_deadline;
-    }
-
-    public void setEvent_deadline(Date event_deadline) {
-        this.event_deadline = event_deadline;
+    public void setEvent_description(String event_description) {
+        this.event_description = event_description;
     }
 
     public int getEvent_price() {
@@ -88,12 +82,53 @@ public class Event implements Serializable {
         this.event_price = event_price;
     }
 
+    public int getEvent_max_entrants() {
+        return event_max_entrants;
+    }
+
+    public void setEvent_max_entrants(int event_max_entrants) {
+        this.event_max_entrants = event_max_entrants;
+    }
+
+    public boolean isGeolocation_requirement() {
+        return geolocation_requirement;
+    }
+
+    public void setGeolocation_requirement(boolean geolocation_requirement) {
+        this.geolocation_requirement = geolocation_requirement;
+    }
+
+    public Date getRegistration_open() {
+        return registration_open;
+    }
+
+    public void setRegistration_open(Date registration_open) {
+        this.registration_open = registration_open;
+    }
+
+    public Date getRegistration_close() {
+        return registration_close;
+    }
+
+    public void setRegistration_close(Date registration_close) {
+        this.registration_close = registration_close;
+
+    }
+
     public String getFacilityId() {
         return facilityId;
     }
 
-    public void setFacilityId(String facilityId) {
-        this.facilityId = facilityId;
+    public String getEvent_image_path() {
+        return this.event_image_path;
+    }
+
+    public void setEvent_image_path(String eventImagePath) {
+        this.event_image_path = eventImagePath;
+    }
+
+    public String getEvent_location() {
+        return event_location;
     }
 
     public String getPosterUri() {
@@ -112,20 +147,18 @@ public class Event implements Serializable {
         this.eventId = eventId;
     }
 
-    public void setEvent_waitlist_limit(int event_waitlist_limit) {
-        this.event_waitlist_limit = event_waitlist_limit;
-    }
-
     /**
      * Retrieves the number of remaining spots in the waitlist.
+     *
      * @return An integer representing how many spots are left in the waitlist.
      */
     public int getRemainingWaitlistLimit() {
-        return event_waitlist_limit - waitlist.size();
+        return event_max_entrants - waitlist.size();
     }
 
     /**
      * Add a user to the list of entrants.
+     *
      * @param user The user joining the event as an entrant.
      */
     public void addEntrant(User user) {
@@ -134,43 +167,10 @@ public class Event implements Serializable {
 
     /**
      * Add a user to the waitlist.
+     *
      * @param user The user to be added to the waitlist.
      */
     public void addToWaitlist(User user) {
         waitlist.add(user);
-    }
-
-    /**
-     * Clears the event's data in memory, setting fields to default or empty values.
-     * TODO: This currently isn't being used because it was causing a crash, not sure if needed
-     */
-    public void removeFacilityDataMemory() {
-        this.event_name = "";
-        this.event_price = 0;
-        this.event_waitlist_limit = 0;
-        this.event_deadline = null;
-        this.facilityId = "";
-        this.eventId = "";
-        this.waitlist = null;
-    }
-
-    /**
-     * Populates the Event object with data from a Firestore document.
-     * @param document The Firestore document containing event data.
-     */
-    public void setEventData(DocumentSnapshot document) {
-        this.event_location = (String) document.get("location");
-        this.eventId = document.getId(); // Assigns Firestore's document ID to eventId
-        this.event_name = document.getString("name");
-        this.facilityId = document.getString("facilityId");
-
-        Long priceValue = document.getLong("price");
-        this.event_price = (priceValue != null) ? priceValue.intValue() : 0;
-
-        Long waitlistLimitValue = document.getLong("waitlist_limit");
-        this.event_waitlist_limit = (waitlistLimitValue != null) ? waitlistLimitValue.intValue() : 0;
-
-        Timestamp eventEndTime = document.getTimestamp("end_time");
-        this.event_deadline = (eventEndTime != null) ? eventEndTime.toDate() : null;
     }
 }

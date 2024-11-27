@@ -5,19 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context="Fragments.EventListFragment">
+    tools:context="Fragments.FacilityListFragment">
 
     <ListView
-        android:id="@+id/event_listview"
+        android:id="@+id/facility_listview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="15dp"
+        android:layout_height="wrap_content"
         android:divider="@color/transparent"
         android:dividerHeight="12dp"
-        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/event_card" />
+        tools:listitem="@layout/facility_card" />
 </androidx.constraintlayout.widget.ConstraintLayout>

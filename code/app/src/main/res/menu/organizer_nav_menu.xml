@@ -11,6 +11,5 @@
     <item
         android:id="@id/nav_menu"
         android:icon="@drawable/menu_icon"
-        android:title="@string/menu_title"/>
-
+        android:title="@string/view_events_title" />
 </menu>
