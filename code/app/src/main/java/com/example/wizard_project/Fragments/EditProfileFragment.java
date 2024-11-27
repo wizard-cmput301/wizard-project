@@ -9,7 +9,6 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -72,8 +71,11 @@ public class EditProfileFragment extends Fragment {
                         .load(Uri.parse(profilePictureUri))
                         .circleCrop()
                         .into(binding.imageviewProfilePicture);
+            } else if (!currentUser.getName().isEmpty()){
+                int draw = currentUser.profileGenerator();
+                Glide.with(this).load(draw).circleCrop().into(binding.imageviewProfilePicture);
             } else {
-                binding.imageviewProfilePicture.setImageResource(R.drawable.event_wizard_logo); // Default profile picture
+                Glide.with(this).load(R.drawable.noname).circleCrop().into(binding.imageviewProfilePicture);
             }
         }
     }
@@ -176,9 +178,17 @@ public class EditProfileFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+
+            if (!currentUser.getProfilePictureUri().isEmpty() && !currentUser.getProfilePath().isEmpty()){
+                String imagePath = currentUser.getProfilePath();
+                // Get a reference to the image in Firebase Storage
+                StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
+                // Delete the image
+                imageRef.delete();
+            }
+
             Uri imageUri = data.getData();
             currentUser.setProfilePictureUri(imageUri.toString());
-
             // Load the selected image into the ImageView
             Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.imageviewProfilePicture);
 
