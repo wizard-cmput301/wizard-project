@@ -14,38 +14,41 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.Classes.User;
+import com.example.wizard_project.Controllers.WaitingListController;
 import com.example.wizard_project.R;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * BrowseEntrantAdapter is a custom ArrayAdapter to display the list of entrants for an event.
  */
-public class BrowseEntrantAdapter extends ArrayAdapter<User> implements Filterable {
-
-    private List<User> userList;
-    private List<User> filterList;
+public class BrowseEntrantAdapter extends ArrayAdapter<Entrant> implements Filterable {
+    private List<Entrant> originalList;
+    private List<Entrant> filteredList;
     private Context context;
 
-    /**
-     * Constructs a new BrowseEntrantAdapter with a list of entrants and the context data.
-     * @param context The context used for layout inflation.
-     * @param users The list of users to be displayed.
-     */
-    public BrowseEntrantAdapter(Context context, ArrayList<User> users) {
-        super(context, 0, users);
+
+    public BrowseEntrantAdapter(Context context, ArrayList<Entrant> entrants) {
+        super(context, 0, entrants);
         this.context = context;
-        this.userList = users;
-        this.filterList = new ArrayList<>(users);
-        Log.d("filterSize", String.valueOf(filterList.size()));
+        this.originalList = entrants;
+        this.filteredList = new ArrayList<>(entrants);
     }
 
     @Override
     public int getCount() {
-        return filterList.size();
+        return filteredList.size();
+    }
+
+    @Override
+    public Entrant getItem(int position) {
+        return filteredList.get(position);
     }
 
     @NonNull
@@ -55,19 +58,15 @@ public class BrowseEntrantAdapter extends ArrayAdapter<User> implements Filterab
             convertView = LayoutInflater.from(context).inflate(R.layout.entrant_list_content, parent, false);
         }
 
-        ShapeableImageView userProfilePicture = convertView.findViewById(R.id.entrant_profile_image);
         TextView userName = convertView.findViewById(R.id.entrant_user_name);
         TextView userStatus = convertView.findViewById(R.id.entrant_status);
-        CheckBox selectionBox = convertView.findViewById(R.id.entrant_checkbox);
-        User currentUser = filterList.get(position);
 
-        userName.setText(currentUser.getName());
-        userStatus.setText(currentUser.getStatus());
-        selectionBox.setText("");
+        Entrant entrant = getItem(position);
+        userName.setText(entrant.getName());
+        userStatus.setText(entrant.getStatus());
 
         return convertView;
     }
-
 
     @NonNull
     @Override
@@ -75,41 +74,29 @@ public class BrowseEntrantAdapter extends ArrayAdapter<User> implements Filterab
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                String filterStatus;
-                FilterResults filterResults = new FilterResults();
-                List<User> filteredUsers = new ArrayList<User>();
+                FilterResults results = new FilterResults();
+                List<Entrant> filtered = new ArrayList<>();
 
-                if (constraint == null) {
-                    filterStatus = "";
-                }
-                else {
-                    filterStatus = constraint.toString();
-                    Log.d("ConstraintFilter", constraint.toString());
-                }
-
-                if (filterStatus.isEmpty() || filterStatus.equals("All")) {
-                    filteredUsers.addAll(userList);
-                }
-                else {
-                    for (User user: userList) {
-                        Log.d("userStatus", user.getStatus());
-                        if (filterStatus.equals(user.getStatus())) {
-                            Log.d("UserAdd", user.getName());
-                            filteredUsers.add(user);
+                if (constraint == null || constraint.toString().isEmpty() || constraint.toString().equals("All")) {
+                    filtered.addAll(originalList);
+                } else {
+                    for (Entrant entrant : originalList) {
+                        if (entrant.getStatus().equalsIgnoreCase(constraint.toString())) {
+                            filtered.add(entrant);
                         }
                     }
                 }
 
-                filterResults.values = filteredUsers;
-                filterResults.count = filteredUsers.size();
-                return filterResults;
+                results.values = filtered;
+                results.count = filtered.size();
+                return results;
             }
 
             @SuppressWarnings("unchecked")
             @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                filterList.clear();
-                filterList = (List<User>) filterResults.values;
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                filteredList.clear();
+                filteredList.addAll((List<Entrant>) results.values);
                 notifyDataSetChanged();
             }
         };

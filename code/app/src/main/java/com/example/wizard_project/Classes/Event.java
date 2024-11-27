@@ -10,20 +10,20 @@ import java.util.UUID;
  * Representation of an event, created by an organizer and joined by entrants.
  */
 public class Event implements Serializable {
+    private String eventId;
     private String event_name;
     private String event_description;
     private int event_price;
     private int event_max_entrants;
-    private boolean geolocation_requirement;
     private Date registration_open;
     private Date registration_close;
+    private boolean geolocation_requirement;
     private final String event_location;
     private String event_image_path;
     private final String facilityId;
     private final List<User> entrant_list;
     private final List<User> waitlist;
     private String posterUri;
-    private String eventId;
 
     /**
      * Constructor for initializing an Event instance with essential details.
@@ -39,8 +39,10 @@ public class Event implements Serializable {
      * @param geolocation_requirement Whether geolocation is required for the event.
      * @param event_image_path        Path to the facility's image.
      */
-    public Event(String event_name, String event_description, int event_price, int event_max_entrants, Date registration_open,
-                 Date registration_close, String facilityId, String event_location, boolean geolocation_requirement, String event_image_path) {
+    public Event(String eventId, String event_name, String event_description, int event_price, int event_max_entrants,
+                 Date registration_open, Date registration_close, String facilityId, String event_location,
+                 boolean geolocation_requirement, String event_image_path) {
+        this.eventId = eventId != null ? eventId : UUID.randomUUID().toString(); // Only generate if it's null
         this.event_name = event_name;
         this.event_description = event_description;
         this.event_price = event_price;
@@ -51,7 +53,6 @@ public class Event implements Serializable {
         this.facilityId = facilityId;
         this.event_image_path = event_image_path;
         this.event_location = event_location;
-        this.eventId = eventId != null ? eventId : UUID.randomUUID().toString(); // Only generate if it's null
         this.waitlist = new ArrayList<>();
         this.entrant_list = new ArrayList<>();
         this.posterUri = null; // Initialize to null by default

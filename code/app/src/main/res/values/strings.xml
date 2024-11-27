@@ -132,4 +132,5 @@
     <string name="not_selected_text">Not Selected</string>
     <string name="cancelled_text">Cancelled</string>
     <string name="all_text">All</string>
+    <string name="world_map_desc">World Map</string>
 </resources>

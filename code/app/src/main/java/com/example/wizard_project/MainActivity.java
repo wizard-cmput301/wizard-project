@@ -1,15 +1,20 @@
 package com.example.wizard_project;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+import androidx.annotation.NonNull;
 
-import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -30,13 +35,13 @@ import java.util.Map;
  * - Navigation between fragments for different user roles.
  */
 public class MainActivity extends AppCompatActivity {
+    public static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private ActivityMainBinding binding;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
     private StorageReference storageRef;
     private User currentUser;
     private User deleteUser;
-    private PhotoHandler photo;
     private boolean isAdminMode = false;
 
     @Override
@@ -47,19 +52,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // TODO: Delete when done testing
-        // addSampleUsersToDatabase();
+        // Check for location permissions
+        checkAndRequestLocationPermissions();
 
         // Initialize Firebase components
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
-
-        // TODO: Delete when done testing
-        // ImageView image = findViewById(R.id.event_wizard_logo);
-        // photo = new PhotoHandler();
-        // photo.loadImage("IMG_0113.JPG",image,this);
-        // photo.getUserImage(this);
 
         // Initialize navigation components
         setupNavigation();
@@ -227,30 +226,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads the current user's data from Firestore into the User object.
-     * TODO: Delete if no longer needed (currently not used)
-     *
-     * @param deviceId The unique device ID used as the document ID in Firestore.
-     * @param callback The callback to notify when the user is loaded.
+     * Checks if location permissions are granted and requests them if not.
      */
-    private void loadCurrentUser(String deviceId, UserLoadCallback callback) {
-        // Retrieve the user document from Firestore
-        db.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
-            // Create and populate a new User object with the retrieved data
-            if (documentSnapshot.exists()) {
-                currentUser = new User();
-                currentUser.setUserData(documentSnapshot);
-                callback.onUserLoaded(currentUser);
-                // If the user document does not exist, set currentUser to null
-            } else {
-                currentUser = null;
-                callback.onUserLoaded(null);
+    private void checkAndRequestLocationPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            // Request permissions
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
             }
-            // If there was an error retrieving the user document, set currentUser to null
-        }).addOnFailureListener(e -> {
-            currentUser = null;
-            callback.onUserLoaded(null);
-        });
+    }
+
+    /**
+     * Handles the result of the location permission request.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Location permissions granted
+                Toast.makeText(this, "Location permissions granted", Toast.LENGTH_SHORT).show();
+            } else {
+                // Location permissions denied
+                Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     /**
@@ -282,22 +285,6 @@ public class MainActivity extends AppCompatActivity {
         deleteUser = newUser;
     }
 
-    // TODO: Delete when done testing
-    public void addSampleUsersToDatabase() {
-        for (int i = 1; i <= 10; i++) {
-            // Create a sample User object
-            String id = Integer.toString(i);
-            User sampleUsers = new User(id, "@gmail.com", "58888 north ave", false, false, false, "Jerry ", "213123123123", "", "");
-            Map<String, Object> userData = createUserDataMap(sampleUsers);
-            db.collection("users").document(id).set(userData)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> {
-                        currentUser = null;
-                        Toast.makeText(this, "Failed to create user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        }
-    }
-
     /**
      * Retrieves the Firebase Storage reference.
      *
@@ -305,12 +292,5 @@ public class MainActivity extends AppCompatActivity {
      */
     public StorageReference getStorageRef() {
         return storageRef;
-    }
-
-    /**
-     * Interface for a callback when the current user is loaded.
-     */
-    public interface UserLoadCallback {
-        void onUserLoaded(User user);
     }
 }

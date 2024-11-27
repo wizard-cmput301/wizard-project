@@ -94,6 +94,7 @@ public class AdminEventViewFragment extends Fragment {
      */
     private Event parseEventFromDocument(QueryDocumentSnapshot document) {
         try {
+            String eventId = document.getString("eventId");
             String eventName = document.getString("event_name");
             String eventDescription = document.getString("event_description");
             int eventPrice = document.contains("event_price") ? document.getLong("event_price").intValue() : 0;
@@ -105,9 +106,9 @@ public class AdminEventViewFragment extends Fragment {
             String eventLocation = document.getString("event_location");
             String eventImagePath = document.getString("event_image_path");
             String posterUri = document.getString("posterUri");
-            String eventId = document.getString("eventId");
 
             Event event = new Event(
+                    eventId,
                     eventName,
                     eventDescription,
                     eventPrice,

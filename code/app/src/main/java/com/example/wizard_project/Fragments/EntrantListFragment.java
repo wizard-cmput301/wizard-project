@@ -16,13 +16,16 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.wizard_project.Adapters.BrowseEntrantAdapter;
+import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEntrantListBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,6 +40,7 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
 
     /**
      * Creates a new instance of EntrantListFragment with event information passed.
+     *
      * @param event The event with the information to be passed in a serialized format.
      * @return A new instance of EntrantListFragment with event information passed.
      */
@@ -73,18 +77,31 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
         assert getArguments() != null;
         event = (Event) getArguments().getSerializable("event");
 
-        // Add the users to the list to be displayed.
+        // Get the entrant list from the event
         assert event != null;
-        eventController.getEntrants(event, new EventController.waitListCallback() {
+        eventController.getWaitingList(event.getEventId(), new EventController.WaitingListCallback() {
             @Override
-            public void onCallback(ArrayList<User> users) {
-                entrantList.clear();
-                entrantList.addAll(users);
+            public void onSuccess(ArrayList<Map<String, String>> waitingList) {
+                ArrayList<Entrant> entrants = new ArrayList<>();
 
-                adapter = new BrowseEntrantAdapter(getContext(), entrantList);
+                for (Map<String, String> entry : waitingList) {
+                    String name = entry.get("name");
+                    String status = entry.get("status");
+                    String userId = entry.get("userId");
+                    Double latitude = entry.containsKey("latitude") ? Double.valueOf(entry.get("latitude")) : null;
+                    Double longitude = entry.containsKey("longitude") ? Double.valueOf(entry.get("longitude")) : null;
+
+                    entrants.add(new Entrant(name, status, userId, latitude, longitude));
+                }
+
+                adapter = new BrowseEntrantAdapter(getContext(), entrants);
                 entrantListView.setAdapter(adapter);
-
                 adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("EntrantListFragment", "Error fetching waiting list", e);
             }
         });
 
@@ -118,7 +135,5 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
             });
             popupMenu.show();
         });
-
-
     }
 }

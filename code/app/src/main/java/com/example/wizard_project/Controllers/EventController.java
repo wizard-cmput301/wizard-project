@@ -2,6 +2,8 @@ package com.example.wizard_project.Controllers;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.User;
 import com.google.android.gms.tasks.Task;
@@ -10,6 +12,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -130,46 +133,26 @@ public class EventController {
     /**
      * Retrieve the list of users in the waiting list for an event.
      *
-     * @param event    The event whose waiting list is checked.
+     * @param eventId    The event whose waiting list is checked.
      * @param callback A callback interface containing the list of waitlisted users.
      */
-    public void getEntrants(Event event, waitListCallback callback) {
-        ArrayList<User> entrantList = new ArrayList<>();
-        db.collection("events").document(event.getEventId()).collection("entrantList").get()
-                .addOnSuccessListener(documentSnapshots -> {
-                    if (!documentSnapshots.isEmpty()) {
-                        List<Task<DocumentSnapshot>> userTasks = new ArrayList<>(); // Ensure correct type
+    public void getWaitingList(String eventId, @NonNull WaitingListCallback callback) {
+        db.collection("events").document(eventId).collection("waitingList")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    ArrayList<Map<String, String>> waitingList = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Map<String, String> userData = new HashMap<>();
+                        userData.put("userId", doc.getString("userId")); // Get device ID
+                        userData.put("status", doc.getString("status")); // Get status
 
-                        for (DocumentSnapshot entrant : documentSnapshots) {
-                            String userId = entrant.getString("userId");
-                            String entrantStatus = entrant.getString("status");
-
-                            if (userId != null) {
-                                Task<DocumentSnapshot> userTask = db.collection("users").document(userId).get();
-                                userTasks.add(userTask); // Correctly add the userTask
-
-                                userTask.addOnSuccessListener(documentSnapshot -> {
-                                    if (documentSnapshot.exists()) {
-                                        User newUser = new User();
-                                        newUser.setUserData(documentSnapshot);
-                                        newUser.setStatus(entrantStatus);
-                                        entrantList.add(newUser);
-                                    }
-                                });
-                            }
-                        }
-
-                        // Wait for all userTasks to complete
-                        Tasks.whenAllComplete(userTasks).addOnCompleteListener(task -> {
-                            callback.onCallback(entrantList);
-                        });
-                    } else {
-                        callback.onCallback(entrantList); // Return empty list if no entrants
+                        waitingList.add(userData);
                     }
+                    callback.onSuccess(waitingList);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("UserRetrievalError", "Error retrieving waitlisted users: ", e);
-                    callback.onCallback(entrantList); // Return empty list on failure
+                    Log.e("EventController", "Failed to fetch waiting list", e);
+                    callback.onFailure(e);
                 });
     }
 
@@ -217,6 +200,7 @@ public class EventController {
      * @return An Event object populated with the document's data.
      */
     private Event buildEventFromDocument(DocumentSnapshot document, String facilityId) {
+        String eventId = document.getString("eventId");
         String eventName = document.getString("event_name");
         String eventDescription = document.getString("event_description");
         int eventPrice = document.getLong("event_price") != null ? document.getLong("event_price").intValue() : 0;
@@ -227,9 +211,9 @@ public class EventController {
         String eventLocation = document.getString("event_location");
         String eventImagePath = document.getString("event_image_path");
         String posterUri = document.getString("posterUri");
-        String eventId = document.getString("eventId");
 
         Event event = new Event(
+                eventId,
                 eventName,
                 eventDescription,
                 eventPrice,
@@ -251,8 +235,9 @@ public class EventController {
         void onCallback(ArrayList<Event> events);
     }
 
-    public interface waitListCallback {
-        void onCallback(ArrayList<User> users);
+    public interface WaitingListCallback {
+        void onSuccess(ArrayList<Map<String, String>> waitingList);
+        void onFailure(Exception e);
     }
 
     public interface deleteCallback {

@@ -153,13 +153,18 @@
         android:name="com.example.wizard_project.Fragments.ViewEventFragment"
         android:label="View Event Fragment"
         tools:layout="@layout/fragment_view_event">
+
+        <!-- Edit Event Button -->
         <action
             android:id="@+id/action_ViewEventFragment_to_EditEventFragment"
             app:destination="@+id/EditEventFragment" />
 
+        <!-- Entrant List Button -->
         <action
             android:id="@+id/action_ViewEventFragment_to_EntrantListFragment"
             app:destination="@+id/EntrantListFragment" />
+
+        <!-- QR Code Button -->
         <action
             android:id="@+id/action_ViewEventFragment_to_ViewQRCodeFragment"
             app:destination="@+id/ViewQRCodeFragment" />
@@ -168,6 +173,11 @@
         <action
             android:id="@+id/action_ViewEventFragment_to_ProfileFragment"
             app:destination="@+id/ProfileFragment"/>
+
+        <!-- Map Button -->
+        <action
+            android:id="@+id/action_ViewEventFragment_to_MapFragment"
+            app:destination="@+id/MapFragment"/>
     </fragment>
 
     <!--Event List Fragment -->
@@ -228,6 +238,13 @@
             app:destination="@+id/ProfileFragment"/>
     </fragment>
 
-
-
+    <!-- Map Fragment -->
+    <fragment
+        android:id="@+id/MapFragment"
+        android:name="com.example.wizard_project.Fragments.MapFragment"
+        android:label="Map">
+        <argument
+            android:name="locations"
+            app:argType="com.example.wizard_project.Classes.LatLng[]" />
+    </fragment>
 </navigation>
