@@ -189,8 +189,8 @@ public class EditFacilityFragment extends Fragment {
         if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
 
 
-            if (!userFacility.getFacilitymagePath().isEmpty() && !userFacility.getposterUri().isEmpty()){
-                String imagePath = userFacility.getFacilitymagePath();
+            if (!userFacility.getFacilityImagePath().isEmpty() && !userFacility.getposterUri().isEmpty()){
+                String imagePath = userFacility.getFacilityImagePath();
                 // Get a reference to the image in Firebase Storage
                 StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
                 // Delete the image

@@ -33,7 +33,7 @@
                 android:layout_gravity="center"
                 android:contentDescription="@string/profile_picture_desc"
                 android:scaleType="centerCrop"
-                android:src="@drawable/event_wizard_logo" />
+                android:src="@drawable/noname" />
 
             <!-- Edit Icon -->
             <ImageView
