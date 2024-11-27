@@ -1,7 +1,11 @@
 package com.example.wizard_project;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +13,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.PhotoHandler;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.databinding.ActivityMainBinding;
@@ -69,12 +74,29 @@ public class MainActivity extends AppCompatActivity {
         initializeUser(deviceId, () -> {
             if (currentUser != null) {
                 Toast.makeText(this, "Welcome to EventWizard! ", Toast.LENGTH_SHORT).show();
+                setProfilePic();
+
             } else {
                 Toast.makeText(this, "User data not available", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    public void setProfilePic(){
+        ImageButton profilePictureButton = findViewById(R.id.profilePictureButton);
+        String profilePictureUri = currentUser.getProfilePictureUri();
+        if (profilePictureUri != null && !profilePictureUri.isEmpty()) {
+            Glide.with(this)
+                    .load(Uri.parse(profilePictureUri))
+                    .circleCrop()
+                    .into(profilePictureButton);
+        } else if (!currentUser.getName().isEmpty()){
+            int draw = currentUser.profileGenerator();
+            Glide.with(this).load(draw).circleCrop().into(profilePictureButton);
+        } else {
+            Glide.with(this).load(R.drawable.noname).circleCrop().into(profilePictureButton);
+        }
+    }
     /**
      * Configures bottom navigation and toolbar visibility for specific fragments.
      */

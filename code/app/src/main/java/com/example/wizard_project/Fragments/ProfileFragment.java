@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -112,14 +113,18 @@ public class ProfileFragment extends Fragment {
             binding.textviewProfilePhone.setText(
                     user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() ? user.getPhoneNumber() : "No phone number provided"
             );
-
-            if (user.getProfilePictureUri() != null && !user.getProfilePictureUri().isEmpty()) {
+            String profilePictureUri = user.getProfilePictureUri();
+            ImageView profilepic =  getView().findViewById(R.id.imageview_profile_image);
+            if (profilePictureUri != null && !profilePictureUri.isEmpty()) {
                 Glide.with(requireContext())
-                        .load(Uri.parse(user.getProfilePictureUri()))
+                        .load(Uri.parse(profilePictureUri))
                         .circleCrop()
-                        .into(binding.imageviewProfileImage);
+                        .into(profilepic);
+            } else if (!currentUser.getName().isEmpty()){
+                int draw = currentUser.profileGenerator();
+                Glide.with(this).load(draw).circleCrop().into(profilepic);
             } else {
-                binding.imageviewProfileImage.setImageResource(R.drawable.event_wizard_logo); // Placeholder image
+                Glide.with(this).load(R.drawable.noname).circleCrop().into(profilepic);
             }
         } else {
             binding.textviewProfileName.setText("User not found");
