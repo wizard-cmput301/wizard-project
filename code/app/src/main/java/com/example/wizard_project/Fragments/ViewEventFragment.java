@@ -152,6 +152,7 @@ public class ViewEventFragment extends Fragment {
                 }
             }
 
+
             @Override
             public void onFailure(Exception e) {
                 Log.e("ViewEventFragment", "Error checking waiting list status", e);
@@ -328,11 +329,20 @@ public class ViewEventFragment extends Fragment {
             }
 
             @Override
+
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Error deleting event", Toast.LENGTH_SHORT).show();
                 Log.e("ViewEventFragment", "Event deletion failed", e);
             }
         });
+    }
+    /**
+     * Deletes the current QRCODE from Firestore.
+     *
+     * @param navController The NavController for navigation after deletion.
+     */
+    private void deleteQRcode(NavController navController) {
+        controller.updateField(displayEvent,"qrCode","");
     }
 
     /**
