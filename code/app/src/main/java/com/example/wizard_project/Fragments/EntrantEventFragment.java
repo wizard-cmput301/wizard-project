@@ -31,7 +31,6 @@ import java.util.Date;
  * EntrantEventFragment displays the list of events the user is registered for.
  */
 public class EntrantEventFragment extends Fragment {
-
     private final ArrayList<Event> eventList = new ArrayList<>();
     private BrowseEventAdapter adapter;
     private FirebaseFirestore db;
@@ -58,25 +57,41 @@ public class EntrantEventFragment extends Fragment {
         // Fetch the current user and load registered events
         fetchCurrentUser();
 
-        // Set up navigation to ProfileFragment when the profile picture button is clicked
-        View profilePictureButton = requireActivity().findViewById(R.id.profilePictureButton);
+        // Set up profile button navigation
+        setupProfileButton(view);
 
+        // Handle ListView item click (navigate to event details)
+        eventListView.setOnItemClickListener((adapterView, itemView, position, id) -> {
+            Event selectedEvent = eventList.get(position);
+            navigateToEventDetails(selectedEvent);
+        });
+    }
+
+    /**
+     * Sets up the navigation to the ProfileFragment when the profile picture button is clicked.
+     *
+     * @param view The root view of the fragment.
+     */
+    private void setupProfileButton(View view) {
+        View profilePictureButton = requireActivity().findViewById(R.id.profilePictureButton);
         profilePictureButton.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
             if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() != R.id.ProfileFragment) {
-                navController.navigate(R.id.action_EntrantEventFragment_to_ProfileFragment); // (temporary work around, this prevents app crashing when clicking the button twice)
+                navController.navigate(R.id.action_EntrantEventFragment_to_ProfileFragment);
             }
         });
+    }
 
-
-        // Handle ListView item click
-        eventListView.setOnItemClickListener((adapterView, itemView, position, id) -> {
-            Event selectedEvent = eventList.get(position);
-            NavController navController = NavHostFragment.findNavController(this);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("event", selectedEvent);
-            navController.navigate(R.id.action_EntrantEventFragment_to_EventFragment, bundle);
-        });
+    /**
+     * Navigates to the EventFragment with the selected event details.
+     *
+     * @param selectedEvent The event selected by the user.
+     */
+    private void navigateToEventDetails(Event selectedEvent) {
+        NavController navController = NavHostFragment.findNavController(this);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("event", selectedEvent);
+        navController.navigate(R.id.action_EntrantEventFragment_to_EventFragment, bundle);
     }
 
     /**
@@ -88,36 +103,31 @@ public class EntrantEventFragment extends Fragment {
             return;
         }
 
-        db.collection("events")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        eventList.clear(); // Clear the existing list
-                        for (QueryDocumentSnapshot eventDocument : task.getResult()) {
-                            String eventId = eventDocument.getId();
+        db.collection("events").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                eventList.clear(); // Clear the existing list
+                for (QueryDocumentSnapshot eventDocument : task.getResult()) {
+                    String eventId = eventDocument.getId();
 
-                            // Check if user is in the waiting list for this event
-                            db.collection("events")
-                                    .document(eventId)
-                                    .collection("waitingList")
-                                    .document(userId)
-                                    .get()
-                                    .addOnSuccessListener(documentSnapshot -> {
-                                        if (documentSnapshot.exists()) {
-                                            // Parse event and add to the list
-                                            Event event = parseEventFromDocument(eventDocument);
-                                            if (event != null) {
-                                                eventList.add(event);
-                                                adapter.notifyDataSetChanged();
-                                            }
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> Log.e("EntrantEventFragment", "Error checking waiting list: " + e.getMessage(), e));
-                        }
-                    } else {
-                        Log.e("EntrantEventFragment", "Error fetching events", task.getException());
-                    }
-                });
+                    // Check if user is in the waiting list for this event
+                    db.collection("events").document(eventId)
+                            .collection("waitingList").document(userId)
+                            .get()
+                            .addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()) {
+                                    Event event = parseEventFromDocument(eventDocument);
+                                    if (event != null) {
+                                        eventList.add(event);
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                }
+                            })
+                            .addOnFailureListener(e -> Log.e("EntrantEventFragment", "Error checking waiting list: " + e.getMessage(), e));
+                }
+            } else {
+                Log.e("EntrantEventFragment", "Error fetching events", task.getException());
+            }
+        });
     }
 
     /**

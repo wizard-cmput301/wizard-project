@@ -1,15 +1,15 @@
 package com.example.wizard_project.Classes;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**
  * Representation of an event, created by an organizer and joined by entrants.
  */
 public class Event implements Serializable {
+    private final String event_location;
+    private final String facilityId;
     private String eventId;
     private String event_name;
     private String event_description;
@@ -18,16 +18,13 @@ public class Event implements Serializable {
     private Date registration_open;
     private Date registration_close;
     private boolean geolocation_requirement;
-    private final String event_location;
     private String event_image_path;
-    private final String facilityId;
-    private final List<User> entrant_list;
-    private final List<User> waitlist;
     private String posterUri;
 
     /**
      * Constructor for initializing an Event instance with essential details.
      *
+     * @param eventId                 Unique identifier for the event.
      * @param event_name              Name of the event.
      * @param event_description       Description of the event.
      * @param event_price             Cost to enter the event.
@@ -53,8 +50,6 @@ public class Event implements Serializable {
         this.facilityId = facilityId;
         this.event_image_path = event_image_path;
         this.event_location = event_location;
-        this.waitlist = new ArrayList<>();
-        this.entrant_list = new ArrayList<>();
         this.posterUri = null; // Initialize to null by default
     }
 
@@ -146,32 +141,5 @@ public class Event implements Serializable {
 
     public void setEventId(String eventId) {
         this.eventId = eventId;
-    }
-
-    /**
-     * Retrieves the number of remaining spots in the waitlist.
-     *
-     * @return An integer representing how many spots are left in the waitlist.
-     */
-    public int getRemainingWaitlistLimit() {
-        return event_max_entrants - waitlist.size();
-    }
-
-    /**
-     * Add a user to the list of entrants.
-     *
-     * @param user The user joining the event as an entrant.
-     */
-    public void addEntrant(User user) {
-        entrant_list.add(user);
-    }
-
-    /**
-     * Add a user to the waitlist.
-     *
-     * @param user The user to be added to the waitlist.
-     */
-    public void addToWaitlist(User user) {
-        waitlist.add(user);
     }
 }

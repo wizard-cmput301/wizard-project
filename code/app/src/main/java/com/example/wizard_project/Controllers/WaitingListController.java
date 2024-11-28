@@ -13,27 +13,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * WaitingListController manages interactions with the waiting list for events in Firestore.
+ */
 public class WaitingListController {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    // Callback interface for checking user status on the waiting list
-    public interface OnCheckCompleteListener {
-        void onComplete(boolean isOnList);
-        void onFailure(Exception e);
-    }
-
-    // Callback interface for adding/removing users to/from the waiting list
-    public interface OnActionCompleteListener {
-        void onSuccess();
-        void onFailure(Exception e);
-    }
 
     /**
      * Checks if a user is on the waiting list for the given event.
      *
-     * @param eventId   The ID of the event.
-     * @param userId    The ID of the user.
-     * @param callback  The callback to handle success or failure.
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user.
+     * @param callback The callback to handle success or failure.
      */
     public void isUserOnWaitingList(String eventId, String userId, OnCheckCompleteListener callback) {
         if (eventId == null || userId == null) {
@@ -45,11 +36,7 @@ public class WaitingListController {
                 .collection("waitingList").document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        callback.onComplete(true);
-                    } else {
-                        callback.onComplete(false);
-                    }
+                    callback.onComplete(documentSnapshot.exists());
                 })
                 .addOnFailureListener(callback::onFailure);
     }
@@ -67,7 +54,6 @@ public class WaitingListController {
      */
     public void addUserToWaitingList(String eventId, User user, String userId, Double latitude, Double longitude, String status, OnActionCompleteListener callback) {
         if (eventId == null || user == null || userId == null) {
-            Log.e("FirestoreError", "Invalid arguments: eventId, user, or userId is null.");
             callback.onFailure(new IllegalArgumentException("Event ID, User, and User ID must not be null."));
             return;
         }
@@ -79,27 +65,19 @@ public class WaitingListController {
         userData.put("longitude", longitude);
         userData.put("status", status);
 
-        Log.d("WaitingListController", "Attempting to add user to waiting list: " + userData);
-
         db.collection("events").document(eventId)
                 .collection("waitingList").document(userId)
                 .set(userData)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("FirestoreSuccess", "User added to waiting list successfully.");
-                    callback.onSuccess();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("FirestoreError", "Failed to add user to waiting list.", e);
-                    callback.onFailure(e);
-                });
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(callback::onFailure);
     }
 
     /**
      * Removes a user from the waiting list for the given event.
      *
-     * @param eventId   The ID of the event.
-     * @param userId    The ID of the user to remove.
-     * @param callback  The callback to handle success or failure.
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user to remove.
+     * @param callback The callback to handle success or failure.
      */
     public void removeUserFromWaitingList(String eventId, String userId, OnActionCompleteListener callback) {
         if (eventId == null || userId == null) {
@@ -117,7 +95,7 @@ public class WaitingListController {
     /**
      * Retrieves the locations of all entrants in the waiting list for a given event.
      *
-     * @param eventId The ID of the event.
+     * @param eventId   The ID of the event.
      * @param onSuccess Callback invoked with a list of locations on success.
      * @param onFailure Callback invoked on failure.
      */
@@ -144,6 +122,14 @@ public class WaitingListController {
                 .addOnFailureListener(onFailure::onFailure);
     }
 
+
+    /**
+     * Retrieves the status of a user in the waiting list for a specific event.
+     *
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user whose status is being retrieved.
+     * @param callback The callback to handle the status or failure.
+     */
     public void getUserStatus(String eventId, String userId, OnStatusFetchedCallback callback) {
         db.collection("events")
                 .document(eventId)
@@ -151,18 +137,29 @@ public class WaitingListController {
                 .document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String status = documentSnapshot.getString("status");
-                        callback.onStatusFetched(status != null ? status : "Unknown");
-                    } else {
-                        callback.onStatusFetched("Not Found");
-                    }
+                    String status = documentSnapshot.exists() ? documentSnapshot.getString("status") : "Not Found";
+                    callback.onStatusFetched(status != null ? status : "Unknown");
                 })
                 .addOnFailureListener(callback::onFailure);
     }
 
+    // Callback interfaces
+    public interface OnCheckCompleteListener {
+        void onComplete(boolean isOnList);
+
+        void onFailure(Exception e);
+    }
+
+    // Callback interface for adding/removing users to/from the waiting list
+    public interface OnActionCompleteListener {
+        void onSuccess();
+
+        void onFailure(Exception e);
+    }
+
     public interface OnStatusFetchedCallback {
         void onStatusFetched(String status);
+
         void onFailure(Exception e);
     }
 }

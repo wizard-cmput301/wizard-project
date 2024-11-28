@@ -5,9 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.wizard_project.Classes.Event;
-import com.example.wizard_project.Classes.User;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -17,7 +14,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,7 +24,7 @@ public class EventController {
     private final FirebaseFirestore db;
 
     /**
-     * Constructs an EventController with a FacilityController and a database instance.
+     * Constructs an EventController to manage event operations.
      */
     public EventController() {
         this.db = FirebaseFirestore.getInstance();
@@ -71,7 +67,7 @@ public class EventController {
     /**
      * Retrieves a list of all events for a specific facility from Firestore.
      *
-     * @param facilityId The ID of the facility whose events are to be retrieved.
+     * @param facilityId The ID of the facility to retrieve events for.
      * @param callback   A callback interface to handle the retrieved events.
      */
     public void getEventList(String facilityId, eventCallback callback) {
@@ -133,7 +129,7 @@ public class EventController {
     /**
      * Retrieve the list of users in the waiting list for an event.
      *
-     * @param eventId    The event whose waiting list is checked.
+     * @param eventId  The event whose waiting list is checked.
      * @param callback A callback interface containing the list of waitlisted users.
      */
     public void getWaitingList(String eventId, @NonNull WaitingListCallback callback) {
@@ -145,7 +141,6 @@ public class EventController {
                         Map<String, String> userData = new HashMap<>();
                         userData.put("userId", doc.getString("userId")); // Get device ID
                         userData.put("status", doc.getString("status")); // Get status
-
                         waitingList.add(userData);
                     }
                     callback.onSuccess(waitingList);
@@ -156,9 +151,14 @@ public class EventController {
                 });
     }
 
+    /**
+     * Sets the draw count for an event.
+     *
+     * @param event     The event to update.
+     * @param drawCount The new draw count.
+     */
     public void setDrawCount(Event event, int drawCount) {
         DocumentReference eventRef = db.collection("events").document(event.getEventId());
-
         eventRef.update("drawCount", drawCount);
     }
 
@@ -237,6 +237,7 @@ public class EventController {
 
     public interface WaitingListCallback {
         void onSuccess(ArrayList<Map<String, String>> waitingList);
+
         void onFailure(Exception e);
     }
 

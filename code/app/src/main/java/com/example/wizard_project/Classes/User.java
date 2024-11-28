@@ -29,7 +29,6 @@ public class User {
         // Initialize fields with default values if needed
         db = FirebaseFirestore.getInstance();
         this.deviceId = "";
-        initializeDocumentReference();
         this.email = "";
         this.location = "";
         this.isAdmin = false;
@@ -39,6 +38,7 @@ public class User {
         this.phoneNumber = "";
         this.profilePictureUri = "";
         this.profilePath = "";
+        initializeDocumentReference();
     }
 
     /**
@@ -58,7 +58,6 @@ public class User {
     public User(String deviceId, String email, String location, boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri, String profilePath) {
         db = FirebaseFirestore.getInstance();
         this.deviceId = deviceId;
-        initializeDocumentReference();
         this.email = email;
         this.location = location;
         this.isAdmin = isAdmin;
@@ -68,6 +67,7 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.profilePictureUri = profilePictureUri;
         this.profilePath = profilePath;
+        initializeDocumentReference();
     }
 
     // Getters and Setters with corresponding Firestore updates

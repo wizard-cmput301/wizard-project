@@ -13,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.wizard_project.Classes.QRCode;
@@ -21,6 +20,9 @@ import com.example.wizard_project.R;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * ViewQRCodeFragment displays a QR code for a specific event, allowing users to generate and view it.
+ */
 public class ViewQRCodeFragment extends Fragment {
     private static final String TAG = "ViewQRCodeFragment";
 
@@ -28,6 +30,8 @@ public class ViewQRCodeFragment extends Fragment {
     private ImageView qrCodeImageView;
     private Button generateQRCodeButton;
     private Button backButton;
+    private FirebaseFirestore db;
+    private DocumentReference eventDocRef;
 
     @Nullable
     @Override
@@ -46,29 +50,29 @@ public class ViewQRCodeFragment extends Fragment {
             return;
         }
 
+        // Initialize Firebase Firestore and document reference
+        db = FirebaseFirestore.getInstance();
+        eventDocRef = db.collection("events").document(eventId);
+
         // Initialize UI components
         qrCodeImageView = view.findViewById(R.id.qrCodeImageView);
         generateQRCodeButton = view.findViewById(R.id.generateQRCodeButton);
         backButton = view.findViewById(R.id.backButton);
 
-        // Back button listener
+        // Set up button listeners
         backButton.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
-
-        // Fetch QR code from Firestore
-        fetchQRCodeFromFirestore();
-
-        // Generate QR Code button listener
         generateQRCodeButton.setOnClickListener(v -> generateAndSaveQRCode());
+
+        // Fetch and display the QR code
+        fetchQRCodeFromFirestore();
     }
 
     /**
-     * Fetches the QR code from Firestore and displays it. If no QR code exists, shows the Generate button.
+     * Fetches the QR code from Firestore and displays it.
+     * If no QR code exists, shows the Generate button.
      */
     private void fetchQRCodeFromFirestore() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("events").document(eventId);
-
-        docRef.get().addOnSuccessListener(documentSnapshot -> {
+        eventDocRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String qrCodeData = documentSnapshot.getString("qrCode");
                 if (qrCodeData != null) {
@@ -122,6 +126,8 @@ public class ViewQRCodeFragment extends Fragment {
 
     /**
      * Displays the QR code in the ImageView.
+     *
+     * @param qrCodeData The data to generate the QR code from.
      */
     private void displayQRCode(String qrCodeData) {
         QRCode qrCodeGenerator = new QRCode();

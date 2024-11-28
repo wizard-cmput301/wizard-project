@@ -21,9 +21,6 @@ public class Facility implements Serializable {
     private String posterUri;
     private final List<Event> eventList;
 
-    private FirebaseFirestore db;
-    private DocumentReference userRef;
-
     /**
      * Constructor to initialize a Facility instance with parameters.
      *
@@ -34,7 +31,8 @@ public class Facility implements Serializable {
      * @param facility_imagePath The path to the image of the facility.
      * @param posterUri          The URI representing the facility's poster image.
      */
-    public Facility(String userId, String facilityId, String facility_name, String facility_location, String facility_imagePath, String posterUri) {
+    public Facility(String userId, String facilityId, String facility_name, String facility_location,
+                    String facility_imagePath, String posterUri) {
         this.userId = userId;
         this.facilityId = facilityId;
         this.facility_name = facility_name;
