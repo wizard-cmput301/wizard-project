@@ -220,6 +220,7 @@ public class ViewEventFragment extends Fragment {
         binding.buttonDeleteEvent.setOnClickListener(v -> deleteEvent(navController));
 
         binding.buttonDeleteEventQrData.setVisibility(View.VISIBLE);
+        binding.buttonDeleteEventQrData.setOnClickListener(v -> deleteQRcode());
 
         hideUnusedButtonsForAdmin();
     }
@@ -337,11 +338,11 @@ public class ViewEventFragment extends Fragment {
         });
     }
     /**
-     * Deletes the current QRCODE from Firestore.
+     * Deletes the current QRCODE from Firebase.
      *
      * @param navController The NavController for navigation after deletion.
      */
-    private void deleteQRcode(NavController navController) {
+    private void deleteQRcode() {
         controller.updateField(displayEvent,"qrCode","");
     }
 
