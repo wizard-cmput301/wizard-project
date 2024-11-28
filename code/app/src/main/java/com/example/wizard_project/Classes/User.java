@@ -1,5 +1,6 @@
 package com.example.wizard_project.Classes;
 
+import com.example.wizard_project.R;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -239,4 +240,35 @@ public class User {
         this.profilePath = (String) document.get("profilePath");
         initializeDocumentReference();
     }
+
+    public int profileGenerator() {
+        int average = 0;
+
+        for (int i = 0; i < (this.name).length(); i++) {
+            average = average + (this.name).charAt(i);
+        }
+        average = average%100;
+        if (average < 10){
+            return R.drawable.black;
+        } else if (average < 20) {
+            return R.drawable.blue;
+        } else if (average < 30) {
+            return R.drawable.green;
+        } else if (average < 40) {
+            return R.drawable.yellow;
+        } else if (average < 50) {
+            return R.drawable.orange;
+        } else if (average < 60) {
+            return R.drawable.pink;
+        } else if (average < 70) {
+            return R.drawable.darkred;
+        } else if (average < 80) {
+            return R.drawable.brown;
+        } else if (average < 90) {
+            return R.drawable.grey;
+        } else {
+            return R.drawable.event_wizard_logo;
+        }
+    }
+
 }

@@ -2,19 +2,21 @@ package com.example.wizard_project;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
-import androidx.annotation.NonNull;
 
+import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -68,10 +70,27 @@ public class MainActivity extends AppCompatActivity {
         initializeUser(deviceId, () -> {
             if (currentUser != null) {
                 Toast.makeText(this, "Welcome to EventWizard! ", Toast.LENGTH_SHORT).show();
+                setProfilePic();
             } else {
                 Toast.makeText(this, "User data not available", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void setProfilePic() {
+        ImageButton profilePictureButton = findViewById(R.id.profilePictureButton);
+        String profilePictureUri = currentUser.getProfilePictureUri();
+        if (profilePictureUri != null && !profilePictureUri.isEmpty()) {
+            Glide.with(this)
+                    .load(Uri.parse(profilePictureUri))
+                    .circleCrop()
+                    .into(profilePictureButton);
+        } else if (!currentUser.getName().isEmpty()) {
+            int draw = currentUser.profileGenerator();
+            Glide.with(this).load(draw).circleCrop().into(profilePictureButton);
+        } else {
+            Glide.with(this).load(R.drawable.noname).circleCrop().into(profilePictureButton);
+        }
     }
 
     /**
@@ -236,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
-            }
+        }
     }
 
     /**
