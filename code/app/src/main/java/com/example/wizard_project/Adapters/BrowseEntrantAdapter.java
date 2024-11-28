@@ -1,12 +1,10 @@
 package com.example.wizard_project.Adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
@@ -14,9 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.wizard_project.Classes.User;
+import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.R;
-import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,30 +21,54 @@ import java.util.List;
 /**
  * BrowseEntrantAdapter is a custom ArrayAdapter to display the list of entrants for an event.
  */
-public class BrowseEntrantAdapter extends ArrayAdapter<User> implements Filterable {
-
-    private List<User> userList;
-    private List<User> filterList;
-    private Context context;
+public class BrowseEntrantAdapter extends ArrayAdapter<Entrant> implements Filterable {
+    private final List<Entrant> originalList; // Full list of entrants
+    private final List<Entrant> filteredList; // Filtered list of entrants
+    private final Context context;
 
     /**
-     * Constructs a new BrowseEntrantAdapter with a list of entrants and the context data.
-     * @param context The context used for layout inflation.
-     * @param users The list of users to be displayed.
+     * Constructs a new BrowseEntrantAdapter with a list of entrants and the application context.
+     *
+     * @param context  The context used for layout inflation.
+     * @param entrants The list of entrants to display.
      */
-    public BrowseEntrantAdapter(Context context, ArrayList<User> users) {
-        super(context, 0, users);
+    public BrowseEntrantAdapter(Context context, ArrayList<Entrant> entrants) {
+        super(context, 0, entrants);
         this.context = context;
-        this.userList = users;
-        this.filterList = new ArrayList<>(users);
-        Log.d("filterSize", String.valueOf(filterList.size()));
+        this.originalList = entrants;
+        this.filteredList = new ArrayList<>(entrants); // Initialize filteredList with a copy of originalList
     }
 
+    /**
+     * Returns the number of filtered items.
+     *
+     * @return The size of the filtered entrant list.
+     */
     @Override
     public int getCount() {
-        return filterList.size();
+        return filteredList.size();
     }
 
+    /**
+     * Returns the entrant at the specified position in the filtered list.
+     *
+     * @param position The position of the item in the list.
+     * @return The entrant at the specified position.
+     */
+    @Override
+    public Entrant getItem(int position) {
+        return filteredList.get(position);
+    }
+
+
+    /**
+     * Returns a view for each item in the filtered list.
+     *
+     * @param position    The position of the item within the adapter's data set.
+     * @param convertView The old view to reuse, if possible.
+     * @param parent      The parent view that this view will eventually be attached to.
+     * @return A View corresponding to the data at the specified position.
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -55,61 +76,56 @@ public class BrowseEntrantAdapter extends ArrayAdapter<User> implements Filterab
             convertView = LayoutInflater.from(context).inflate(R.layout.entrant_list_content, parent, false);
         }
 
-        ShapeableImageView userProfilePicture = convertView.findViewById(R.id.entrant_profile_image);
+        // Get the views from the layout
         TextView userName = convertView.findViewById(R.id.entrant_user_name);
         TextView userStatus = convertView.findViewById(R.id.entrant_status);
-        CheckBox selectionBox = convertView.findViewById(R.id.entrant_checkbox);
-        User currentUser = filterList.get(position);
 
-        userName.setText(currentUser.getName());
-        userStatus.setText(currentUser.getStatus());
-        selectionBox.setText("");
+        // Fill the views with data from the entrant
+        Entrant entrant = getItem(position);
+        userName.setText(entrant.getName());
+        userStatus.setText(entrant.getStatus());
 
         return convertView;
     }
 
-
+    /**
+     * Returns a filter for filtering entrants by their status.
+     *
+     * @return A filter object that performs filtering on the entrant list.
+     */
     @NonNull
     @Override
     public Filter getFilter() {
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                String filterStatus;
-                FilterResults filterResults = new FilterResults();
-                List<User> filteredUsers = new ArrayList<User>();
+                FilterResults results = new FilterResults();
+                List<Entrant> filtered = new ArrayList<>();
 
-                if (constraint == null) {
-                    filterStatus = "";
-                }
-                else {
-                    filterStatus = constraint.toString();
-                    Log.d("ConstraintFilter", constraint.toString());
-                }
+                // If no constraint is provided, show all entrants
+                if (constraint == null || constraint.toString().isEmpty() || constraint.toString().equals("All")) {
+                    filtered.addAll(originalList);
 
-                if (filterStatus.isEmpty() || filterStatus.equals("All")) {
-                    filteredUsers.addAll(userList);
-                }
-                else {
-                    for (User user: userList) {
-                        Log.d("userStatus", user.getStatus());
-                        if (filterStatus.equals(user.getStatus())) {
-                            Log.d("UserAdd", user.getName());
-                            filteredUsers.add(user);
+                    // Otherwise, filter entrants based on the selected status
+                } else {
+                    for (Entrant entrant : originalList) {
+                        if (entrant.getStatus().equalsIgnoreCase(constraint.toString())) {
+                            filtered.add(entrant);
                         }
                     }
                 }
 
-                filterResults.values = filteredUsers;
-                filterResults.count = filteredUsers.size();
-                return filterResults;
+                results.values = filtered;
+                results.count = filtered.size();
+                return results;
             }
 
             @SuppressWarnings("unchecked")
             @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                filterList.clear();
-                filterList = (List<User>) filterResults.values;
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                // Update the filtered list and notify the adapter
+                filteredList.clear();
+                filteredList.addAll((List<Entrant>) results.values);
                 notifyDataSetChanged();
             }
         };

@@ -37,6 +37,7 @@ import static android.app.Activity.RESULT_OK;
  * US 01.03.02 As an entrant I want remove profile picture if need be
  * TODO: Add tests for US 01.03.03 As an entrant I want my profile picture to be deterministically generated from my profile name if I haven't uploaded a profile image yet (if possible)
  * TODO: Fix US 01.03.02, currently failing
+ * TODO: Do i need to grant permission for location sharing in these?
  */
 @RunWith(AndroidJUnit4.class)
 public class ProfileFragmentTest {
@@ -63,17 +64,17 @@ public class ProfileFragmentTest {
         // Navigate to the profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.editProfileButton)).perform(ViewActions.click());
+        Espresso.onView(withId(R.id.button_edit_profile)).perform(ViewActions.click());
 
         // Enter personal information
-        Espresso.onView(withId(R.id.editTextName)).perform(ViewActions.clearText(), ViewActions.typeText("New Name"));
-        Espresso.onView(withId(R.id.editTextEmail)).perform(ViewActions.clearText(), ViewActions.typeText("newemail@example.com"));
-        Espresso.onView(withId(R.id.editTextPhone)).perform(ViewActions.clearText(), ViewActions.typeText("0987654321"));
+        Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("New Name"));
+        Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("newemail@example.com"));
+        Espresso.onView(withId(R.id.edittext_phone)).perform(ViewActions.clearText(), ViewActions.typeText("0987654321"));
 
         // Save profile changes and verify they are displayed
         Espresso.onView(withId(R.id.buttonSaveProfile)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.profileName)).check(ViewAssertions.matches(withText("New Name")));
-        Espresso.onView(withId(R.id.profileEmail)).check(ViewAssertions.matches(withText("newemail@example.com")));
+        Espresso.onView(withId(R.id.ProfileFragment)).check(matches(withText("New Name")));
+        Espresso.onView(withId(R.id.ProfileFragment)).check(matches(withText("newemail@example.com")));
     }
 
     /**
@@ -85,11 +86,11 @@ public class ProfileFragmentTest {
         // Navigate to the profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.editProfileButton)).perform(ViewActions.click());
+        Espresso.onView(withId(R.id.EditProfileFragment)).perform(ViewActions.click());
 
         // Update profile details
-        Espresso.onView(withId(R.id.editTextName)).perform(ViewActions.clearText(), ViewActions.typeText("Updated Name"));
-        Espresso.onView(withId(R.id.editTextEmail)).perform(ViewActions.clearText(), ViewActions.typeText("updatedemail@example.com"));
+        Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("Updated Name"));
+        Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("updatedemail@example.com"));
         Espresso.onView(withId(R.id.buttonSaveProfile)).perform(ViewActions.click());
 
         // Hit the home button, then navigate back to the profile screen
@@ -98,8 +99,8 @@ public class ProfileFragmentTest {
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
 
         // Verify the updated profile details are displayed
-        Espresso.onView(withId(R.id.profileName)).check(ViewAssertions.matches(withText("Updated Name")));
-        Espresso.onView(withId(R.id.profileEmail)).check(ViewAssertions.matches(withText("updatedemail@example.com")));
+        Espresso.onView(withId(R.id.ProfileFragment)).check(matches(withText("Updated Name")));
+        Espresso.onView(withId(R.id.ProfileFragment)).check(matches(withText("updatedemail@example.com")));
     }
 
     /**
@@ -111,7 +112,7 @@ public class ProfileFragmentTest {
         // Navigate to the profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.editProfileButton)).perform(ViewActions.click());
+        Espresso.onView(withId(R.id.EditProfileFragment)).perform(ViewActions.click());
 
         // Create mock image URI to simulate picking an image
         Uri mockImageUri = Uri.parse("android.resource://com.example.wizard_project/drawable/event_wizard_logo");
@@ -120,10 +121,10 @@ public class ProfileFragmentTest {
 
         // Simulate picking an image and adding it to the profile
         intending(hasAction(Intent.ACTION_PICK)).respondWith(new Instrumentation.ActivityResult(RESULT_OK, resultData));
-        Espresso.onView(withId(R.id.editProfileImage)).perform(ViewActions.click());
+        Espresso.onView(withId(R.id.EditProfileFragment)).perform(ViewActions.click());
 
         // Verify that the profile picture is displayed
-        Espresso.onView(withId(R.id.editProfileImage)).check(matches(isDisplayed()));
+        Espresso.onView(withId(R.id.EditProfileFragment)).check(matches(isDisplayed()));
     }
 
     /**
@@ -136,13 +137,13 @@ public class ProfileFragmentTest {
         // Navigate to the profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.editProfileButton)).perform(ViewActions.click());
+        Espresso.onView(withId(R.id.EditProfileFragment)).perform(ViewActions.click());
 
         // Delete the current profile picture
         Espresso.onView(withId(R.id.buttonDeleteProfilePic)).perform(ViewActions.click());
 
         // Verify that a placeholder or default image is displayed instead of the removed profile picture
-        Espresso.onView(withId(R.id.editProfileImage)).check(ViewAssertions.matches(isDisplayed()));
+        Espresso.onView(withId(R.id.EditProfileFragment)).check(matches(isDisplayed()));
     }
 
      // TODO: US 01.03.03: Add test for deterministically generated profile picture based on profile name if no image is uploaded.

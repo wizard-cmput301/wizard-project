@@ -1,5 +1,9 @@
 package com.example.wizard_project.Fragments;
 
+import static com.example.wizard_project.MainActivity.LOCATION_PERMISSION_REQUEST_CODE;
+
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -17,15 +23,19 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.Event;
+import com.example.wizard_project.Classes.LatLng;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.WaitingListController;
 import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentViewEventBinding;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 /**
  * ViewEventFragment displays an event's information and adjusts the UI based on the user's role:
@@ -38,22 +48,12 @@ public class ViewEventFragment extends Fragment {
     private FragmentViewEventBinding binding;
     private User currentUser; // The current logged-in user
     private Event displayEvent; // The event being viewed
-    private WaitingListController waitingListController; //
+    private WaitingListController waitingListController;
+    private FusedLocationProviderClient locationProvider;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentViewEventBinding.inflate(inflater, container, false);
-
-        // Set up navigation to ProfileFragment when the profile picture button is clicked
-        View profilePictureButton = requireActivity().findViewById(R.id.profilePictureButton);
-
-        profilePictureButton.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-            if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() != R.id.ProfileFragment) {
-                navController.navigate(R.id.action_ViewEventFragment_to_ProfileFragment); // (temporary work around, this prevents app crashing when clicking the button twice)
-            }
-        });
-
         return binding.getRoot();
     }
 
@@ -61,27 +61,29 @@ public class ViewEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //Initialize waiting list controller
+        // Initialize waiting list controller
         waitingListController = new WaitingListController();
 
-        // Get the current user from MainActivity
-        MainActivity mainActivity = (MainActivity) requireActivity();
-        currentUser = mainActivity.getCurrentUser();
+        // Initialize location provider
+        locationProvider = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        // Retrieve the event passed to this fragment
+        // Get the event passed to this fragment
         displayEvent = (Event) getArguments().getSerializable("event");
-
-        if (displayEvent != null) {
-            bindEventData(displayEvent);
-            configureViewBasedOnRole(view);
-        } else {
-            Toast.makeText(requireContext(), "Event data unavailable", Toast.LENGTH_SHORT).show();
+        if (displayEvent == null) {
+            Toast.makeText(requireContext(), "Event data is missing.", Toast.LENGTH_SHORT).show();
+            return; // Stop further execution
         }
 
-        // Retrieve the event passed from QRScannerFragment
-        if (getArguments() != null) {
-            displayEvent = (Event) getArguments().getSerializable("event");
-        }
+        // Fetch current user asynchronously
+        ((MainActivity) requireActivity()).getCurrentUserAsync(user -> {
+            if (user != null) {
+                currentUser = user;
+                bindEventData(displayEvent);
+                configureViewBasedOnRole(view);
+            } else {
+                Toast.makeText(requireContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -132,17 +134,34 @@ public class ViewEventFragment extends Fragment {
     }
 
     /**
-     * Configures the UI for admin users.
-     *
-     * @param navController The NavController for navigation.
+     * Configures the UI for entrants.
      */
-    private void setupAdminView(NavController navController) {
-        binding.buttonDeleteEvent.setVisibility(View.VISIBLE);
-        binding.buttonDeleteEvent.setOnClickListener(v -> deleteEvent(navController));
+    private void setupEntrantView() {
+        hideUnusedButtonsForEntrant();
 
-        binding.buttonDeleteEventQrData.setVisibility(View.VISIBLE);
+        // Use WaitingListController to check waiting list status
+        waitingListController.isUserOnWaitingList(displayEvent.getEventId(), currentUser.getDeviceId(), new WaitingListController.OnCheckCompleteListener() {
+            @Override
+            public void onComplete(boolean isOnWaitingList) {
+                if (isOnWaitingList) {
+                    binding.buttonLeaveWaitingList.setVisibility(View.VISIBLE);
+                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                } else {
+                    binding.buttonJoinWaitingList.setVisibility(View.VISIBLE);
+                    binding.buttonLeaveWaitingList.setVisibility(View.GONE);
+                }
+            }
 
-        hideUnusedButtonsForAdmin();
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("ViewEventFragment", "Error checking waiting list status", e);
+                Toast.makeText(requireContext(), "Unable to check waiting list status.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Set up listeners for join and leave buttons
+        binding.buttonJoinWaitingList.setOnClickListener(v -> onJoinWaitingListClick());
+        binding.buttonLeaveWaitingList.setOnClickListener(v -> leaveWaitingList());
     }
 
     /**
@@ -170,53 +189,98 @@ public class ViewEventFragment extends Fragment {
             navController.navigate(R.id.action_ViewEventFragment_to_ViewQRCodeFragment, bundle);
         });
 
+        // Set up the "View Map" button
+        binding.buttonViewMap.setOnClickListener(v -> {
+            waitingListController.getEntrantLocations(displayEvent.getEventId(), locations -> {
+                LatLng[] latLngArray = locations.stream()
+                        .map(location -> new LatLng(location[0], location[1]))
+                        .toArray(LatLng[]::new);
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArray("locations", latLngArray);
+                navController.navigate(R.id.action_ViewEventFragment_to_MapFragment, bundle);
+            }, e -> {
+                Toast.makeText(requireContext(), "Failed to load entrant locations.", Toast.LENGTH_SHORT).show();
+            });
+        });
+
         binding.buttonEditEvent.setOnClickListener(v -> navigateToEditEvent(navController));
 
         setupBottomNavigationForOrganizer(navController);
     }
 
     /**
-     * Configures the UI for entrants.
+     * Configures the UI for admin users.
+     *
+     * @param navController The NavController for navigation.
      */
-    private void setupEntrantView() {
+    private void setupAdminView(NavController navController) {
+        binding.buttonDeleteEvent.setVisibility(View.VISIBLE);
+        binding.buttonDeleteEvent.setOnClickListener(v -> deleteEvent(navController));
 
-        hideUnusedButtonsForEntrant();
+        binding.buttonDeleteEventQrData.setVisibility(View.VISIBLE);
 
-        // Use WaitingListController to check waiting list status
-        waitingListController.isUserOnWaitingList(displayEvent.getEventId(), currentUser.getDeviceId(), new WaitingListController.OnCheckCompleteListener() {
-            @Override
-            public void onComplete(boolean isOnWaitingList) {
-                if (isOnWaitingList) {
-                    binding.buttonLeaveWaitingList.setVisibility(View.VISIBLE);
-                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
-                } else {
-                    binding.buttonJoinWaitingList.setVisibility(View.VISIBLE);
-                    binding.buttonLeaveWaitingList.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Log.e("ViewEventFragment", "Error checking waiting list status", e);
-                Toast.makeText(requireContext(), "Unable to check waiting list status.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Set up listeners for join and leave buttons
-        binding.buttonJoinWaitingList.setOnClickListener(v -> joinWaitingList());
-        binding.buttonLeaveWaitingList.setOnClickListener(v -> leaveWaitingList());
+        hideUnusedButtonsForAdmin();
     }
 
+    /**
+     * Handles the user's click to join the waiting list button.
+     */
+    private void onJoinWaitingListClick() {
+        // Check if geolocation is required for the event
+        if (displayEvent.isGeolocation_requirement()) {
+            // Proceed with joining the waitlist if location is successfully fetched
+            getUserLocation(this::addUserToWaitingList);
+        } else {
+            // Geolocation is not required; join waitlist directly
+            addUserToWaitingList(null, null);
+        }
+    }
 
     /**
-     * Places the current user to the waitlist in the Firestore.
-     *
+     * Fetches the user's location if permissions are granted.
+     * If permissions are denied, it requests permissions or shows an error message.
      */
+    private void getUserLocation(OnLocationReceivedCallback callback) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationProvider.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        if (location != null) {
+                            callback.onLocationReceived(location.getLatitude(), location.getLongitude());
+                        } else {
+                            Toast.makeText(requireContext(), "Location not available. Enable location services.", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("LocationError", "Error fetching location", e);
+                        Toast.makeText(requireContext(), "Error fetching location. Try again.", Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            Toast.makeText(requireContext(), "Location permission is required to join this event.", Toast.LENGTH_SHORT).show();
+            requestLocationPermissions();
+        }
+    }
 
-    private void joinWaitingList() {
-        waitingListController.addUserToWaitingList(displayEvent.getEventId(), currentUser, currentUser.getDeviceId(), new WaitingListController.OnActionCompleteListener() {
+    /**
+     * Requests location permissions from the user if not already granted.
+     */
+    private void requestLocationPermissions() {
+        ActivityCompat.requestPermissions(requireActivity(),
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                LOCATION_PERMISSION_REQUEST_CODE);
+    }
+
+    /**
+     * Adds the user to the waiting list with or without location data.
+     */
+    private void addUserToWaitingList(Double latitude, Double longitude) {
+        String defaultStatus = "Waitlisted"; // Default status when joining the waiting list
+        Log.d("ViewEventFragment", "Adding user to waiting list for eventId: " + displayEvent.getEventId());
+
+        waitingListController.addUserToWaitingList(displayEvent.getEventId(), currentUser, currentUser.getDeviceId(), latitude, longitude, defaultStatus, new WaitingListController.OnActionCompleteListener() {
             @Override
             public void onSuccess() {
+                Log.d("ViewEventFragment", "User added to waiting list successfully.");
                 Toast.makeText(requireContext(), "You have joined the waiting list.", Toast.LENGTH_SHORT).show();
                 binding.buttonJoinWaitingList.setVisibility(View.GONE);
                 binding.buttonLeaveWaitingList.setVisibility(View.VISIBLE);
@@ -232,9 +296,7 @@ public class ViewEventFragment extends Fragment {
 
     /**
      * Deletes the current user from the waitlist in the Firestore.
-     *
      */
-
     private void leaveWaitingList() {
         waitingListController.removeUserFromWaitingList(displayEvent.getEventId(), currentUser.getDeviceId(), new WaitingListController.OnActionCompleteListener() {
             @Override
@@ -251,7 +313,6 @@ public class ViewEventFragment extends Fragment {
             }
         });
     }
-
 
     /**
      * Deletes the current event from Firestore.
@@ -312,6 +373,19 @@ public class ViewEventFragment extends Fragment {
     }
 
     /**
+     * Hides buttons that are not used by entrants.
+     */
+    private void hideUnusedButtonsForEntrant() {
+        binding.buttonViewQrCode.setVisibility(View.GONE);
+        binding.buttonViewMap.setVisibility(View.GONE);
+        binding.buttonEditEvent.setVisibility(View.GONE);
+        binding.buttonDeleteEvent.setVisibility(View.GONE);
+        binding.buttonDeleteEventQrData.setVisibility(View.GONE);
+        binding.buttonViewEntrants.setVisibility(View.GONE);
+        binding.buttonViewFacility.setVisibility(View.GONE);
+    }
+
+    /**
      * Hides buttons that are not used by admin users.
      */
     private void hideUnusedButtonsForAdmin() {
@@ -323,16 +397,9 @@ public class ViewEventFragment extends Fragment {
     }
 
     /**
-     * Hides buttons that are not used by entrants.
+     * Callback interface for receiving location data.
      */
-    private void hideUnusedButtonsForEntrant() {
-        binding.buttonViewQrCode.setVisibility(View.GONE);
-        binding.buttonViewMap.setVisibility(View.GONE);
-        binding.buttonEditEvent.setVisibility(View.GONE);
-        binding.buttonDeleteEvent.setVisibility(View.GONE);
-        binding.buttonDeleteEventQrData.setVisibility(View.GONE);
-        binding.buttonViewEntrants.setVisibility(View.GONE);
-        binding.buttonViewFacility.setVisibility(View.GONE);
-
+    private interface OnLocationReceivedCallback {
+        void onLocationReceived(double latitude, double longitude);
     }
 }

@@ -8,21 +8,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.wizard_project.Adapters.BrowseEntrantAdapter;
+import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.Classes.Event;
-import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEntrantListBinding;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,12 +31,12 @@ import java.util.Objects;
 public class EntrantListFragment extends Fragment implements SampleAttendeeDialog.SampleAttendeesListener {
     private FragmentEntrantListBinding binding;
     private EventController eventController;
-    private ArrayList<User> entrantList = new ArrayList<User>();
     private BrowseEntrantAdapter adapter;
     private Event event;
 
     /**
      * Creates a new instance of EntrantListFragment with event information passed.
+     *
      * @param event The event with the information to be passed in a serialized format.
      * @return A new instance of EntrantListFragment with event information passed.
      */
@@ -64,61 +64,98 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ListView entrantListView = binding.entrantListview;
-
-        NavController navController = NavHostFragment.findNavController(this);
+        // Initialize the event controller
         eventController = new EventController();
 
-        // Get the event object.
-        assert getArguments() != null;
-        event = (Event) getArguments().getSerializable("event");
+        setupUIComponents();
+        fetchAndDisplayEntrants();
+    }
 
-        // Add the users to the list to be displayed.
-        assert event != null;
-        eventController.getEntrants(event, new EventController.waitListCallback() {
-            @Override
-            public void onCallback(ArrayList<User> users) {
-                entrantList.clear();
-                entrantList.addAll(users);
+    /**
+     * Sets up UI components like buttons and list adapters.
+     */
+    private void setupUIComponents() {
+        ListView entrantListView = binding.entrantListview;
 
-                adapter = new BrowseEntrantAdapter(getContext(), entrantList);
-                entrantListView.setAdapter(adapter);
-
-                adapter.notifyDataSetChanged();
-            }
-        });
-
-        Button sampleAttendeesButton = binding.sampleAttendeesButton;
+        // Set up filter button
         Button filterButton = binding.filterButton;
+        filterButton.setOnClickListener(this::showFilterMenu);
 
-        sampleAttendeesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SampleAttendeeDialog dialog = SampleAttendeeDialog.newInstance(entrantList.size());
+        // Set up sample attendees button
+        Button sampleAttendeesButton = binding.sampleAttendeesButton;
+        sampleAttendeesButton.setOnClickListener(view -> {
+            if (adapter != null) {
+                SampleAttendeeDialog dialog = SampleAttendeeDialog.newInstance(adapter.getCount());
                 dialog.show(getChildFragmentManager(), "SampleAttendeesDialog");
             }
         });
+    }
 
-        filterButton.setOnClickListener(filterView -> {
-            PopupMenu popupMenu = new PopupMenu(getContext(), filterView);
-            popupMenu.getMenuInflater().inflate(R.menu.entrant_filter_menu, popupMenu.getMenu());
+    /**
+     * Fetches the list of entrants from the waiting list for the specified event and updates the UI.
+     */
+    private void fetchAndDisplayEntrants() {
+        // Retrieve event from arguments
+        if (getArguments() != null) {
+            event = (Event) getArguments().getSerializable("event");
+        }
 
-            popupMenu.setOnMenuItemClickListener(menuItem -> {
-                for (int i = 0; i < popupMenu.getMenu().size(); i++) {
-                    if (!(popupMenu.getMenu().getItem(i) == menuItem)) {
-                        popupMenu.getMenu().getItem(i).setChecked(false);
-                    }
+        if (event == null || event.getEventId() == null) {
+            Log.e("EntrantListFragment", "Event or Event ID is null. Cannot fetch entrants.");
+            Toast.makeText(requireContext(), "Invalid event data.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Fetch waiting list data
+        eventController.getWaitingList(event.getEventId(), new EventController.WaitingListCallback() {
+            @Override
+            public void onSuccess(ArrayList<Map<String, String>> waitingList) {
+                ArrayList<Entrant> entrants = new ArrayList<>();
+                for (Map<String, String> entry : waitingList) {
+                    // Parse data from waiting list
+                    String name = entry.get("name");
+                    String status = entry.get("status");
+                    String userId = entry.get("userId");
+                    Double latitude = entry.containsKey("latitude") ? Double.valueOf(entry.get("latitude")) : null;
+                    Double longitude = entry.containsKey("longitude") ? Double.valueOf(entry.get("longitude")) : null;
+
+                    entrants.add(new Entrant(name, status, userId, latitude, longitude));
                 }
 
-                menuItem.setChecked(true);
+                // Set up adapter and update list
+                adapter = new BrowseEntrantAdapter(requireContext(), entrants);
+                binding.entrantListview.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+            }
 
-                String filterStatus = Objects.requireNonNull(menuItem.getTitle()).toString();
-                adapter.getFilter().filter(filterStatus);
-                return true;
-            });
-            popupMenu.show();
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("EntrantListFragment", "Error fetching waiting list", e);
+            }
         });
+    }
 
+    /**
+     * Displays a filter menu to filter entrants by their status.
+     *
+     * @param view The view triggering the filter menu.
+     */
+    private void showFilterMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(requireContext(), view);
+        popupMenu.getMenuInflater().inflate(R.menu.entrant_filter_menu, popupMenu.getMenu());
 
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            for (int i = 0; i < popupMenu.getMenu().size(); i++) {
+                popupMenu.getMenu().getItem(i).setChecked(false);
+            }
+            menuItem.setChecked(true);
+
+            String filterStatus = Objects.requireNonNull(menuItem.getTitle()).toString();
+            if (adapter != null) {
+                adapter.getFilter().filter(filterStatus);
+            }
+            return true;
+        });
+        popupMenu.show();
     }
 }

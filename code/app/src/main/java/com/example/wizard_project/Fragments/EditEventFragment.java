@@ -179,9 +179,19 @@ public class EditEventFragment extends Fragment {
 
         if (displayEvent == null) {
             // Create a new event
-            Event newEvent = new Event(newName, newDescription, newPrice, newMaxEntrants,
-                    selectedRegistrationOpenDate, selectedRegistrationCloseDate, facilityId,
-                    eventLocation, geolocationRequired, "");
+            Event newEvent = new Event(
+                    null, // Pass null to generate a new eventId
+                    newName,
+                    newDescription,
+                    newPrice,
+                    newMaxEntrants,
+                    selectedRegistrationOpenDate,
+                    selectedRegistrationCloseDate,
+                    facilityId,
+                    eventLocation,
+                    geolocationRequired,
+                    "" // Placeholder for event_image_path
+            );
 
             eventController.createEvent(newEvent, currentUser.getDeviceId(), new EventController.createCallback() {
                 @Override

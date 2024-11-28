@@ -118,20 +118,18 @@ public class QRScannerFragment extends Fragment {
 
                         // Create and populate the Event object
                         Event event = new Event(
-                                documentSnapshot.getString("event_name"),
-                                documentSnapshot.getString("event_description"),
-                                documentSnapshot.getDouble("event_price").intValue(),
-                                documentSnapshot.getLong("event_max_entrants").intValue(),
+                                documentSnapshot.getId(),
+                                documentSnapshot.getString("event_name") != null ? documentSnapshot.getString("event_name") : "Unknown Event",
+                                documentSnapshot.getString("event_description") != null ? documentSnapshot.getString("event_description") : "",
+                                documentSnapshot.getDouble("event_price") != null ? documentSnapshot.getDouble("event_price").intValue() : 0,
+                                documentSnapshot.getLong("event_max_entrants") != null ? documentSnapshot.getLong("event_max_entrants").intValue() : 0,
                                 documentSnapshot.getDate("registration_open"),
                                 documentSnapshot.getDate("registration_close"),
                                 documentSnapshot.getString("facilityId"),
                                 documentSnapshot.getString("event_location"),
-                                documentSnapshot.getBoolean("geolocation_requirement"),
+                                documentSnapshot.getBoolean("geolocation_requirement") != null ? documentSnapshot.getBoolean("geolocation_requirement") : false,
                                 documentSnapshot.getString("event_image_path")
                         );
-
-
-                        event.setEventId(documentSnapshot.getId());
 
                         // Navigate to ViewEventFragment with the Event object
                         navigateToViewEventFragment(event);
@@ -148,13 +146,33 @@ public class QRScannerFragment extends Fragment {
     /**
      * Navigates to the event details view, passing the event data as a bundle.
      *
-     *
+     * @param event The Event object containing event details.
      */
-
     private void navigateToViewEventFragment(Event event) {
-        // Pass the Event object directly to the destination fragment
+        if (event.getEventId() == null) {
+            Log.e("QRScannerFragment", "Event ID is null. Navigation failed.");
+            Toast.makeText(requireContext(), "Event is invalid.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Log.d("QRScannerFragment", "Navigating to ViewEventFragment with eventId: " + event.getEventId());
         Bundle bundle = new Bundle();
-        bundle.putSerializable("event", event); // Use Serializable to pass the Event object
+        bundle.putSerializable("event", event);
         NavHostFragment.findNavController(this).navigate(R.id.action_QRScannerFragment_to_ViewEventFragment, bundle);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("QRScannerFragment", "onPause called. Releasing resources if needed.");
+
+        // Stop the QR scanner or camera preview (if applicable)
+        // Example: If using a camera library, stop the preview or release resources
+        try {
+            IntentIntegrator integrator = IntentIntegrator.forSupportFragment(this);
+            integrator.setCaptureActivity(null); // Stopping any active capture activity
+        } catch (Exception e) {
+            Log.e("QRScannerFragment", "Error stopping QR scanner", e);
+        }
     }
 }
