@@ -132,6 +132,7 @@ public class ViewFacilityFragment extends Fragment {
 
     /**
      * Deletes the current facility and its associated events from Firestore.
+     * TODO: delete all events associated with the facility.
      */
     private void deleteFacility() {
         controller.deleteFacilityWithEvents(displayFacility.getFacilityId(), new FacilityController.deleteCallback() {
