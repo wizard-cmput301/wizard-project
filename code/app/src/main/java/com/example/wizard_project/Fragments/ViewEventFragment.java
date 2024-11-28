@@ -54,17 +54,6 @@ public class ViewEventFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentViewEventBinding.inflate(inflater, container, false);
-
-//        // Set up navigation to ProfileFragment when the profile picture button is clicked
-//        View profilePictureButton = requireActivity().findViewById(R.id.profilePictureButton);
-//
-//        profilePictureButton.setOnClickListener(v -> {
-//            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-//            if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() != R.id.ProfileFragment) {
-//                navController.navigate(R.id.action_ViewEventFragment_to_ProfileFragment); // TODO: (temporary work around, this prevents app crashing when clicking the button twice)
-//            }
-//        });
-
         return binding.getRoot();
     }
 
@@ -78,19 +67,23 @@ public class ViewEventFragment extends Fragment {
         // Initialize location provider
         locationProvider = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        // Get the current user from MainActivity
-        MainActivity mainActivity = (MainActivity) requireActivity();
-        currentUser = mainActivity.getCurrentUser();
-
-        // Retrieve the event passed to this fragment
+        // Get the event passed to this fragment
         displayEvent = (Event) getArguments().getSerializable("event");
-
-        if (displayEvent != null) {
-            bindEventData(displayEvent);
-            configureViewBasedOnRole(view);
-        } else {
-            Toast.makeText(requireContext(), "Event data unavailable", Toast.LENGTH_SHORT).show();
+        if (displayEvent == null) {
+            Toast.makeText(requireContext(), "Event data is missing.", Toast.LENGTH_SHORT).show();
+            return; // Stop further execution
         }
+
+        // Fetch current user asynchronously
+        ((MainActivity) requireActivity()).getCurrentUserAsync(user -> {
+            if (user != null) {
+                currentUser = user;
+                bindEventData(displayEvent);
+                configureViewBasedOnRole(view);
+            } else {
+                Toast.makeText(requireContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**

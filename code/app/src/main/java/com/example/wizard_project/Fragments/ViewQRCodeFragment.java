@@ -2,6 +2,7 @@ package com.example.wizard_project.Fragments;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +21,12 @@ import com.example.wizard_project.R;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 /**
- * ViewQRCodeFragment displays a QR code for a specific event, allowing users to generate and view it.
+ * ViewQRCodeFragment displays a QR code for a specific event, allowing users to generate. view, and download it.
  */
 public class ViewQRCodeFragment extends Fragment {
     private static final String TAG = "ViewQRCodeFragment";
@@ -30,6 +35,8 @@ public class ViewQRCodeFragment extends Fragment {
     private ImageView qrCodeImageView;
     private Button generateQRCodeButton;
     private Button backButton;
+    private Button downloadQRCodeButton;
+    private Bitmap qrCodeBitmap;
     private FirebaseFirestore db;
     private DocumentReference eventDocRef;
 
@@ -58,10 +65,12 @@ public class ViewQRCodeFragment extends Fragment {
         qrCodeImageView = view.findViewById(R.id.qrCodeImageView);
         generateQRCodeButton = view.findViewById(R.id.generateQRCodeButton);
         backButton = view.findViewById(R.id.backButton);
+        downloadQRCodeButton = view.findViewById(R.id.downloadQRCodeButton);
 
         // Set up button listeners
         backButton.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
         generateQRCodeButton.setOnClickListener(v -> generateAndSaveQRCode());
+        downloadQRCodeButton.setOnClickListener(v -> downloadQRCodeImage());
 
         // Fetch and display the QR code
         fetchQRCodeFromFirestore();
@@ -131,11 +140,38 @@ public class ViewQRCodeFragment extends Fragment {
      */
     private void displayQRCode(String qrCodeData) {
         QRCode qrCodeGenerator = new QRCode();
-        Bitmap qrCodeBitmap = qrCodeGenerator.generateQRCode(qrCodeData, 400, 400);
+        qrCodeBitmap = qrCodeGenerator.generateQRCode(qrCodeData, 400, 400);
         if (qrCodeBitmap != null) {
             qrCodeImageView.setImageBitmap(qrCodeBitmap);
         } else {
             Toast.makeText(getContext(), "Failed to display QR Code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Downloads the QR code as an image to the user's device.
+     */
+    private void downloadQRCodeImage() {
+        if (qrCodeBitmap == null) {
+            Toast.makeText(getContext(), "No QR Code to download!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "QR Codes");
+            if (!directory.exists() && !directory.mkdirs()) {
+                Toast.makeText(getContext(), "Failed to create directory for QR Codes", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            File file = new File(directory, "QR_Code_" + eventId + ".png");
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                qrCodeBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                Toast.makeText(getContext(), "QR Code downloaded to: " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Error downloading QR Code image", e);
+            Toast.makeText(getContext(), "Failed to download QR Code", Toast.LENGTH_SHORT).show();
         }
     }
 }

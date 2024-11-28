@@ -160,4 +160,19 @@ public class QRScannerFragment extends Fragment {
         bundle.putSerializable("event", event);
         NavHostFragment.findNavController(this).navigate(R.id.action_QRScannerFragment_to_ViewEventFragment, bundle);
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("QRScannerFragment", "onPause called. Releasing resources if needed.");
+
+        // Stop the QR scanner or camera preview (if applicable)
+        // Example: If using a camera library, stop the preview or release resources
+        try {
+            IntentIntegrator integrator = IntentIntegrator.forSupportFragment(this);
+            integrator.setCaptureActivity(null); // Stopping any active capture activity
+        } catch (Exception e) {
+            Log.e("QRScannerFragment", "Error stopping QR scanner", e);
+        }
+    }
 }

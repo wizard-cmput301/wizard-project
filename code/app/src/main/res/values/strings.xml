@@ -40,7 +40,9 @@
     <string name="view_map_button">Map View</string>
     <string name="join_waiting_list_button">Join Waiting List</string>
     <string name="leave_waiting_list_button">Leave Waiting List</string>
-
+    <string name="back_button">Back</string>
+    <string name="generate_qr_code">Generate QR Code</string>
+    <string name="download_qr_code">Download QR Code</string>
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
@@ -73,6 +75,7 @@
     <string name="geolocation_icon_desc">Event Description</string>
     <string name="registration_icon_desc">Registration Icon</string>
     <string name="edit_profile_picture_icon_desc">Edit profile picture icon</string>
+    <string name="qr_code_image_desc">QR Code Image</string>
 
     <!-- Edit Profile -->
     <string name="user_name">User Name</string>

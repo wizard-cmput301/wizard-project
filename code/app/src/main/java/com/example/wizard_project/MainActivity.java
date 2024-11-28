@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -69,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         String deviceId = retrieveDeviceId();
         initializeUser(deviceId, () -> {
             if (currentUser != null) {
-                Toast.makeText(this, "Welcome to EventWizard! ", Toast.LENGTH_SHORT).show();
                 setProfilePic();
             } else {
                 Toast.makeText(this, "User data not available", Toast.LENGTH_SHORT).show();
@@ -259,29 +259,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles the result of the location permission request.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Location permissions granted
-                Toast.makeText(this, "Location permissions granted", Toast.LENGTH_SHORT).show();
-            } else {
-                // Location permissions denied
-                Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    /**
      * Returns the current user's data.
      *
      * @return The current User object or null if the user is not loaded.
      */
     public User getCurrentUser() {
         return currentUser;
+    }
+
+    /**
+     * Provides the current user to other components asynchronously.
+     * If the user is already loaded into memory, it immediately executes the callback.
+     * Otherwise, it fetches the user from the database and then invokes the callback.
+     *
+     * @param callback A callback that will be executed once the user is available.
+     */
+    public void getCurrentUserAsync(UserLoadCallback callback) {
+        // Check if the user is already loaded into memory, if so execute the callback
+        if (currentUser != null) {
+            callback.onUserLoaded(currentUser);
+        } else {
+            // If the user is not loaded, fetch it from the database
+            fetchCurrentUserFromDatabase(user -> {
+                currentUser = user; // Cache the loaded user for future use
+                callback.onUserLoaded(currentUser);
+            });
+        }
+    }
+
+    /**
+     * Fetches the current user from the database asynchronously.
+     * Once the user is retrieved, it invokes the provided callback.
+     *
+     * @param callback A callback to handle the loaded user object.
+     */
+    private void fetchCurrentUserFromDatabase(UserLoadCallback callback) {
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(retrieveDeviceId())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    User user = documentSnapshot.toObject(User.class);
+                    callback.onUserLoaded(user);
+                })
+                .addOnFailureListener(e -> Log.e("MainActivity", "Failed to load user", e));
     }
 
     /**
@@ -311,5 +332,12 @@ public class MainActivity extends AppCompatActivity {
      */
     public StorageReference getStorageRef() {
         return storageRef;
+    }
+
+    /**
+     * Callback interface for receiving user data.
+     */
+    public interface UserLoadCallback {
+        void onUserLoaded(User user);
     }
 }

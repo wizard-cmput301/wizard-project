@@ -77,7 +77,7 @@ public class EntrantEventFragment extends Fragment {
         profilePictureButton.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
             if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() != R.id.ProfileFragment) {
-                navController.navigate(R.id.action_EntrantEventFragment_to_ProfileFragment);
+                navController.navigate(R.id.action_EntrantEventFragment_to_ProfileFragment); // TODO: temporary work around, this prevents app crashing
             }
         });
     }
