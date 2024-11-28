@@ -130,6 +130,9 @@ public class QRScannerFragment extends Fragment {
                                 documentSnapshot.getString("event_image_path")
                         );
 
+
+                        event.setEventId(documentSnapshot.getId());
+
                         // Navigate to ViewEventFragment with the Event object
                         navigateToViewEventFragment(event);
                     } else {
@@ -145,7 +148,7 @@ public class QRScannerFragment extends Fragment {
     /**
      * Navigates to the event details view, passing the event data as a bundle.
      *
-     * @param documentSnapshot The Firestore document snapshot containing event details.
+     *
      */
 
     private void navigateToViewEventFragment(Event event) {
