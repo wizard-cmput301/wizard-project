@@ -2,6 +2,7 @@ package com.example.wizard_project.Fragments;
 
 import static com.example.wizard_project.MainActivity.LOCATION_PERMISSION_REQUEST_CODE;
 
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.Manifest;
 import android.net.Uri;
@@ -224,17 +225,35 @@ public class ViewEventFragment extends Fragment {
     }
 
     /**
-     * Handles the user's click to join the waiting list button.
+     * Handles the user's click to join the waiting list button. If the event requires geolocation,
+     * displays a warning dialog to confirm the user's consent before proceeding.
      */
     private void onJoinWaitingListClick() {
         // Check if geolocation is required for the event
         if (displayEvent.isGeolocation_requirement()) {
-            // Proceed with joining the waitlist if location is successfully fetched
-            getUserLocation(this::addUserToWaitingList);
+            // Show warning dialog
+            showGeolocationWarningDialog(() -> {
+                // Proceed to join the waitlist if user confirms
+                getUserLocation(this::addUserToWaitingList);
+            });
         } else {
             // Geolocation is not required; join waitlist directly
             addUserToWaitingList(null, null);
         }
+    }
+
+    /**
+     * Displays a warning dialog if geolocation is required to join the waiting list.
+     *
+     * @param onConfirm Callback executed if the user confirms.
+     */
+    private void showGeolocationWarningDialog(Runnable onConfirm) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Geolocation Required")
+                .setMessage("Joining the waiting list for this event requires sharing your location with the event organizer. Do you want to continue?")
+                .setPositiveButton("Yes", (dialog, which) -> onConfirm.run())
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     /**
