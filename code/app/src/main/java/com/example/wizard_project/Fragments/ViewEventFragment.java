@@ -153,6 +153,7 @@ public class ViewEventFragment extends Fragment {
                 }
             }
 
+
             @Override
             public void onFailure(Exception e) {
                 Log.e("ViewEventFragment", "Error checking waiting list status", e);
@@ -220,6 +221,7 @@ public class ViewEventFragment extends Fragment {
         binding.buttonDeleteEvent.setOnClickListener(v -> deleteEvent(navController));
 
         binding.buttonDeleteEventQrData.setVisibility(View.VISIBLE);
+        binding.buttonDeleteEventQrData.setOnClickListener(v -> deleteQRCode());
 
         hideUnusedButtonsForAdmin();
     }
@@ -347,11 +349,19 @@ public class ViewEventFragment extends Fragment {
             }
 
             @Override
+
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Error deleting event", Toast.LENGTH_SHORT).show();
                 Log.e("ViewEventFragment", "Event deletion failed", e);
             }
         });
+    }
+    /**
+     * Deleted the QR code data for the current event.
+     */
+    private void deleteQRCode() {
+        controller.updateField(displayEvent,"qrCode","");
+        Toast.makeText(requireContext(), "Event QR code deleted", Toast.LENGTH_SHORT).show();
     }
 
     /**
