@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     .circleCrop()
                     .into(profilePictureButton);
         } else if (!currentUser.getName().isEmpty()) {
-            int draw = currentUser.profileGenerator();
+            int draw = currentUser.profilePictureGenerator();
             Glide.with(this).load(draw).circleCrop().into(profilePictureButton);
         } else {
             Glide.with(this).load(R.drawable.noname).circleCrop().into(profilePictureButton);

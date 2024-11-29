@@ -67,17 +67,19 @@ public class HomeFragment extends Fragment {
      */
     private void setupUserRoles(NavController navController) {
         checkIfOrganizer(isOrganizer -> {
-            if (isOrganizer) {
-                configureOrganizerButton(navController);
-            } else {
-                binding.manageFacilityButton.setOnClickListener(v ->
-                        navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment)
-                );
+            if (binding != null) { // Ensure binding is valid (for test cases)
+                if (isOrganizer) {
+                    configureOrganizerButton(navController);
+                } else {
+                    binding.manageFacilityButton.setOnClickListener(v ->
+                            navController.navigate(R.id.action_HomeFragment_to_EditFacilityFragment)
+                    );
+                }
             }
         });
 
         checkIfAdmin(isAdmin -> {
-            if (binding != null) { // Ensure binding is still valid
+            if (binding != null) { // Ensure binding is still valid (for test cases)
                 binding.adminButton.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
                 if (isAdmin) {
                     binding.adminButton.setOnClickListener(v ->

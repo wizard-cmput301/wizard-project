@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +73,7 @@ public class EditProfileFragment extends Fragment {
                         .circleCrop()
                         .into(binding.imageviewProfilePicture);
             } else if (!currentUser.getName().isEmpty()){
-                int draw = currentUser.profileGenerator();
+                int draw = currentUser.profilePictureGenerator();
                 Glide.with(this).load(draw).circleCrop().into(binding.imageviewProfilePicture);
             } else {
                 Glide.with(this).load(R.drawable.noname).circleCrop().into(binding.imageviewProfilePicture);
@@ -177,27 +178,44 @@ public class EditProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        // Check if the result is a successful image picker result
         if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
 
-            if (!currentUser.getProfilePictureUri().isEmpty() && !currentUser.getProfilePath().isEmpty()){
-                String imagePath = currentUser.getProfilePath();
-                // Get a reference to the image in Firebase Storage
-                StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
-                // Delete the image
-                imageRef.delete();
+            // Ensure the fragment is attached to avoid context issues (implemented for testing)
+            if (!isAdded() || isDetached()) {
+                Log.w("EditProfileFragment", "Fragment not attached. Skipping image handling.");
+                return; // Skip image handling if the fragment is not attached
             }
 
-            Uri imageUri = data.getData();
-            currentUser.setProfilePictureUri(imageUri.toString());
-            // Load the selected image into the ImageView
-            Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.imageviewProfilePicture);
+            Uri imageUri = data.getData(); // Get the selected image URI
+            if (imageUri != null) {
 
-            // Upload the image to Firebase
-            PhotoHandler photo = new PhotoHandler();
+                // Delete the old profile picture if it exists
+                if (!currentUser.getProfilePictureUri().isEmpty() && !currentUser.getProfilePath().isEmpty()) {
+                    String imagePath = currentUser.getProfilePath();
+                    StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
+                    imageRef.delete();
+                }
 
-            photo.uploadImage(currentUser, imageUri,
-                    uri -> Toast.makeText(requireContext(), "Upload Success", Toast.LENGTH_SHORT).show(),
-                    e -> Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show());
+                // Update the user's profile picture URI
+                currentUser.setProfilePictureUri(imageUri.toString());
+                Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.imageviewProfilePicture);
+
+                // Upload the new profile picture to Firebase
+                PhotoHandler photo = new PhotoHandler();
+                photo.uploadImage(currentUser, imageUri,
+                        uri -> {
+                            if (isAdded() && !isDetached()) { // Double-check before interacting with the context
+                                Toast.makeText(requireContext(), "Upload Success", Toast.LENGTH_SHORT).show();
+                            }
+                        },
+                        e -> {
+                            if (isAdded() && !isDetached()) { // Double-check before interacting with the context
+                                Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
         }
     }
 

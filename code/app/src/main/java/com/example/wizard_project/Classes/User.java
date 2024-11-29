@@ -241,34 +241,36 @@ public class User {
         initializeDocumentReference();
     }
 
-    public int profileGenerator() {
-        int average = 0;
+    /**
+     * Generates a deterministic profile picture based on the user's name.
+     *
+     * @return The resource ID of the drawable representing the profile picture.
+     */
+    public int profilePictureGenerator() {
+        int sum = 0;
 
+        // Calculate the sum of ASCII values of the name
         for (int i = 0; i < (this.name).length(); i++) {
-            average = average + (this.name).charAt(i);
+            sum += (this.name).charAt(i);
         }
-        average = average%100;
-        if (average < 10){
-            return R.drawable.black;
-        } else if (average < 20) {
-            return R.drawable.blue;
-        } else if (average < 30) {
-            return R.drawable.green;
-        } else if (average < 40) {
-            return R.drawable.yellow;
-        } else if (average < 50) {
-            return R.drawable.orange;
-        } else if (average < 60) {
-            return R.drawable.pink;
-        } else if (average < 70) {
-            return R.drawable.darkred;
-        } else if (average < 80) {
-            return R.drawable.brown;
-        } else if (average < 90) {
-            return R.drawable.grey;
-        } else {
-            return R.drawable.event_wizard_logo;
-        }
-    }
+        // Calculate the modulo of the sum
+        int index = sum % 10;
 
+        // Array of drawable resources
+        int[] drawables = {
+                R.drawable.black,               // 0
+                R.drawable.blue,                // 1
+                R.drawable.green,               // 2
+                R.drawable.yellow,              // 3
+                R.drawable.orange,              // 4
+                R.drawable.pink,                // 5
+                R.drawable.darkred,             // 6
+                R.drawable.brown,               // 7
+                R.drawable.grey,                // 8
+                R.drawable.event_wizard_logo    // 9
+        };
+
+        // Return the profile picture based on the calculated index
+        return drawables[index];
+    }
 }
