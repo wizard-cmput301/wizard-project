@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 /**
  * ProfileUITest tests the functionality of the profile features of the app.
  *
- * <p>Includes unit tests for:</p>
+ * <p>Includes UI tests for:</p>
  * <ul>
  *   <li><strong>US 01.02.01</strong>: As an entrant, I want to provide my personal information such
  *   as name, email, and optional phone number in the app.</li>
@@ -46,6 +46,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class ProfileUITest {
 
+    // === RULES ===
+
     /**
      * Grants runtime permissions required for location-based features in tests.
      */
@@ -59,6 +61,8 @@ public class ProfileUITest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
+    // === LIFECYCLE METHODS ===
+
     @Before
     public void setUp() {
         Intents.init();
@@ -68,6 +72,8 @@ public class ProfileUITest {
     public void tearDown() {
         Intents.release();
     }
+
+    // === TEST METHODS ===
 
     /**
      * US 01.02.01
@@ -81,14 +87,14 @@ public class ProfileUITest {
         Espresso.onView(withId(R.id.button_edit_profile)).perform(ViewActions.click());
 
         // Enter profile information
-        Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("New Name"));
-        Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("newemail@example.com"));
+        Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("Jon Snow"));
+        Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("jsnow@winterfell.com"));
         Espresso.onView(withId(R.id.edittext_phone)).perform(ViewActions.clearText(), ViewActions.typeText("1234567890"));
 
         // Save profile changes and verify they are displayed
         Espresso.onView(withId(R.id.buttonSaveProfile)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.textview_profile_name)).check(matches(withText("New Name")));
-        Espresso.onView(withId(R.id.textview_profile_email)).check(matches(withText("newemail@example.com")));
+        Espresso.onView(withId(R.id.textview_profile_name)).check(matches(withText("Jon Snow")));
+        Espresso.onView(withId(R.id.textview_profile_email)).check(matches(withText("jsnow@winterfell.com")));
         Espresso.onView(withId(R.id.textview_profile_phone)).check(matches(withText("1234567890")));
     }
 
@@ -104,20 +110,20 @@ public class ProfileUITest {
         Espresso.onView(withId(R.id.button_edit_profile)).perform(ViewActions.click());
 
         // Enter initial profile information
-        Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("Initial Name"));
-        Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("initialemail@example.com"));
+        Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("Daenerys Targaryen"));
+        Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("dtargaryen@dragonstone.com"));
         Espresso.onView(withId(R.id.edittext_phone)).perform(ViewActions.clearText(), ViewActions.typeText("1234567890"));
         Espresso.onView(withId(R.id.buttonSaveProfile)).perform(ViewActions.click());
 
         // Verify initial profile details
-        Espresso.onView(withId(R.id.textview_profile_name)).check(matches(withText("Initial Name")));
-        Espresso.onView(withId(R.id.textview_profile_email)).check(matches(withText("initialemail@example.com")));
+        Espresso.onView(withId(R.id.textview_profile_name)).check(matches(withText("Daenerys Targaryen")));
+        Espresso.onView(withId(R.id.textview_profile_email)).check(matches(withText("dtargaryen@dragonstone.com")));
         Espresso.onView(withId(R.id.textview_profile_phone)).check(matches(withText("1234567890")));
 
         // Update profile information
         Espresso.onView(withId(R.id.button_edit_profile)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("Updated Name"));
-        Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("updatedemail@example.com"));
+        Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("Tyrion Lannister"));
+        Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("tlannister@kingslanding.com"));
         Espresso.onView(withId(R.id.edittext_phone)).perform(ViewActions.clearText(), ViewActions.typeText("0987654321"));
         Espresso.onView(withId(R.id.buttonSaveProfile)).perform(ViewActions.click());
 
@@ -127,8 +133,8 @@ public class ProfileUITest {
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
 
         // Verify the updated profile details are displayed
-        Espresso.onView(withId(R.id.textview_profile_name)).check(matches(withText("Updated Name")));
-        Espresso.onView(withId(R.id.textview_profile_email)).check(matches(withText("updatedemail@example.com")));
+        Espresso.onView(withId(R.id.textview_profile_name)).check(matches(withText("Tyrion Lannister")));
+        Espresso.onView(withId(R.id.textview_profile_email)).check(matches(withText("tlannister@kingslanding.com")));
         Espresso.onView(withId(R.id.textview_profile_phone)).check(matches(withText("0987654321")));
     }
 
