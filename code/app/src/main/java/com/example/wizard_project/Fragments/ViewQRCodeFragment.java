@@ -84,7 +84,7 @@ public class ViewQRCodeFragment extends Fragment {
         eventDocRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String qrCodeData = documentSnapshot.getString("qrCode");
-                if (qrCodeData != null) {
+                if (qrCodeData != null && !qrCodeData.isEmpty()) {
                     // QR Code exists, display it
                     displayQRCode(qrCodeData);
                     generateQRCodeButton.setVisibility(View.GONE); // Hide the Generate button
