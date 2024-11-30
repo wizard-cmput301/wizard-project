@@ -69,8 +69,8 @@ public class ViewFacilityFragment extends Fragment {
      * @param facility The facility being displayed.
      */
     private void bindFacilityData(Facility facility) {
-        binding.textviewFacilityName.setText(String.format("Name: %s", facility.getFacility_name()));
-        binding.textviewFacilityLocation.setText(String.format("Location: %s", facility.getFacility_location()));
+        binding.textviewFacilityName.setText(facility.getFacility_name());
+        binding.textviewFacilityLocation.setText(facility.getFacility_location());
 
         if (facility.getposterUri() != null) {
             Uri imageUri = Uri.parse(facility.getposterUri());

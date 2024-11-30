@@ -120,11 +120,11 @@ public class ProfileUITest {
         Espresso.onView(withId(R.id.textview_profile_email)).check(matches(withText("dtargaryen@dragonstone.com")));
         Espresso.onView(withId(R.id.textview_profile_phone)).check(matches(withText("1234567890")));
 
-        // Update profile information
+        // Update profile information, and deleting the phone number to show it is optional
         Espresso.onView(withId(R.id.button_edit_profile)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("Tyrion Lannister"));
         Espresso.onView(withId(R.id.edittext_email)).perform(ViewActions.clearText(), ViewActions.typeText("tlannister@kingslanding.com"));
-        Espresso.onView(withId(R.id.edittext_phone)).perform(ViewActions.clearText(), ViewActions.typeText("0987654321"));
+        Espresso.onView(withId(R.id.edittext_phone)).perform(ViewActions.clearText(), ViewActions.typeText(""));
         Espresso.onView(withId(R.id.buttonSaveProfile)).perform(ViewActions.click());
 
         // Hit the home button, then navigate back to the profile screen
@@ -135,7 +135,7 @@ public class ProfileUITest {
         // Verify the updated profile details are displayed
         Espresso.onView(withId(R.id.textview_profile_name)).check(matches(withText("Tyrion Lannister")));
         Espresso.onView(withId(R.id.textview_profile_email)).check(matches(withText("tlannister@kingslanding.com")));
-        Espresso.onView(withId(R.id.textview_profile_phone)).check(matches(withText("0987654321")));
+        Espresso.onView(withId(R.id.textview_profile_phone)).check(matches(withText("No phone number provided"))); // Placeholder for when user does not provide a phone number
     }
 
     /**
