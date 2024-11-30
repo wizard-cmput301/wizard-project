@@ -9,7 +9,6 @@ import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -18,7 +17,10 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
+import com.example.wizard_project.Classes.Entrant;
+import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.User;
+import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -26,6 +28,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private User currentUser;
     private User deleteUser;
     private boolean isAdminMode = false;
+    private EventController eventController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "User data not available", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Perform the entrant lottery draw for any eligible events.
+        checkEventDraw();
     }
 
     public void setProfilePic() {
@@ -303,6 +311,57 @@ public class MainActivity extends AppCompatActivity {
                     callback.onUserLoaded(user);
                 })
                 .addOnFailureListener(e -> Log.e("MainActivity", "Failed to load user", e));
+    }
+
+    /**
+     * Checks eligibility for entrant draw for all events.
+     * If conditions are met for an event, entrants are drawn.
+     */
+    public void checkEventDraw() {
+        eventController = new EventController();
+        LotterySystem lotterySystem = new LotterySystem();
+        Date currentDate = new Date();
+        eventController.fetchAllEvents(new EventController.eventCallback() {
+            @Override
+            public void onCallback(ArrayList<Event> events) {
+                for (Event event: events) {
+                    if (!event.isDrawn() && currentDate.after(event.getRegistration_close())) {
+                        eventController.getWaitingList(event.getEventId(), new EventController.WaitingListCallback() {
+                            @Override
+                            public void onSuccess(ArrayList<Map<String, String>> waitingList) {
+                                ArrayList<Entrant> entrants = new ArrayList<>();
+                                for (Map<String, String> entry : waitingList) {
+                                    // Parse data from waiting list
+                                    String name = entry.get("name");
+                                    String status = entry.get("status");
+                                    String userId = entry.get("userId");
+                                    Double latitude = entry.containsKey("latitude") ? Double.valueOf(entry.get("latitude")) : null;
+                                    Double longitude = entry.containsKey("longitude") ? Double.valueOf(entry.get("longitude")) : null;
+
+                                    entrants.add(new Entrant(name, status, userId, latitude, longitude));
+                                }
+                                eventController.getDrawCount(event, new EventController.drawCountCallback() {
+                                    @Override
+                                    public void onSuccess(int drawCount) {
+                                        lotterySystem.drawEntrants(event, entrants, drawCount);
+                                        event.setDrawn(true);
+                                        eventController.updateField(event, "isDrawn", "true");
+                                    }
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.e("DrawCountRetrievalError", "Error retrieving draw count: ", e);
+                                    }
+                                });
+                            }
+                            @Override
+                            public void onFailure(Exception e) {
+                                Log.e("WaitlistError", "Error retrieving waitlist: ", e);
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 
     /**

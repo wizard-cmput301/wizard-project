@@ -5,12 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.R;
@@ -77,13 +82,25 @@ public class BrowseEntrantAdapter extends ArrayAdapter<Entrant> implements Filte
         }
 
         // Get the views from the layout
+        ImageView profilePicture = convertView.findViewById(R.id.entrant_profile_image); // TODO: Set to the user's profile picture.
         TextView userName = convertView.findViewById(R.id.entrant_user_name);
         TextView userStatus = convertView.findViewById(R.id.entrant_status);
+        CheckBox checkbox = convertView.findViewById(R.id.entrant_checkbox);
 
         // Fill the views with data from the entrant
         Entrant entrant = getItem(position);
         userName.setText(entrant.getName());
         userStatus.setText(entrant.getStatus());
+
+
+        // Set the on-click listener for each checkbox.
+        ListView listView = (ListView) parent;
+        checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                listView.setItemChecked(position, b);
+            }
+        });
 
         return convertView;
     }
