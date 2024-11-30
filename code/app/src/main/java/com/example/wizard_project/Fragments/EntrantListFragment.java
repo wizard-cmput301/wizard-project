@@ -2,9 +2,11 @@ package com.example.wizard_project.Fragments;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -18,9 +20,11 @@ import com.example.wizard_project.Adapters.BrowseEntrantAdapter;
 import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Controllers.EventController;
+import com.example.wizard_project.LotterySystem;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEntrantListBinding;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
@@ -87,6 +91,81 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
             if (adapter != null) {
                 SampleAttendeeDialog dialog = SampleAttendeeDialog.newInstance(adapter.getCount());
                 dialog.show(getChildFragmentManager(), "SampleAttendeesDialog");
+            }
+        });
+
+        // Set up cancel entrant button
+        Button cancelEntrantButton = binding.cancelEntrantButton;
+        cancelEntrantButton.setOnClickListener(view -> {
+            SparseBooleanArray checkedEntrants = entrantListView.getCheckedItemPositions();
+            for (int i = 0; i < checkedEntrants.size(); i++) {
+                int itemKey = checkedEntrants.keyAt(i);
+
+                if (checkedEntrants.get(itemKey)) {
+                    Entrant currentEntrant = adapter.getItem(itemKey);
+
+                    if (currentEntrant.getStatus().equals("Selected")) {
+                        currentEntrant.setStatus("Cancelled");
+                        eventController.updateEntrantStatus(event, currentEntrant);
+                        Toast.makeText(requireContext(), "Successfully cancelled entrant: " + currentEntrant.getName(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            adapter.notifyDataSetChanged();
+        });
+
+        // Set up re-draw attendees button
+        Button redrawAttendeesButton = binding.redrawAttendeesButton;
+        redrawAttendeesButton.setOnClickListener(view -> {
+            ArrayList<Entrant> cancelledEntrants = new ArrayList<>();
+            ArrayList<Entrant> notSelectedEntrants = new ArrayList<>();
+            int selectedCount = 0;
+            // Get a list of cancelled and non-selected entrants.
+            for(int i = 0; i < adapter.getCount(); i++) {
+                Entrant entrant = adapter.getItem(i);
+
+                switch (entrant.getStatus()) {
+                    case "Cancelled":
+                        cancelledEntrants.add(entrant);
+                        break;
+                    case "Not Selected":
+                        notSelectedEntrants.add(entrant);
+                        break;
+                    case "Selected":
+                    case "Enrolled":
+                        selectedCount++;
+                        break;
+                }
+            }
+
+            // Only re-draw if there are cancelled entrants and there are replacements available.
+            if (cancelledEntrants.isEmpty()) {
+                Toast.makeText(requireContext(), "No replacements must be redrawn.", Toast.LENGTH_SHORT).show();
+            }
+            else if (notSelectedEntrants.isEmpty()) {
+                Toast.makeText(requireContext(), "No replacements are available.", Toast.LENGTH_SHORT).show(); // Edge case: Message shows when no entrants need to be redrawn, but there are cancelled entrants.
+            }
+            else {
+                int finalSelectedCount = selectedCount;
+                eventController.getDrawCount(event, new EventController.drawCountCallback() {
+                    @Override
+                    public void onSuccess(int drawCount) {
+                        int redrawCount = drawCount - finalSelectedCount;
+                        if (redrawCount == 0) {
+                            Toast.makeText(requireContext(), "No replacements must be redrawn.", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            LotterySystem lotterySystem = new LotterySystem();
+                            lotterySystem.drawEntrants(event, notSelectedEntrants, redrawCount);
+                            adapter.notifyDataSetChanged();
+                            Toast.makeText(requireContext(), redrawCount + " entrants have been redrawn.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e("DrawCountRetrievalError", "Error retrieving draw count: ", e);
+                    }
+                });
             }
         });
     }

@@ -20,6 +20,7 @@ public class Event implements Serializable {
     private boolean geolocation_requirement;
     private String event_image_path;
     private String posterUri;
+    private boolean isDrawn;
 
     /**
      * Constructor for initializing an Event instance with essential details.
@@ -141,5 +142,13 @@ public class Event implements Serializable {
 
     public void setEventId(String eventId) {
         this.eventId = eventId;
+    }
+
+    public boolean isDrawn() {
+        return isDrawn;
+    }
+
+    public void setDrawn(boolean drawn) {
+        isDrawn = drawn;
     }
 }

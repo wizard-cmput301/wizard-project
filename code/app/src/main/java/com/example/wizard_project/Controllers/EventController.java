@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.Classes.Event;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -51,6 +52,7 @@ public class EventController {
         eventData.put("eventId", newEvent.getEventId());
         eventData.put("posterUri", newEvent.getPosterUri());
         eventData.put("event_image_path", newEvent.getEvent_image_path());
+        eventData.put("isDrawn", false);
 
         // Create the event document in the database.
         db.collection("events").document(newEvent.getEventId()).set(eventData)
@@ -114,6 +116,7 @@ public class EventController {
         updatedData.put("event_location", event.getEvent_location());
         updatedData.put("event_image_path", event.getEvent_image_path());
         updatedData.put("posterUri", event.getPosterUri());
+        updatedData.put("isDrawn", event.isDrawn());
 
         db.collection("events").document(event.getEventId()).update(updatedData)
                 .addOnSuccessListener(aVoid -> {
@@ -139,6 +142,7 @@ public class EventController {
                     ArrayList<Map<String, String>> waitingList = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         Map<String, String> userData = new HashMap<>();
+                        userData.put("name", doc.getString("name")); // Get name
                         userData.put("userId", doc.getString("userId")); // Get device ID
                         userData.put("status", doc.getString("status")); // Get status
                         waitingList.add(userData);
@@ -163,6 +167,28 @@ public class EventController {
     }
 
     /**
+     * Gets the draw count for an event.
+     *
+     * @param event The event whose draw count is retrieved.
+     */
+    public void getDrawCount(Event event, drawCountCallback callback) {
+        db.collection("events").document(event.getEventId()).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists() && documentSnapshot.contains("drawCount")) {
+                        long drawCount = documentSnapshot.getLong("drawCount");
+                        callback.onSuccess((int) drawCount);
+                    }
+                    else {
+                        callback.onSuccess(Integer.MAX_VALUE); // Set to max value for now, implement condition prompting organizer to enter a draw count?
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("drawCountRetrievalError", "Error retrieving draw count: ", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
      * Updates a specific field of a event in the database.
      *
      * @param event  The event to update
@@ -170,8 +196,15 @@ public class EventController {
      * @param update The new value for the field.
      */
     public void updateField(Event event, String field, String update) {
-        db.collection("events").document(event.getEventId()).update(field, update)
-                .addOnFailureListener(e -> Log.e("FieldUpdateError", "Error updating field", e));
+        if (field.equals("isDrawn")) {
+            boolean drawn = Boolean.parseBoolean(update);
+            db.collection("events").document(event.getEventId()).update(field, drawn)
+                    .addOnFailureListener(e -> Log.e("FieldUpdateError", "Error updating field", e));
+        }
+        else {
+            db.collection("events").document(event.getEventId()).update(field, update)
+                    .addOnFailureListener(e -> Log.e("FieldUpdateError", "Error updating field", e));
+        }
     }
 
     /**
@@ -211,6 +244,7 @@ public class EventController {
         String eventLocation = document.getString("event_location");
         String eventImagePath = document.getString("event_image_path");
         String posterUri = document.getString("posterUri");
+        boolean isDrawn = Boolean.TRUE.equals(document.getBoolean("isDrawn"));
 
         Event event = new Event(
                 eventId,
@@ -227,7 +261,40 @@ public class EventController {
         );
         event.setPosterUri(posterUri);
         event.setEventId(eventId);
+        event.setDrawn(isDrawn);
         return event;
+    }
+
+    /**
+     * Fetches all events from the database.
+     * @param callback A callback interface containing a list with all events.
+     */
+    public void fetchAllEvents(eventCallback callback) {
+        ArrayList<Event> events = new ArrayList<Event>();
+        db.collection("events").get()
+                .addOnSuccessListener(documentSnapshots -> {
+                    if(!(documentSnapshots.isEmpty())) {
+                        for (DocumentSnapshot eventRef : documentSnapshots) {
+                            Event event = buildEventFromDocument(eventRef, eventRef.getString("facilityId"));
+                            events.add(event);
+                        }
+                    }
+                    callback.onCallback(events);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("EventRetrievalError", "Error retrieving events: ", e);
+                    callback.onCallback(events);
+                });
+    }
+
+    /**
+     * Updates an entrant's status attribute in the database.
+     * @param event The event the entrant is registered under.
+     * @param entrant The entrant whose status is updated.
+     */
+    public void updateEntrantStatus(Event event, Entrant entrant) {
+        db.collection("events").document(event.getEventId()).collection("waitingList").document(entrant.getUserId()).update("status", entrant.getStatus())
+                .addOnFailureListener(e -> Log.e("FieldUpdateError", "Error updating field", e));
     }
 
     // Callback Interfaces
@@ -255,6 +322,12 @@ public class EventController {
 
     public interface createCallback {
         void onSuccess();
+
+        void onFailure(Exception e);
+    }
+
+    public interface drawCountCallback {
+        void onSuccess(int drawCount);
 
         void onFailure(Exception e);
     }

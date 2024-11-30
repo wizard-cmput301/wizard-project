@@ -23,7 +23,7 @@
     <string name="qrCodebutton">QR Code Scanner</string>
     <string name="doneButton">Done</string>
     <string name="edit_facility_button">Edit Facility</string>
-    <string name="remove_entrant">Remove Entrant</string>
+    <string name="cancel_entrant">Cancel Entrant</string>
     <string name="send_notification">Send Notification</string>
     <string name="sample_attendees">Sample Attendees</string>
     <string name="upload_poster">Upload Poster</string>
@@ -43,6 +43,7 @@
     <string name="back_button">Back</string>
     <string name="generate_qr_code">Generate QR Code</string>
     <string name="download_qr_code">Download QR Code</string>
+    <string name="redraw_attendees_button">Redraw Attendees</string>
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
@@ -136,4 +137,5 @@
     <string name="cancelled_text">Cancelled</string>
     <string name="all_text">All</string>
     <string name="world_map_desc">World Map</string>
+    <string name="enrolled_text">Enrolled</string>
 </resources>

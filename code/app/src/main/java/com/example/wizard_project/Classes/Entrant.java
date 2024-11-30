@@ -47,4 +47,8 @@ public class Entrant {
     public Double getLongitude() {
         return longitude;
     }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
