@@ -9,6 +9,10 @@
         android:checkable="true"
         android:title="@string/cancelled_text" />
     <item
+        android:id="@+id/filter_enrolled"
+        android:checkable="true"
+        android:title="@string/enrolled_text" />
+    <item
         android:id="@+id/filter_not_selected"
         android:checkable="true"
         android:title="@string/not_selected_text" />
