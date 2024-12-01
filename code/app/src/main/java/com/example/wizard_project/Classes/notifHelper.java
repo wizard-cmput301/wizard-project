@@ -7,22 +7,21 @@ import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 
-public class Notification extends ContextWrapper {
+public class notifHelper extends AppCompatActivity {
 
-    public Notification(Context base) {
-        super(base);
-    }
 
-    private static String CHANNEL_NAME = "High priority channel";
-    private static String CHANNEL_ID = "com.example.notifications" + CHANNEL_NAME;
+    private String CHANNEL_NAME = "High priority channel";
+    private String CHANNEL_ID = "com.example.notifications" + CHANNEL_NAME;
 
-    public static void makeNotification(){
+    public void makeNotification(){
 
         NotificationChannel channel = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -43,8 +42,6 @@ public class Notification extends ContextWrapper {
 
         //checking if permission to send notifications
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
             // here to request the missing permissions, and then overriding
@@ -59,7 +56,6 @@ public class Notification extends ContextWrapper {
         notificationManager.notify(1, builder.build());
 
 
-
-
     }
 }
+

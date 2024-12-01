@@ -63,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
         // Check for location permissions
         checkAndRequestLocationPermissions();
 
+        //check for notification permission
+        checkNotifPermission();
+
         // Initialize Firebase components
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -265,7 +268,18 @@ public class MainActivity extends AppCompatActivity {
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
-
+    private void checkNotifPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+    }
     /**
      * Returns the current user's data.
      *

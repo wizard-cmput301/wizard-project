@@ -36,7 +36,7 @@ import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.LotterySystem;
-import com.example.wizard_project.Manifest;
+import com.example.wizard_project.Classes.notifHelper;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEntrantListBinding;
 
@@ -53,6 +53,7 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
     private EventController eventController;
     private BrowseEntrantAdapter adapter;
     private Event event;
+    private notifHelper notifhelper;
 
     /**
      * Creates a new instance of EntrantListFragment with event information passed.
@@ -134,7 +135,7 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
         //setup sending notification button
         Button makeNotif = binding.sendNotificationButton;
         makeNotif.setOnClickListener(view -> {
-            com.example.wizard_project.Classes.Notification.makeNotification();
+            notifhelper.makeNotification();
         });
 
 
