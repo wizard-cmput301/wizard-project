@@ -65,6 +65,19 @@ public class OrganizerUITest {
         Intents.release();
     }
 
+    // === HELPER METHODS ===
+
+    /**
+     * Waits for Firestore to sync changes.
+     */
+    private static void waitForFirestoreSync() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     // === TEST METHODS ===
 
     /**
@@ -73,8 +86,8 @@ public class OrganizerUITest {
      */
     @Test
     public void testBrowseEvents() throws InterruptedException {
-        // Giving Firebase two seconds to fetch the user data
-        Thread.sleep(2000);
+        // Wait for Firebase to fetch user data
+        waitForFirestoreSync();
 
         // Navigate to the facility screen
         Espresso.onView(withId(R.id.manage_facility_button)).perform(ViewActions.click());
@@ -92,9 +105,7 @@ public class OrganizerUITest {
         Espresso.onView(withId(R.id.edittext_name)).perform(ViewActions.clearText(), ViewActions.typeText("Red Keep"));
         Espresso.onView(withId(R.id.edittext_facility_location)).perform(ViewActions.clearText(), ViewActions.typeText("King's Landing"));
         Espresso.onView(withId(R.id.button_save_facility)).perform(ViewActions.click());
-
-        // Giving Firebase two seconds to save the facility data
-        Thread.sleep(2000);
+        waitForFirestoreSync();
 
         // Verify that the facility details are displayed
         Espresso.onView(withId(R.id.textview_facility_name)).check(matches(withText("Red Keep")));

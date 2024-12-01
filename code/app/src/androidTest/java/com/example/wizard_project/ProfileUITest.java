@@ -75,6 +75,19 @@ public class ProfileUITest {
         Intents.release();
     }
 
+    // === HELPER METHODS ===
+
+    /**
+     * Waits for Firestore to sync changes.
+     */
+    private static void waitForFirestoreSync() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     // === TEST METHODS ===
 
     /**
@@ -82,7 +95,10 @@ public class ProfileUITest {
      * Ensures that the entrant can enter their name, email, and phone number in the profile.
      */
     @Test
-    public void testAddPersonalInformation() {
+    public void testAddPersonalInformation() throws InterruptedException {
+        // Wait for Firebase to fetch user data
+        waitForFirestoreSync();
+
         // Navigate to the edit profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
@@ -106,8 +122,8 @@ public class ProfileUITest {
      */
     @Test
     public void testUpdateProfileInformation() throws InterruptedException {
-        // Giving Firebase two seconds to fetch the user data
-        Thread.sleep(2000);
+        // Wait for Firebase to fetch user data
+        waitForFirestoreSync();
 
         // Navigate to the edit profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
@@ -134,6 +150,7 @@ public class ProfileUITest {
 
         // Hit the home button, then navigate back to the profile screen
         Espresso.onView(withId(R.id.nav_home)).perform(ViewActions.click());
+        waitForFirestoreSync();
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
 
@@ -149,8 +166,8 @@ public class ProfileUITest {
      */
     @Test
     public void testUploadProfilePicture() throws InterruptedException {
-        // Giving Firebase two seconds to fetch the user data
-        Thread.sleep(2000);
+        // Wait for Firebase to fetch user data
+        waitForFirestoreSync();
 
         // Navigate to the edit profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
@@ -171,6 +188,7 @@ public class ProfileUITest {
 
         // Navigate away and return to profile screen to verify persistence
         Espresso.onView(withId(R.id.nav_home)).perform(ViewActions.click());
+        waitForFirestoreSync();
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
 
@@ -184,8 +202,8 @@ public class ProfileUITest {
      */
     @Test
     public void testRemoveProfilePicture() throws InterruptedException {
-        // Giving Firebase two seconds to fetch the user data
-        Thread.sleep(2000);
+        // Wait for Firebase to fetch user data
+        waitForFirestoreSync();
 
         // Navigate to the edit profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
@@ -217,6 +235,7 @@ public class ProfileUITest {
 
         // Navigate away and back to ensure the change persists
         Espresso.onView(withId(R.id.nav_home)).perform(ViewActions.click());
+        waitForFirestoreSync();
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
 

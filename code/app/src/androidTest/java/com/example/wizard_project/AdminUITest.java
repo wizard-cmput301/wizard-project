@@ -1,18 +1,21 @@
 package com.example.wizard_project;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import android.Manifest;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.ListView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -30,11 +33,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * AdminUITest tests the functionality of the admin features of the app.
  *
  * <p>Includes UI tests for:</p>
  * <ul>
+ *   <li><strong>US 03.01.01</strong>: As an administrator, I want to be able to remove events.</li>
  *   <li><strong>US 03.04.01</strong>: As an administrator, I want to be able to browse events.</li>
  *   <li><strong>US 03.05.01</strong>: As an administrator, I want to be able to browse profiles.</li>
  *   <li><strong>US 03.06.01</strong>: As an administrator, I want to be able to browse images.</li>
@@ -67,7 +75,6 @@ public class AdminUITest {
 
     // === LIFECYCLE METHODS ===
 
-
     @BeforeClass
     public static void setUpClass() {
         // Retrieve the device ID
@@ -85,6 +92,18 @@ public class AdminUITest {
         // Reset the admin flag for the user
         updateAdminFlag(false);
     }
+
+    @Before
+    public void setUp() {
+        Intents.init();
+    }
+
+    @After
+    public void tearDown() {
+        Intents.release();
+    }
+
+    // === HELPER METHODS ===
 
     /**
      * Retrieves the device ID of the current device.
@@ -116,8 +135,6 @@ public class AdminUITest {
         waitForFirestoreSync();
     }
 
-    // === HELPER METHODS ===
-
     /**
      * Waits for Firestore to sync changes.
      */
@@ -127,16 +144,6 @@ public class AdminUITest {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    @Before
-    public void setUp() {
-        Intents.init();
-    }
-
-    @After
-    public void tearDown() {
-        Intents.release();
     }
 
     /**
@@ -219,6 +226,60 @@ public class AdminUITest {
         return count[0];
     }
 
+    /**
+     * Adds a test event to Firestore.
+     *
+     * @return The document ID of the test event.
+     */
+    private String addTestEvent() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Setting the eventId to "1" so it always appears first in the event list
+        String eventId = "1";
+
+        Map<String, Object> testEvent = new HashMap<>();
+        testEvent.put("eventId", eventId);
+        testEvent.put("event_name", "The Red Wedding");
+        testEvent.put("event_description", "Join House Frey for a feast like no other!");
+        testEvent.put("event_price", 0);
+        testEvent.put("event_max_entrants", 100);
+        testEvent.put("geolocation_requirement", true);
+        testEvent.put("registration_open", new Date());
+        testEvent.put("registration_close", new Date(System.currentTimeMillis() + 3600000)); // +1 hour
+        testEvent.put("event_location", "Test Files");
+
+        final String[] documentId = {null};
+        db.collection("events")
+                .document(eventId)
+                .set(testEvent)
+                .addOnSuccessListener(aVoid -> Log.d("Test", "Test event added successfully: " + eventId))
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to add test event: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+        return eventId;
+    }
+
+    /**
+     * Checks if an event exists in Firestore.
+     *
+     * @param eventId The document ID of the event to check.
+     * @return True if the event exists, false otherwise.
+     */
+    private boolean checkEventExistsInFirestore(String eventId) {
+        final boolean[] exists = {false};
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> exists[0] = documentSnapshot.exists())
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to check event existence: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+        return exists[0];
+    }
+
     // === TEST METHODS ===
 
     /**
@@ -227,15 +288,13 @@ public class AdminUITest {
      */
     @Test
     public void testBrowseEvents() throws InterruptedException {
-        // Giving Firebase two seconds to fetch the user data, so that the admin button is displayed
-        Thread.sleep(2000);
+        // Wait for Firebase to fetch user data
+        waitForFirestoreSync();
 
         // Navigate to the admin events tab
-        Espresso.onView(withId(R.id.admin_button)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.nav_events_browse)).perform(ViewActions.click());
-
-        // Wait for Firebase to fetch events
-        Thread.sleep(2000);
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_events_browse)).perform(click());
+        waitForFirestoreSync();
 
         // Verify that the event list is displayed
         onView(withId(R.id.event_listview)).check(matches(isDisplayed()));
@@ -252,15 +311,13 @@ public class AdminUITest {
      */
     @Test
     public void testBrowseProfiles() throws InterruptedException {
-        // Giving Firebase two seconds to fetch the user data, so that the admin button is displayed
-        Thread.sleep(2000);
+        // Wait for Firebase to fetch user data
+        waitForFirestoreSync();
 
         // Navigate to the admin profiles tab
-        Espresso.onView(withId(R.id.admin_button)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.nav_profile_browse)).perform(ViewActions.click());
-
-        // Wait for Firebase to fetch profiles
-        Thread.sleep(2000);
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_profile_browse)).perform(click());
+        waitForFirestoreSync();
 
         // Verify that the event list is displayed
         onView(withId(R.id.profilelist_listview)).check(matches(isDisplayed()));
@@ -278,14 +335,12 @@ public class AdminUITest {
     @Test
     public void testBrowseImages() throws InterruptedException {
         // Wait for Firebase to fetch user data
-        Thread.sleep(2000);
+        waitForFirestoreSync();
 
         // Navigate to the admin images tab
-        Espresso.onView(withId(R.id.admin_button)).perform(ViewActions.click());
-        Espresso.onView(withId(R.id.nav_image_browse)).perform(ViewActions.click());
-
-        // Wait for Firebase to fetch images
-        Thread.sleep(2000);
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_image_browse)).perform(click());
+        waitForFirestoreSync();
 
         // Verify that the image list is displayed
         onView(withId(R.id.imageListView)).check(matches(isDisplayed()));
@@ -294,5 +349,30 @@ public class AdminUITest {
         int firebaseImageCount = getFirebaseImageCount();
         int uiImageCount = getListViewItemCount(R.id.imageListView);
         assertEquals("Number of images in Firebase Storage does not match the UI", firebaseImageCount, uiImageCount);
+    }
+
+    /**
+     * US 03.06.01
+     * Ensures that admin can delete events.
+     */
+    @Test
+    public void testDeleteEvent() throws InterruptedException {
+        // Add a test event to Firestore and wait for Firebase to sync
+        String testEventId = addTestEvent();
+        waitForFirestoreSync();
+
+        // Navigate to the admin events tab
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_events_browse)).perform(click());
+        waitForFirestoreSync();
+
+        // Click on the test event, and then click on the delete button
+        onView(withText("The Red Wedding")).perform(click());
+        onView(withId(R.id.button_delete_event)).perform(click());
+        waitForFirestoreSync();
+
+        // Verify the event is no longer in Firestore
+        boolean eventExists = checkEventExistsInFirestore(testEventId);
+        assertFalse("The test event should be deleted.", eventExists);
     }
 }
