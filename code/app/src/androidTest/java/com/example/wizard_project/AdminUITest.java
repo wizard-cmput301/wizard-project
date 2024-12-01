@@ -43,6 +43,7 @@ import java.util.Map;
  * <p>Includes UI tests for:</p>
  * <ul>
  *   <li><strong>US 03.01.01</strong>: As an administrator, I want to be able to remove events.</li>
+ *   <li><strong>US 03.02.01</strong>: As an administrator, I want to be able to remove profiles.</li>
  *   <li><strong>US 03.04.01</strong>: As an administrator, I want to be able to browse events.</li>
  *   <li><strong>US 03.05.01</strong>: As an administrator, I want to be able to browse profiles.</li>
  *   <li><strong>US 03.06.01</strong>: As an administrator, I want to be able to browse images.</li>
@@ -234,8 +235,8 @@ public class AdminUITest {
     private String addTestEvent() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Setting the eventId to "1" so it always appears first in the event list
-        String eventId = "1";
+        // Setting a fixed eventId for consistency in tests (event appears at the top of the event list)
+        String eventId = "0";
 
         Map<String, Object> testEvent = new HashMap<>();
         testEvent.put("eventId", eventId);
@@ -279,6 +280,61 @@ public class AdminUITest {
         waitForFirestoreSync();
         return exists[0];
     }
+
+    /**
+     * Adds a test profile to Firestore.
+     *
+     * @return The document ID of the test profile.
+     */
+    private String addTestProfile() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Setting a fixed deviceID for consistency in tests (profile appears at the top of the profile list)
+        String deviceId = "0";
+
+        Map<String, Object> testProfile = new HashMap<>();
+        testProfile.put("deviceId", deviceId);
+        testProfile.put("name", "Hodor");
+        testProfile.put("email", "");
+        testProfile.put("phoneNumber", "");
+        testProfile.put("IsAdmin", false);
+        testProfile.put("IsEntrant", false);
+        testProfile.put("isOrganizer", false);
+        testProfile.put("photoId", "");
+        testProfile.put("profilePath", "");
+
+        final String[] documentId = {null};
+        db.collection("users")
+                .document(deviceId)
+                .set(testProfile)
+                .addOnSuccessListener(aVoid -> Log.d("Test", "Test profile added successfully: " + deviceId))
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to add test profile: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+        return deviceId;
+    }
+
+    /**
+     * Checks if a profile exists in Firestore.
+     *
+     * @param profileId The document ID of the profile to check.
+     * @return True if the profile exists, false otherwise.
+     */
+    private boolean checkProfileExistsInFirestore(String profileId) {
+        final boolean[] exists = {false};
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(profileId).get()
+                .addOnSuccessListener(documentSnapshot -> exists[0] = documentSnapshot.exists())
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to check profile existence: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+        return exists[0];
+    }
+
 
     // === TEST METHODS ===
 
@@ -353,7 +409,7 @@ public class AdminUITest {
 
     /**
      * US 03.06.01
-     * Ensures that admin can delete events.
+     * Ensures that admin can remove events.
      */
     @Test
     public void testDeleteEvent() throws InterruptedException {
@@ -368,11 +424,38 @@ public class AdminUITest {
 
         // Click on the test event, and then click on the delete button
         onView(withText("The Red Wedding")).perform(click());
+        waitForFirestoreSync();
         onView(withId(R.id.button_delete_event)).perform(click());
         waitForFirestoreSync();
 
         // Verify the event is no longer in Firestore
         boolean eventExists = checkEventExistsInFirestore(testEventId);
         assertFalse("The test event should be deleted.", eventExists);
+    }
+
+    /**
+     * US 03.02.01
+     * Ensures that admin can remove profiles.
+     */
+    @Test
+    public void testDeleteProfile() throws InterruptedException {
+        // Add a test profile to Firestore and wait for Firebase to sync
+        String testProfileId = addTestProfile();
+        waitForFirestoreSync();
+
+        // Navigate to the admin profiles tab
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_profile_browse)).perform(click());
+        waitForFirestoreSync();
+
+        // Click on the test profile, and then click on the delete button
+        onView(withText("Hodor")).perform(click());
+        waitForFirestoreSync();
+        onView(withId(R.id.button_delete_profile)).perform(click());
+        waitForFirestoreSync();
+
+        // Verify the profile is no longer in Firestore
+        boolean profileExists = checkProfileExistsInFirestore(testProfileId);
+        assertFalse("The test profile should be deleted.", profileExists);
     }
 }

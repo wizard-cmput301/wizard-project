@@ -77,7 +77,7 @@ public class AdminProfileViewFragment extends Fragment {
                     if (task.isSuccessful()) {
                         profileList.clear(); // Clear existing profiles before loading new ones
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            User profile = new User(null, null, null, false, false, false, null, null, null, null);
+                            User profile = new User(null, null, false, false, false, null, null, null, null);
                             profile.setUserData(document);
                             profileList.add(profile); // Add each user profile to the list
                         }

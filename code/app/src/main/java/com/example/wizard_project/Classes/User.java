@@ -12,13 +12,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class User {
     private final FirebaseFirestore db;
     private String deviceId;
+    private String name;
     private String email;
-    private String location;
+    private String phoneNumber;
     private boolean isAdmin;
     private boolean isEntrant;
     private boolean isOrganizer;
-    private String name;
-    private String phoneNumber;
     private String profilePictureUri;
     private String profilePath;
     private DocumentReference userRef;
@@ -31,7 +30,6 @@ public class User {
         db = FirebaseFirestore.getInstance();
         this.deviceId = "";
         this.email = "";
-        this.location = "";
         this.isAdmin = false;
         this.isEntrant = false;
         this.isOrganizer = false;
@@ -47,7 +45,6 @@ public class User {
      *
      * @param deviceId          The user's device ID.
      * @param email             The user's email.
-     * @param location          The user's location.
      * @param isAdmin           Whether the user is an admin.
      * @param isEntrant         Whether the user is an entrant.
      * @param isOrganizer       Whether the user is an organizer.
@@ -56,11 +53,10 @@ public class User {
      * @param profilePictureUri The URI for the user's profile picture.
      * @param profilePath       The URI for the user's profile picture.
      */
-    public User(String deviceId, String email, String location, boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri, String profilePath) {
+    public User(String deviceId, String email,boolean isAdmin, boolean isEntrant, boolean isOrganizer, String name, String phoneNumber, String profilePictureUri, String profilePath) {
         db = FirebaseFirestore.getInstance();
         this.deviceId = deviceId;
         this.email = email;
-        this.location = location;
         this.isAdmin = isAdmin;
         this.isEntrant = isEntrant;
         this.isOrganizer = isOrganizer;
@@ -89,15 +85,6 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
         updateFieldInDatabase("email", email);
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-        updateFieldInDatabase("location", location);
     }
 
     public boolean isAdmin() {
@@ -169,7 +156,6 @@ public class User {
     public void deleteUser() {
         this.deviceId = "";
         this.email = "";
-        this.location = "";
         this.isAdmin = false;
         this.isEntrant = false;
         this.isOrganizer = false;
@@ -230,7 +216,6 @@ public class User {
     public void setUserData(DocumentSnapshot document) {
         this.deviceId = (String) document.get("deviceId");
         this.email = (String) document.get("email");
-        this.location = (String) document.get("location");
         this.isAdmin = (Boolean) document.get("IsAdmin");
         this.isEntrant = (Boolean) document.get("IsEntrant");
         this.isOrganizer = (Boolean) document.get("isOrganizer");
