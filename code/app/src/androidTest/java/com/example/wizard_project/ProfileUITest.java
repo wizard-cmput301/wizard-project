@@ -40,6 +40,8 @@ import org.junit.runner.RunWith;
  *   <li><strong>US 01.03.02</strong>: As an entrant, I want to remove a profile picture if needed.</li>
  * </ul>
  *
+ * <p>The tests use <code>Thread.sleep()</code> for Firebase synchronization delays.
+ *
  * <p>Ensure animations are disabled on the test device to avoid test failures.
  * <a href="https://developer.android.com/training/testing/espresso/setup#:~:text=Studio%20is%20recommended.-,Set%20up%20your%20test%20environment,Transition%20animation%20scale">Espresso setup instructions</a></p>
  */
@@ -49,14 +51,14 @@ public class ProfileUITest {
     // === RULES ===
 
     /**
-     * Grants runtime permissions required for location-based features in tests.
+     * Grants runtime permissions required for the app.
      */
     @Rule
-    public GrantPermissionRule grantPermissionRule =
-            GrantPermissionRule.grant(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            );
+    public GrantPermissionRule grantPermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
+    );
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
@@ -103,7 +105,10 @@ public class ProfileUITest {
      * Ensures that profile details can be updated and persist upon returning to the screen.
      */
     @Test
-    public void testUpdateProfileInformation() {
+    public void testUpdateProfileInformation() throws InterruptedException {
+        // Giving Firebase two seconds to fetch the user data
+        Thread.sleep(2000);
+
         // Navigate to the edit profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
@@ -143,7 +148,10 @@ public class ProfileUITest {
      * Ensures that the user can upload a profile picture.
      */
     @Test
-    public void testUploadProfilePicture() {
+    public void testUploadProfilePicture() throws InterruptedException {
+        // Giving Firebase two seconds to fetch the user data
+        Thread.sleep(2000);
+
         // Navigate to the edit profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());
@@ -175,7 +183,10 @@ public class ProfileUITest {
      * Ensures that the user can remove an uploaded profile picture.
      */
     @Test
-    public void testRemoveProfilePicture() {
+    public void testRemoveProfilePicture() throws InterruptedException {
+        // Giving Firebase two seconds to fetch the user data
+        Thread.sleep(2000);
+
         // Navigate to the edit profile screen
         Espresso.onView(withId(R.id.enter_event_button)).perform(ViewActions.click());
         Espresso.onView(withId(R.id.profilePictureButton)).perform(ViewActions.click());

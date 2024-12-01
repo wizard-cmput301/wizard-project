@@ -30,6 +30,8 @@ import org.junit.runner.RunWith;
  *   <li><strong>TODO: US 02.04.02</strong>: As an organizer I want to update an event poster to provide visual information to entrants.</li>
  * </ul>
  *
+ * <p>The tests use <code>Thread.sleep()</code> for Firebase synchronization delays.
+ *
  * <p>Ensure animations are disabled on the test device to avoid test failures.
  * <a href="https://developer.android.com/training/testing/espresso/setup#:~:text=Studio%20is%20recommended.-,Set%20up%20your%20test%20environment,Transition%20animation%20scale">Espresso setup instructions</a></p>
  */
@@ -39,14 +41,14 @@ public class OrganizerUITest {
     // === RULES ===
 
     /**
-     * Grants runtime permissions required for location-based features in tests.
+     * Grants runtime permissions required for the app.
      */
     @Rule
-    public GrantPermissionRule grantPermissionRule =
-            GrantPermissionRule.grant(
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            );
+    public GrantPermissionRule grantPermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
+    );
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
@@ -64,6 +66,7 @@ public class OrganizerUITest {
     }
 
     // === TEST METHODS ===
+
     /**
      * US 02.01.03
      * Ensures that a user is able to create and manage a facility profile.
@@ -105,13 +108,6 @@ public class OrganizerUITest {
         Espresso.onView(withId(R.id.textview_facility_name)).check(matches(withText("Red Keep")));
         Espresso.onView(withId(R.id.textview_facility_location)).check(matches(withText("King's Landing")));
     }
-
-
-
-
-
-
-
 
 
 }

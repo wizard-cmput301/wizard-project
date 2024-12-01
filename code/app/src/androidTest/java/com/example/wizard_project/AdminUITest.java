@@ -7,8 +7,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertEquals;
 
 import android.Manifest;
+import android.provider.Settings;
 import android.widget.ListView;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.intent.Intents;
@@ -21,7 +23,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,8 +40,7 @@ import org.junit.runner.RunWith;
  *   <li><strong>US 03.06.01</strong>: As an administrator, I want to be able to browse images.</li>
  * </ul>
  *
- * <p>For admin tests to pass, the test device must have <code>isAdmin = True</code> set in Firestore.<br>
- * The tests temporarily use <code>Thread.sleep()</code> for Firebase synchronization delays.
+ * <p>The tests use <code>Thread.sleep()</code> for Firebase synchronization delays.
  *
  * <p>Ensure animations are disabled on the test device to avoid test failures.
  * <a href="https://developer.android.com/training/testing/espresso/setup#:~:text=Studio%20is%20recommended.-,Set%20up%20your%20test%20environment,Transition%20animation%20scale">Espresso setup instructions</a></p>
@@ -45,22 +48,86 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class AdminUITest {
 
+    private static String currentUserId;
+
     // === RULES ===
 
     /**
-     * Grants runtime permissions required for location-based features in tests.
+     * Grants runtime permissions required for the app.
      */
     @Rule
-    public GrantPermissionRule grantPermissionRule =
-            GrantPermissionRule.grant(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            );
+    public GrantPermissionRule grantPermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
+    );
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
     // === LIFECYCLE METHODS ===
+
+
+    @BeforeClass
+    public static void setUpClass() {
+        // Retrieve the device ID
+        currentUserId = retrieveDeviceId();
+        if (currentUserId == null) {
+            throw new RuntimeException("Device ID could not be retrieved.");
+        }
+
+        // Set the admin flag for the user
+        updateAdminFlag(true);
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        // Reset the admin flag for the user
+        updateAdminFlag(false);
+    }
+
+    /**
+     * Retrieves the device ID of the current device.
+     *
+     * @return The device ID.
+     */
+    private static String retrieveDeviceId() {
+        final String[] deviceId = {null};
+        ActivityScenario.launch(MainActivity.class).onActivity(activity ->
+                deviceId[0] = Settings.Secure.getString(activity.getContentResolver(), Settings.Secure.ANDROID_ID)
+        );
+        return deviceId[0];
+    }
+
+    /**
+     * Updates the admin flag in Firestore for the current user.
+     *
+     * @param isAdmin True to set as admin, false otherwise.
+     */
+    private static void updateAdminFlag(boolean isAdmin) {
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUserId)
+                .update("IsAdmin", isAdmin)
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to update admin flag: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+    }
+
+    // === HELPER METHODS ===
+
+    /**
+     * Waits for Firestore to sync changes.
+     */
+    private static void waitForFirestoreSync() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     @Before
     public void setUp() {
@@ -72,47 +139,22 @@ public class AdminUITest {
         Intents.release();
     }
 
-    // === HELPER METHODS ===
-
     /**
-     * Retrieves the number of events stored in Firebase.
+     * Fetches the item count from a Firebase Firestore collection.
      *
-     * @return The count of events in Firebase.
+     * @param collectionName The name of the Firestore collection.
+     * @return The number of items in the collection.
      */
-    private int getFirebaseEventCount() {
+    private int getFirebaseCollectionCount(String collectionName) {
         final int[] count = {0};
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("events")
+        FirebaseFirestore.getInstance()
+                .collection(collectionName)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         count[0] = task.getResult().size();
                     } else {
-                        throw new RuntimeException("Failed to fetch events from Firebase");
-                    }
-                });
-
-        waitForFirebase(count);
-        return count[0];
-    }
-
-    /**
-     * Retrieves the number of profiles stored in Firebase.
-     *
-     * @return The count of profiles in Firebase.
-     */
-    private int getFirebaseProfileCount() {
-        final int[] count = {0};
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        count[0] = task.getResult().size();
-                    } else {
-                        throw new RuntimeException("Failed to fetch profiles from Firebase");
+                        throw new RuntimeException("Failed to fetch items from " + collectionName);
                     }
                 });
 
@@ -199,7 +241,7 @@ public class AdminUITest {
         onView(withId(R.id.event_listview)).check(matches(isDisplayed()));
 
         // Verify Firebase event count matches UI event count (ie. admins can see all the app's events)
-        int firebaseEventCount = getFirebaseEventCount();
+        int firebaseEventCount = getFirebaseCollectionCount("events");
         int uiEventCount = getListViewItemCount(R.id.event_listview);
         assertEquals("Number of events in Firebase does not match the UI", firebaseEventCount, uiEventCount);
     }
@@ -224,7 +266,7 @@ public class AdminUITest {
         onView(withId(R.id.profilelist_listview)).check(matches(isDisplayed()));
 
         // Verify Firebase profile count matches UI profile count (ie. admins can see all the app's profiles)
-        int firebaseProfileCount = getFirebaseProfileCount();
+        int firebaseProfileCount = getFirebaseCollectionCount("users");
         int uiProfileCount = getListViewItemCount(R.id.profilelist_listview);
         assertEquals("Number of events in Firebase does not match the UI", firebaseProfileCount, uiProfileCount);
     }
