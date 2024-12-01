@@ -1,5 +1,15 @@
 package com.example.wizard_project.Fragments;
 
+import static android.icu.number.NumberRangeFormatter.with;
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -11,9 +21,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
+import android.app.NotificationManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.wizard_project.Adapters.BrowseEntrantAdapter;
@@ -21,6 +36,7 @@ import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.LotterySystem;
+import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEntrantListBinding;
 
@@ -52,6 +68,7 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
         fragment.setArguments(args);
         return fragment;
     }
+
 
     @Override
     public void setDrawAmount(int drawAmount) {
@@ -237,4 +254,6 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
         });
         popupMenu.show();
     }
+
+
 }
