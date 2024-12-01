@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,15 +68,19 @@ public class EditProfileFragment extends Fragment {
 
             String profilePictureUri = currentUser.getProfilePictureUri();
             if (profilePictureUri != null && !profilePictureUri.isEmpty()) {
+                // Load existing profile picture
                 Glide.with(requireContext())
                         .load(Uri.parse(profilePictureUri))
                         .circleCrop()
                         .into(binding.imageviewProfilePicture);
+                binding.framelayoutProfilePictureContainer.setClickable(false); // Disable image picker
             } else if (!currentUser.getName().isEmpty()){
-                int draw = currentUser.profileGenerator();
+                int draw = currentUser.profilePictureGenerator();
                 Glide.with(this).load(draw).circleCrop().into(binding.imageviewProfilePicture);
+                binding.framelayoutProfilePictureContainer.setClickable(true); // Enable image picker
             } else {
                 Glide.with(this).load(R.drawable.noname).circleCrop().into(binding.imageviewProfilePicture);
+                binding.framelayoutProfilePictureContainer.setClickable(true); // Enable image picker
             }
         }
     }
@@ -85,7 +90,13 @@ public class EditProfileFragment extends Fragment {
      */
     private void setupListeners() {
         // Profile picture selection
-        binding.framelayoutProfilePictureContainer.setOnClickListener(v -> openImagePicker());
+        binding.framelayoutProfilePictureContainer.setOnClickListener(v -> {
+            if (currentUser != null && currentUser.getProfilePictureUri() != null && !currentUser.getProfilePictureUri().isEmpty()) {
+                Toast.makeText(requireContext(), "Please delete your current profile picture before uploading a new one.", Toast.LENGTH_SHORT).show();
+            } else {
+                openImagePicker();
+            }
+        });
 
         // Save profile changes
         binding.buttonSaveProfile.setOnClickListener(v -> saveUserProfile());
@@ -158,7 +169,9 @@ public class EditProfileFragment extends Fragment {
                     aVoid -> {
                         currentUser.setProfilePictureUri("");
                         currentUser.setProfilePath("");
-                        binding.imageviewProfilePicture.setImageResource(R.drawable.event_wizard_logo); // Set default image
+
+                        binding.imageviewProfilePicture.setImageResource(R.drawable.noname); // Default placeholder
+                        binding.framelayoutProfilePictureContainer.setClickable(true); // Enable image picker
                         Toast.makeText(requireContext(), "Profile picture deleted successfully.", Toast.LENGTH_SHORT).show();
                     },
                     e -> Toast.makeText(requireContext(), "Failed to delete profile picture.", Toast.LENGTH_SHORT).show());
@@ -177,27 +190,44 @@ public class EditProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        // Check if the result is a successful image picker result
         if (requestCode == PhotoHandler.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
 
-            if (!currentUser.getProfilePictureUri().isEmpty() && !currentUser.getProfilePath().isEmpty()){
-                String imagePath = currentUser.getProfilePath();
-                // Get a reference to the image in Firebase Storage
-                StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
-                // Delete the image
-                imageRef.delete();
+            // Ensure the fragment is attached to avoid context issues (implemented for testing)
+            if (!isAdded() || isDetached()) {
+                Log.w("EditProfileFragment", "Fragment not attached. Skipping image handling.");
+                return; // Skip image handling if the fragment is not attached
             }
 
-            Uri imageUri = data.getData();
-            currentUser.setProfilePictureUri(imageUri.toString());
-            // Load the selected image into the ImageView
-            Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.imageviewProfilePicture);
+            Uri imageUri = data.getData(); // Get the selected image URI
+            if (imageUri != null) {
 
-            // Upload the image to Firebase
-            PhotoHandler photo = new PhotoHandler();
+                // Delete the old profile picture if it exists
+                if (!currentUser.getProfilePictureUri().isEmpty() && !currentUser.getProfilePath().isEmpty()) {
+                    String imagePath = currentUser.getProfilePath();
+                    StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
+                    imageRef.delete();
+                }
 
-            photo.uploadImage(currentUser, imageUri,
-                    uri -> Toast.makeText(requireContext(), "Upload Success", Toast.LENGTH_SHORT).show(),
-                    e -> Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show());
+                // Update the user's profile picture URI
+                currentUser.setProfilePictureUri(imageUri.toString());
+                Glide.with(requireContext()).load(imageUri).circleCrop().into(binding.imageviewProfilePicture);
+
+                // Upload the new profile picture to Firebase
+                PhotoHandler photo = new PhotoHandler();
+                photo.uploadImage(currentUser, imageUri,
+                        uri -> {
+                            if (isAdded() && !isDetached()) { // Double-check before interacting with the context
+                                Toast.makeText(requireContext(), "Upload Success", Toast.LENGTH_SHORT).show();
+                            }
+                        },
+                        e -> {
+                            if (isAdded() && !isDetached()) { // Double-check before interacting with the context
+                                Toast.makeText(requireContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
         }
     }
 

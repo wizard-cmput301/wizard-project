@@ -121,7 +121,7 @@ public class ProfileFragment extends Fragment {
                         .circleCrop()
                         .into(profilepic);
             } else if (!currentUser.getName().isEmpty()){
-                int draw = currentUser.profileGenerator();
+                int draw = currentUser.profilePictureGenerator();
                 Glide.with(this).load(draw).circleCrop().into(profilepic);
             } else {
                 Glide.with(this).load(R.drawable.noname).circleCrop().into(profilepic);

@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:orientation="vertical"
     android:padding="16dp"
     tools:context="Fragments.EditEventFragment">
 
@@ -17,9 +16,9 @@
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="10dp"
         android:src="@drawable/example_event"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Edit Event Image Button -->
     <Button
@@ -30,16 +29,15 @@
         android:drawableLeft="@drawable/folder_icon"
         android:text="@string/upload_poster_label"
         android:textColor="@color/lighter_gray"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/event_edit_imageview"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/event_edit_imageview" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Divider Line -->
     <View
         android:id="@+id/view_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="10dp"
         android:background="@color/lighter_gray"
         app:layout_constraintTop_toBottomOf="@id/event_edit_poster_button" />
 
@@ -48,12 +46,11 @@
         android:id="@+id/linearlayout_event_name_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginVertical="10dp"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_divider"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_divider">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Event Name Label -->
         <TextView
@@ -72,9 +69,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:hint="@string/enter_event_name"
             android:background="@null"
             android:gravity="start"
-            android:hint="@string/enter_event_name"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -92,12 +89,11 @@
         android:id="@+id/linearlayout_event_description_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginVertical="10dp"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_divider_2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_divider_2">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Price Label -->
         <TextView
@@ -116,9 +112,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:hint="@string/enter_event_description"
             android:background="@null"
             android:gravity="start"
-            android:hint="@string/enter_event_description"
             android:maxLines="3"
             android:minLines="3"
             android:textSize="16sp" />
@@ -138,12 +134,11 @@
         android:id="@+id/linearlayout_event_price_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginVertical="10dp"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_divider_3"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_divider_3">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Price Label -->
         <TextView
@@ -162,9 +157,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:hint="@string/enter_event_price"
             android:background="@null"
             android:gravity="start"
-            android:hint="@string/enter_event_price"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -272,7 +267,6 @@
         android:id="@+id/linearlayout_event_registration_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -328,6 +322,28 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/view_name_divider_7"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/lighter_gray"
+        app:layout_constraintTop_toBottomOf="@id/linearlayout_event_registration_row" />
+
+    <!-- Delete Event Image Button -->
+    <Button
+        android:id="@+id/button_delete_event_image"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/lighter_purple"
+        android:text="@string/delete_event_image"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_name_divider_7" />
+
     <!-- Save Event Button -->
     <Button
         android:id="@+id/button_save_event"
@@ -340,5 +356,5 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearlayout_event_registration_row" />
+        app:layout_constraintTop_toBottomOf="@id/button_delete_event_image" />
 </androidx.constraintlayout.widget.ConstraintLayout>

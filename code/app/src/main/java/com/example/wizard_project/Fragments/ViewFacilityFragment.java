@@ -1,6 +1,5 @@
 package com.example.wizard_project.Fragments;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
@@ -32,10 +30,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
  * - Admin: Can view and delete selected facilities from the admin facility list.
  */
 public class ViewFacilityFragment extends Fragment {
+    private final FacilityController controller = new FacilityController();
     private FragmentViewFacilityBinding binding;
     private User currentUser; // The current logged-in user
     private Facility displayFacility; // The facility being viewed
-    private final FacilityController controller = new FacilityController();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,14 +67,14 @@ public class ViewFacilityFragment extends Fragment {
      * @param facility The facility being displayed.
      */
     private void bindFacilityData(Facility facility) {
-        binding.textviewFacilityName.setText(String.format("Name: %s", facility.getFacility_name()));
-        binding.textviewFacilityLocation.setText(String.format("Location: %s", facility.getFacility_location()));
+        binding.textviewFacilityName.setText(facility.getFacility_name());
+        binding.textviewFacilityLocation.setText(facility.getFacility_location());
 
-        if (facility.getposterUri() != null) {
-            Uri imageUri = Uri.parse(facility.getposterUri());
-            Glide.with(requireContext()).load(imageUri).into(binding.imageviewFacilityImage);
+        // Load existing facility image or placeholder if not available
+        if (displayFacility.getposterUri() != null && !displayFacility.getposterUri().isEmpty()) {
+            Glide.with(requireContext()).load(displayFacility.getposterUri()).into(binding.imageviewFacilityImage);
         } else {
-            binding.imageviewFacilityImage.setImageResource(R.drawable.example_facility); // Default image
+            binding.imageviewFacilityImage.setImageResource(R.drawable.example_facility); // Placeholder
         }
     }
 
@@ -91,7 +89,7 @@ public class ViewFacilityFragment extends Fragment {
 
         if (previousDestinationId == R.id.AdminFragmentFacilityView && currentUser.isAdmin()) {
             setupAdminView();
-        } else if (previousDestinationId == R.id.HomeFragment && currentUser.isOrganizer()) {
+        } else if ((previousDestinationId == R.id.HomeFragment || previousDestinationId == R.id.EditFacilityFragment) && currentUser.isOrganizer()) {
             setupOrganizerView(navController);
         } else {
             setupEntrantView();
@@ -198,12 +196,10 @@ public class ViewFacilityFragment extends Fragment {
             if (item.getItemId() == R.id.nav_home) {
                 navController.navigate(R.id.HomeFragment);
                 return true;
-            }
-            else if (item.getItemId() == R.id.nav_add_event) {
+            } else if (item.getItemId() == R.id.nav_add_event) {
                 navController.navigate(R.id.EditEventFragment);
                 return true;
-            }
-            else {
+            } else {
                 navController.navigate(R.id.EventListFragment);
                 return true;
             }

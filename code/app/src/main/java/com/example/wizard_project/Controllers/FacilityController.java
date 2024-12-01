@@ -91,9 +91,10 @@ public class FacilityController {
     }
 
     /**
-     * Updates a facility's details in the database.
+     * Updates facility details in the database.
      *
-     * @param facility The facility object with updated values.
+     * @param facility The facility object containing updated values.
+     * @param callback Callback for handling success or failure.
      */
     public void updateFacility(Facility facility, updateCallback callback) {
         if (facility.getFacilityId() == null || facility.getFacilityId().isEmpty()) {
@@ -104,6 +105,8 @@ public class FacilityController {
         Map<String, Object> updates = new HashMap<>();
         updates.put("name", facility.getFacility_name());
         updates.put("location", facility.getFacility_location());
+        updates.put("facility_imagePath", facility.getFacilityImagePath());
+        updates.put("posterUri", facility.getposterUri());
 
         db.collection("facilities").document(facility.getFacilityId()).update(updates)
                 .addOnSuccessListener(aVoid -> {
