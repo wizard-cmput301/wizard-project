@@ -103,6 +103,7 @@
     <string name="registration_dates_label">Registration Dates</string>
     <string name="admin_fragment_label_event">admin_fragment_label_event</string>
     <string name="enter_event_name">Enter Event Name</string>
+    <string name="delete_event_image">Delete Event Image</string>
     <string name="enter_event_price">Enter Price</string>
     <string name="enter_event_description">Enter Event Description</string>
     <string name="event_max_entrants_label">Max Entrants</string>
@@ -112,7 +113,7 @@
     <string name="event_name">Event Name</string>
     <string name="event_description">Event Description</string>
     <string name="event_location">Event Location</string>
-    <string name="event_availability">Event Availability</string>
+    <string name="event_max_entrants">Event Max Entrants</string>"
     <string name="event_deadline">Event Deadline</string>
 
     <!-- Edit Facility -->

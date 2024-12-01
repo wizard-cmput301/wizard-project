@@ -68,15 +68,19 @@ public class EditProfileFragment extends Fragment {
 
             String profilePictureUri = currentUser.getProfilePictureUri();
             if (profilePictureUri != null && !profilePictureUri.isEmpty()) {
+                // Load existing profile picture
                 Glide.with(requireContext())
                         .load(Uri.parse(profilePictureUri))
                         .circleCrop()
                         .into(binding.imageviewProfilePicture);
+                binding.framelayoutProfilePictureContainer.setClickable(false); // Disable image picker
             } else if (!currentUser.getName().isEmpty()){
                 int draw = currentUser.profilePictureGenerator();
                 Glide.with(this).load(draw).circleCrop().into(binding.imageviewProfilePicture);
+                binding.framelayoutProfilePictureContainer.setClickable(true); // Enable image picker
             } else {
                 Glide.with(this).load(R.drawable.noname).circleCrop().into(binding.imageviewProfilePicture);
+                binding.framelayoutProfilePictureContainer.setClickable(true); // Enable image picker
             }
         }
     }
@@ -86,7 +90,13 @@ public class EditProfileFragment extends Fragment {
      */
     private void setupListeners() {
         // Profile picture selection
-        binding.framelayoutProfilePictureContainer.setOnClickListener(v -> openImagePicker());
+        binding.framelayoutProfilePictureContainer.setOnClickListener(v -> {
+            if (currentUser != null && currentUser.getProfilePictureUri() != null && !currentUser.getProfilePictureUri().isEmpty()) {
+                Toast.makeText(requireContext(), "Please delete your current profile picture before uploading a new one.", Toast.LENGTH_SHORT).show();
+            } else {
+                openImagePicker();
+            }
+        });
 
         // Save profile changes
         binding.buttonSaveProfile.setOnClickListener(v -> saveUserProfile());
@@ -159,7 +169,9 @@ public class EditProfileFragment extends Fragment {
                     aVoid -> {
                         currentUser.setProfilePictureUri("");
                         currentUser.setProfilePath("");
-                        binding.imageviewProfilePicture.setImageResource(R.drawable.event_wizard_logo); // Set default image
+
+                        binding.imageviewProfilePicture.setImageResource(R.drawable.noname); // Default placeholder
+                        binding.framelayoutProfilePictureContainer.setClickable(true); // Enable image picker
                         Toast.makeText(requireContext(), "Profile picture deleted successfully.", Toast.LENGTH_SHORT).show();
                     },
                     e -> Toast.makeText(requireContext(), "Failed to delete profile picture.", Toast.LENGTH_SHORT).show());

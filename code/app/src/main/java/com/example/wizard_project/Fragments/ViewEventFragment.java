@@ -2,9 +2,9 @@ package com.example.wizard_project.Fragments;
 
 import static com.example.wizard_project.MainActivity.LOCATION_PERMISSION_REQUEST_CODE;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,8 +26,8 @@ import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.Event;
 import com.example.wizard_project.Classes.LatLng;
 import com.example.wizard_project.Classes.User;
-import com.example.wizard_project.Controllers.WaitingListController;
 import com.example.wizard_project.Controllers.EventController;
+import com.example.wizard_project.Controllers.WaitingListController;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentViewEventBinding;
@@ -36,7 +36,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 /**
  * ViewEventFragment displays an event's information and adjusts the UI based on the user's role:
@@ -96,7 +95,16 @@ public class ViewEventFragment extends Fragment {
         binding.textviewEventName.setText(event.getEvent_name());
         binding.textviewEventDescription.setText(event.getEvent_description());
         binding.textviewEventPrice.setText(String.format("$%s", event.getEvent_price()));
-        binding.textviewMaxEntrants.setText(String.valueOf(event.getEvent_max_entrants()));
+
+        // Display "No Entrant Limit" if event does not have a limit
+        String maxEntrantsText = event.getEvent_max_entrants() == Integer.MAX_VALUE
+                ? "No Entrant Limit"
+                : String.valueOf(event.getEvent_max_entrants());
+        binding.textviewMaxEntrants.setText(maxEntrantsText);
+
+        binding.textviewGeolocationRequirement.setText(
+                event.isGeolocation_requirement() ? "Geolocation required" : "No geolocation required"
+        );
 
         binding.textviewGeolocationRequirement.setText(
                 event.isGeolocation_requirement() ? "Geolocation required" : "No geolocation required"
@@ -107,12 +115,13 @@ public class ViewEventFragment extends Fragment {
                 " - " + dateFormat.format(event.getRegistration_close());
         binding.textviewRegistrationDates.setText(registrationDates);
 
-        if (event.getPosterUri() != null) {
+        // Load event image
+        if (event.getPosterUri() != null && !event.getPosterUri().isEmpty()) {
             Glide.with(requireContext())
                     .load(Uri.parse(event.getPosterUri()))
                     .into(binding.imageviewEventImage);
         } else {
-            binding.imageviewEventImage.setImageResource(R.drawable.example_event);
+            binding.imageviewEventImage.setImageResource(R.drawable.example_event); // Placeholder image
         }
     }
 
@@ -127,7 +136,7 @@ public class ViewEventFragment extends Fragment {
 
         if (previousDestinationId == R.id.AdminFragmentEventView && currentUser.isAdmin()) {
             setupAdminView(navController);
-        } else if (previousDestinationId == R.id.EventListFragment && currentUser.isOrganizer()) {
+        } else if ((previousDestinationId == R.id.EventListFragment || previousDestinationId == R.id.EditEventFragment) && currentUser.isOrganizer()) {
             setupOrganizerView(navController);
         } else {
             setupEntrantView();
@@ -356,11 +365,12 @@ public class ViewEventFragment extends Fragment {
             }
         });
     }
+
     /**
      * Deleted the QR code data for the current event.
      */
     private void deleteQRCode() {
-        controller.updateField(displayEvent,"qrCode","");
+        controller.updateField(displayEvent, "qrCode", "");
         Toast.makeText(requireContext(), "Event QR code deleted", Toast.LENGTH_SHORT).show();
     }
 

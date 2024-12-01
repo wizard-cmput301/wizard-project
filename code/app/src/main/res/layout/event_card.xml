@@ -3,24 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="120dp"
-    android:layout_marginHorizontal="50dp"
-    android:layout_marginVertical="10dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@android:color/transparent"
     app:cardCornerRadius="15dp"
-    app:cardElevation="10dp">
+    app:cardElevation="0dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/card_outline">
 
         <!-- Event Image -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/event_card_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_marginVertical="10dp"
             android:layout_marginStart="10dp"
+            android:layout_marginVertical="10dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/example_event"
+            android:contentDescription="@string/event_image_desc"
             app:shapeAppearanceOverlay="@style/rounded_event_image" />
 
         <!-- Event Name -->
@@ -29,10 +31,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/event_card_image"
-            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
+            android:layout_marginStart="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/event_name"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <!-- Event Description -->
@@ -41,8 +45,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/event_card_title"
-            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
+            android:layout_marginStart="10dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:minLines="2"
@@ -55,31 +59,38 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/event_card_description"
-            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
+            android:layout_marginStart="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/event_location"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
 
-        <!-- Event Availability -->
+        <!-- Event Max Entrants -->
         <TextView
-            android:id="@+id/event_card_availability"
+            android:id="@+id/event_card_max_entrants"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/event_card_location"
-            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/event_card_image"
-            android:text="@string/event_availability"
-            android:textSize="11sp" />
+            android:layout_marginStart="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/event_max_entrants"
+            android:textSize="12sp" />
 
-        <!-- Event Deadline -->
+
+        <!-- Event Registration -->
         <TextView
-            android:id="@+id/event_card_deadline"
+            android:id="@+id/event_card_registration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/event_card_availability"
-            android:layout_marginStart="10dp"
+            android:layout_below="@id/event_card_max_entrants"
             android:layout_toEndOf="@id/event_card_image"
-            android:text="@string/event_deadline"
-            android:textSize="11sp" />
+            android:layout_marginStart="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/event_registration_label"
+            android:textSize="12sp" />
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
