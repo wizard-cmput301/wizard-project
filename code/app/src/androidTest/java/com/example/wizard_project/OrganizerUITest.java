@@ -26,6 +26,8 @@ import org.junit.runner.RunWith;
  * <p>Includes UI tests for:</p>
  * <ul>
  *   <li><strong>US 02.01.03</strong>: As an organizer, I want to create and manage my facility profile.</li>
+ *   <li><strong>TODO: US 02.04.01</strong>: As an organizer I want to upload an event poster to provide visual information to entrants.</li>
+ *   <li><strong>TODO: US 02.04.02</strong>: As an organizer I want to update an event poster to provide visual information to entrants.</li>
  * </ul>
  *
  * <p>Ensure animations are disabled on the test device to avoid test failures.
