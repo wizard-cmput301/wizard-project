@@ -36,6 +36,7 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * AdminUITest tests the functionality of the admin features of the app.
@@ -44,6 +45,7 @@ import java.util.Map;
  * <ul>
  *   <li><strong>US 03.01.01</strong>: As an administrator, I want to be able to remove events.</li>
  *   <li><strong>US 03.02.01</strong>: As an administrator, I want to be able to remove profiles.</li>
+ *   <li><strong>US 03.03.01</strong>: As an administrator, I want to be able to remove images.</li>
  *   <li><strong>US 03.04.01</strong>: As an administrator, I want to be able to browse events.</li>
  *   <li><strong>US 03.05.01</strong>: As an administrator, I want to be able to browse profiles.</li>
  *   <li><strong>US 03.06.01</strong>: As an administrator, I want to be able to browse images.</li>
@@ -335,8 +337,129 @@ public class AdminUITest {
         return exists[0];
     }
 
+    /**
+     * Uploads a test image to Firebase Storage.
+     *
+     * @return The path of the uploaded test image.
+     */
+    private String uploadTestImage() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference().child("images");
+
+        // Setting a fixed image name for consistency in tests (image appears at the top of the image list)
+        // NOTE: the image is not always the first item in the list, but I tested it ~20 times and it
+        //       was always in the first 5 positions of the list (this means the test never had to scroll
+        //       to find the image in the list). If testDeleteImage() fails, it's probably because the
+        //       image is not in the first 5 positions of the list.
+        String testImageName = "0";
+        String testImagePath = "images/" + testImageName;
+
+        byte[] mockImageData = new byte[1024];
+        StorageReference testImageRef = storageRef.child(testImageName);
+
+        final boolean[] uploadSuccess = {false};
+        testImageRef.putBytes(mockImageData)
+                .addOnSuccessListener(taskSnapshot -> uploadSuccess[0] = true)
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to upload test image: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+        return "/" + testImagePath;
+    }
+
+    private boolean checkImageExistsInStorage(String imagePath) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference imageRef = storage.getReference().child(imagePath.substring(1)); // Remove leading "/"
+
+        final boolean[] exists = {false};
+        imageRef.getMetadata()
+                .addOnSuccessListener(metadata -> exists[0] = true)
+                .addOnFailureListener(e -> exists[0] = false);
+
+        waitForFirestoreSync();
+        return exists[0];
+    }
 
     // === TEST METHODS ===
+
+    /**
+     * US 03.01.01
+     * Ensures that admin can remove events.
+     */
+    @Test
+    public void testRemoveEvent() throws InterruptedException {
+        // Add a test event to Firestore and wait for Firebase to sync
+        String testEventId = addTestEvent();
+        waitForFirestoreSync();
+
+        // Navigate to the admin events tab
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_events_browse)).perform(click());
+        waitForFirestoreSync();
+
+        // Click on the test event, and then click on the delete button
+        onView(withText("The Red Wedding")).perform(click());
+        waitForFirestoreSync();
+        onView(withId(R.id.button_delete_event)).perform(click());
+        waitForFirestoreSync();
+
+        // Verify the event is no longer in Firestore
+        boolean eventExists = checkEventExistsInFirestore(testEventId);
+        assertFalse("The test event should be deleted.", eventExists);
+    }
+
+    /**
+     * US 03.02.01
+     * Ensures that admin can remove profiles.
+     */
+    @Test
+    public void testRemoveProfile() throws InterruptedException {
+        // Add a test profile to Firestore and wait for Firebase to sync
+        String testProfileId = addTestProfile();
+        waitForFirestoreSync();
+
+        // Navigate to the admin profiles tab
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_profile_browse)).perform(click());
+        waitForFirestoreSync();
+
+        // Click on the test profile, and then click on the delete button
+        onView(withText("Hodor")).perform(click());
+        waitForFirestoreSync();
+        onView(withId(R.id.button_delete_profile)).perform(click());
+        waitForFirestoreSync();
+
+        // Verify the profile is no longer in Firestore
+        boolean profileExists = checkProfileExistsInFirestore(testProfileId);
+        assertFalse("The test profile should be deleted.", profileExists);
+    }
+
+    /**
+     * US 03.03.01
+     * Ensures that admin can remove images.
+     */
+    @Test
+    public void testRemoveImage() throws InterruptedException {
+        // Add a test image to Firestore and wait for Firebase to sync
+        String testImagePath = uploadTestImage();
+        waitForFirestoreSync();
+
+        // Navigate to the admin images tab
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_image_browse)).perform(click());
+        waitForFirestoreSync();
+
+        // Click on the test image, and then confirm the deletion in the alert dialog
+        onView(withText(testImagePath)).perform(click());
+        waitForFirestoreSync();
+        onView(withText("Yes")).perform(click());
+        waitForFirestoreSync();
+
+        // Verify the image is no longer in Firestore
+        boolean imageExists = checkImageExistsInStorage(testImagePath);
+        assertFalse("The test image should be deleted.", imageExists);
+    }
 
     /**
      * US 03.04.01
@@ -405,57 +528,5 @@ public class AdminUITest {
         int firebaseImageCount = getFirebaseImageCount();
         int uiImageCount = getListViewItemCount(R.id.imageListView);
         assertEquals("Number of images in Firebase Storage does not match the UI", firebaseImageCount, uiImageCount);
-    }
-
-    /**
-     * US 03.06.01
-     * Ensures that admin can remove events.
-     */
-    @Test
-    public void testDeleteEvent() throws InterruptedException {
-        // Add a test event to Firestore and wait for Firebase to sync
-        String testEventId = addTestEvent();
-        waitForFirestoreSync();
-
-        // Navigate to the admin events tab
-        Espresso.onView(withId(R.id.admin_button)).perform(click());
-        Espresso.onView(withId(R.id.nav_events_browse)).perform(click());
-        waitForFirestoreSync();
-
-        // Click on the test event, and then click on the delete button
-        onView(withText("The Red Wedding")).perform(click());
-        waitForFirestoreSync();
-        onView(withId(R.id.button_delete_event)).perform(click());
-        waitForFirestoreSync();
-
-        // Verify the event is no longer in Firestore
-        boolean eventExists = checkEventExistsInFirestore(testEventId);
-        assertFalse("The test event should be deleted.", eventExists);
-    }
-
-    /**
-     * US 03.02.01
-     * Ensures that admin can remove profiles.
-     */
-    @Test
-    public void testDeleteProfile() throws InterruptedException {
-        // Add a test profile to Firestore and wait for Firebase to sync
-        String testProfileId = addTestProfile();
-        waitForFirestoreSync();
-
-        // Navigate to the admin profiles tab
-        Espresso.onView(withId(R.id.admin_button)).perform(click());
-        Espresso.onView(withId(R.id.nav_profile_browse)).perform(click());
-        waitForFirestoreSync();
-
-        // Click on the test profile, and then click on the delete button
-        onView(withText("Hodor")).perform(click());
-        waitForFirestoreSync();
-        onView(withId(R.id.button_delete_profile)).perform(click());
-        waitForFirestoreSync();
-
-        // Verify the profile is no longer in Firestore
-        boolean profileExists = checkProfileExistsInFirestore(testProfileId);
-        assertFalse("The test profile should be deleted.", profileExists);
     }
 }
