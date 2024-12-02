@@ -29,6 +29,7 @@ import java.util.List;
 public class BrowseEntrantAdapter extends ArrayAdapter<Entrant> implements Filterable {
     private final List<Entrant> originalList; // Full list of entrants
     private final List<Entrant> filteredList; // Filtered list of entrants
+    private final List<Entrant> checkedList; // Filtered list of entrants
     private final Context context;
 
     /**
@@ -41,6 +42,7 @@ public class BrowseEntrantAdapter extends ArrayAdapter<Entrant> implements Filte
         super(context, 0, entrants);
         this.context = context;
         this.originalList = entrants;
+        this.checkedList = new ArrayList<Entrant>();
         this.filteredList = new ArrayList<>(entrants); // Initialize filteredList with a copy of originalList
     }
 
@@ -93,16 +95,27 @@ public class BrowseEntrantAdapter extends ArrayAdapter<Entrant> implements Filte
         userStatus.setText(entrant.getStatus());
 
 
-        // Set the on-click listener for each checkbox.
-        ListView listView = (ListView) parent;
-        checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                listView.setItemChecked(position, b);
+        checkbox.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            Entrant entrant_checked = getItem(position);
+            if (isChecked) {
+                if (!checkedList.contains(entrant_checked)) {
+                    checkedList.add(entrant_checked); // Add to checked list
+                }
+            } else {
+                checkedList.remove(entrant_checked); // Remove from checked list
             }
         });
 
         return convertView;
+    }
+
+    /**
+     * Returns a list of all checked entrants.
+     *
+     * @return A list of entrants whose checkboxes are checked.
+     */
+    public List<Entrant> getCheckedItems() {
+        return new ArrayList<>(checkedList);
     }
 
     /**

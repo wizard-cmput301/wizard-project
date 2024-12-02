@@ -19,18 +19,21 @@ import androidx.navigation.ui.NavigationUI;
 import com.bumptech.glide.Glide;
 import com.example.wizard_project.Classes.Entrant;
 import com.example.wizard_project.Classes.Event;
+import com.example.wizard_project.Classes.NotificationHandler;
 import com.example.wizard_project.Classes.User;
 import com.example.wizard_project.Controllers.EventController;
 import com.example.wizard_project.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         String deviceId = retrieveDeviceId();
         initializeUser(deviceId, () -> {
             if (currentUser != null) {
+                fetchUserNotifications(currentUser.getDeviceId());
                 setProfilePic();
             } else {
                 Toast.makeText(this, "User data not available", Toast.LENGTH_SHORT).show();
@@ -155,7 +159,67 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    /**
+     * Fetches the Notifications from the database that are associated with the given User
+     * creates a new list of messages to be displayed and sends those messages as notifications
+     * after the user has been notified it will delete those notifications from the database.
+     * @param userId the ID of the current user
+     */
+    private void fetchUserNotifications(String userId) {
+        db.collection("notifications")
+                .whereEqualTo("Userid", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            List<String> messages = new ArrayList<>();
+                            List<String> notficationID = new ArrayList<>();
+                            querySnapshot.forEach(document -> {
+                                String message = document.getString("message");
+                                if (message != null) {
+                                    messages.add(message);
+                                    notficationID.add(document.getId());
+                                }
+                            });
+                            displayNotifications(messages);
+                            DeleteNotifications(notficationID);
+                        } else {
+                            Toast.makeText(this, "No notifications found for your account.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    /**
+     * Deletes the given notifications that have been displayed
+     * @param notficationID List of all the notifications to be deleted
+     */
+    private void DeleteNotifications(List<String> notficationID) {
+        for (String docId : notficationID) {
+            db.collection("notifications").document(docId).delete()
+                    .addOnSuccessListener(aVoid -> {
+                        // Log or toast the success
+                        System.out.println("Notification deleted: " + docId);
+                    })
+                    .addOnFailureListener(e -> {
+                        // Log or handle the error
+                        System.err.println("Error deleting notification: " + e.getMessage());
+                    });
+        }
+    }
+    /**
+     * Displays a list of messages as notifications on the current system
+     * @param messages List of all the messages to be sent as notifications
+     */
+    private void displayNotifications(List<String> messages) {
+        NotificationHandler notifyHandler = new NotificationHandler(this);
 
+        for (String message : messages) {
+            notifyHandler.sendNotification("Welcome Back!", message);
+        }
+    }
     /**
      * Configures the bottom navigation bar for general use (default).
      */
@@ -216,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                     currentUser.setUserData(document);
                     // If the document does not exist, create a new user
                 } else {
-                    currentUser = new User(deviceId, "", "", false, false, false, "", "", "", "");
+                    currentUser = new User(deviceId, "", false, false, false, "", "", "", "");
                     Map<String, Object> userData = createUserDataMap(currentUser);
                     db.collection("users").document(deviceId).set(userData)
                             .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())
@@ -244,7 +308,6 @@ public class MainActivity extends AppCompatActivity {
         Map<String, Object> userData = new HashMap<>();
         userData.put("deviceId", user.getDeviceId());
         userData.put("email", user.getEmail());
-        userData.put("location", user.getLocation());
         userData.put("IsAdmin", user.isAdmin());
         userData.put("IsEntrant", user.isEntrant());
         userData.put("isOrganizer", user.isOrganizer());

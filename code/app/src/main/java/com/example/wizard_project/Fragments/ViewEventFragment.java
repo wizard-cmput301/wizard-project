@@ -94,7 +94,12 @@ public class ViewEventFragment extends Fragment {
     private void bindEventData(Event event) {
         binding.textviewEventName.setText(event.getEvent_name());
         binding.textviewEventDescription.setText(event.getEvent_description());
-        binding.textviewEventPrice.setText(String.format("$%s", event.getEvent_price()));
+
+        // Display "Free" if event price is 0, otherwise display the price
+        String eventPriceText = event.getEvent_price() == 0
+                ? "Free"
+                : String.valueOf(event.getEvent_price());
+        binding.textviewEventPrice.setText(eventPriceText);
 
         // Display "No Entrant Limit" if event does not have a limit
         String maxEntrantsText = event.getEvent_max_entrants() == Integer.MAX_VALUE
