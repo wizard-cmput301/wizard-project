@@ -3,6 +3,7 @@ package com.example.wizard_project.Fragments;
 import static android.icu.number.NumberRangeFormatter.with;
 import static androidx.core.content.ContextCompat.getSystemService;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -39,9 +41,12 @@ import com.example.wizard_project.LotterySystem;
 import com.example.wizard_project.MainActivity;
 import com.example.wizard_project.R;
 import com.example.wizard_project.databinding.FragmentEntrantListBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -130,6 +135,27 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
             }
             adapter.notifyDataSetChanged();
         });
+        // set up send notification button
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Button sendNotificationButton  = binding.sendNotificationButton;
+        sendNotificationButton.setOnClickListener(view -> {
+            NotificationMessageDialog(message -> {
+                // This block runs after the user enters a message and presses "Send"
+                if (!message.isEmpty()) {
+                    List<Entrant> checked_users = adapter.getCheckedItems();
+                    for (Entrant entrant : checked_users) {
+
+                        Map<String, Object> notificationData = new HashMap<>();
+                        notificationData.put("Userid", entrant.getUserId());
+                        notificationData.put("message", message);
+
+                        db.collection("notifications").add(notificationData);
+                    }
+                }
+            });
+
+        });
 
         // Set up re-draw attendees button
         Button redrawAttendeesButton = binding.redrawAttendeesButton;
@@ -185,6 +211,29 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
                 });
             }
         });
+    }
+    /**
+     * Creates a dialog box that will the user can put in the notification to send to Users
+     */
+    private void NotificationMessageDialog(NotificationMessageCallback callback) {
+        EditText inputField = new EditText(requireContext());
+        inputField.setHint("Enter your notification message");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Send Notification")
+                .setView(inputField)
+                .setPositiveButton("Send", (dialog, which) -> {
+                    String message = inputField.getText().toString().trim();
+                    if (message.isEmpty()) {
+                        Toast.makeText(requireContext(), "Message cannot be empty", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Pass the entered message to the callback
+                        callback.onMessageEntered(message);
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
     }
 
     /**
@@ -254,6 +303,8 @@ public class EntrantListFragment extends Fragment implements SampleAttendeeDialo
         });
         popupMenu.show();
     }
-
+    public interface NotificationMessageCallback {
+        void onMessageEntered(String message);
+    }
 
 }
