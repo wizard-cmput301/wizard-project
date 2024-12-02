@@ -149,19 +149,68 @@ public class ViewEventFragment extends Fragment {
     private void setupEntrantView() {
         hideUnusedButtonsForEntrant();
 
-        // Use WaitingListController to check waiting list status
+        // Use WaitingListController to check user status in waiting list
         waitingListController.isUserOnWaitingList(displayEvent.getEventId(), currentUser.getDeviceId(), new WaitingListController.OnCheckCompleteListener() {
             @Override
             public void onComplete(boolean isOnWaitingList) {
                 if (isOnWaitingList) {
-                    binding.buttonLeaveWaitingList.setVisibility(View.VISIBLE);
-                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                    // If user is already in the waiting list, check their current status
+                    waitingListController.getUserStatus(displayEvent.getEventId(), currentUser.getDeviceId(), new WaitingListController.OnStatusFetchedCallback() {
+                        @Override
+                        public void onStatusFetched(String status) {
+                            switch (status) {
+                                case "Waitlisted":
+                                    // User is waitlisted, allow them to leave
+                                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                                    binding.buttonLeaveWaitingList.setVisibility(View.VISIBLE);
+                                    binding.buttonAcceptInvitation.setVisibility(View.GONE);
+                                    binding.buttonDenyInvitation.setVisibility(View.GONE);
+                                    break;
+                                case "Selected":
+                                    // User has been selected, allow them to accept or deny
+                                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                                    binding.buttonLeaveWaitingList.setVisibility(View.GONE);
+                                    binding.buttonAcceptInvitation.setVisibility(View.VISIBLE);
+                                    binding.buttonDenyInvitation.setVisibility(View.VISIBLE);
+                                    break;
+                                case "Enrolled":
+                                    // User is enrolled, no further actions are allowed
+                                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                                    binding.buttonLeaveWaitingList.setVisibility(View.GONE);
+                                    binding.buttonAcceptInvitation.setVisibility(View.GONE);
+                                    binding.buttonDenyInvitation.setVisibility(View.GONE);
+                                    break;
+                                case "Cancelled":
+                                    // User has cancelled, no further actions are allowed
+                                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                                    binding.buttonLeaveWaitingList.setVisibility(View.GONE);
+                                    binding.buttonAcceptInvitation.setVisibility(View.GONE);
+                                    binding.buttonDenyInvitation.setVisibility(View.GONE);
+                                    break;
+                                default:
+                                    // Default case (e.g., user not in any specific state)
+                                    binding.buttonJoinWaitingList.setVisibility(View.GONE);
+                                    binding.buttonLeaveWaitingList.setVisibility(View.GONE);
+                                    binding.buttonAcceptInvitation.setVisibility(View.GONE);
+                                    binding.buttonDenyInvitation.setVisibility(View.GONE);
+                                    break;
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e("ViewEventFragment", "Error fetching user status", e);
+                            Toast.makeText(requireContext(), "Unable to check user status.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
+                    // If user is not in the waiting list, allow them to join for the first time only
                     binding.buttonJoinWaitingList.setVisibility(View.VISIBLE);
                     binding.buttonLeaveWaitingList.setVisibility(View.GONE);
+                    binding.buttonAcceptInvitation.setVisibility(View.GONE);
+                    binding.buttonDenyInvitation.setVisibility(View.GONE);
                 }
             }
-
 
             @Override
             public void onFailure(Exception e) {
@@ -170,9 +219,11 @@ public class ViewEventFragment extends Fragment {
             }
         });
 
-        // Set up listeners for join and leave buttons
+        // Set up listeners for join, leave, accept, and deny buttons
         binding.buttonJoinWaitingList.setOnClickListener(v -> onJoinWaitingListClick());
         binding.buttonLeaveWaitingList.setOnClickListener(v -> leaveWaitingList());
+        binding.buttonAcceptInvitation.setOnClickListener(v -> acceptInvitation());
+        binding.buttonDenyInvitation.setOnClickListener(v -> denyInvitation());
     }
 
     /**
@@ -340,6 +391,48 @@ public class ViewEventFragment extends Fragment {
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to leave the waiting list.", Toast.LENGTH_SHORT).show();
                 Log.e("ViewEventFragment", "Error leaving waiting list", e);
+            }
+        });
+    }
+
+    /**
+     * Handles the user's acceptance of an invitation.
+     */
+    private void acceptInvitation() {
+        waitingListController.updateUserStatus(displayEvent.getEventId(), currentUser.getDeviceId(), "Enrolled", new WaitingListController.OnActionCompleteListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(requireContext(), "You have accepted the invitation.", Toast.LENGTH_SHORT).show();
+                // Hide the accept and deny buttons after accepting the invitation
+                binding.buttonAcceptInvitation.setVisibility(View.GONE);
+                binding.buttonDenyInvitation.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to accept invitation.", Toast.LENGTH_SHORT).show();
+                Log.e("ViewEventFragment", "Error accepting invitation", e);
+            }
+        });
+    }
+
+    /**
+     * Handles the user's denial of an invitation.
+     */
+    private void denyInvitation() {
+        waitingListController.updateUserStatus(displayEvent.getEventId(), currentUser.getDeviceId(), "Cancelled", new WaitingListController.OnActionCompleteListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(requireContext(), "You have declined the invitation.", Toast.LENGTH_SHORT).show();
+                // Hide the accept and deny buttons and show the join button after declining the invitation
+                binding.buttonAcceptInvitation.setVisibility(View.GONE);
+                binding.buttonDenyInvitation.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to decline invitation.", Toast.LENGTH_SHORT).show();
+                Log.e("ViewEventFragment", "Error declining invitation", e);
             }
         });
     }

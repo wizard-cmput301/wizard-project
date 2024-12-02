@@ -122,6 +122,27 @@ public class WaitingListController {
                 .addOnFailureListener(onFailure::onFailure);
     }
 
+    /**
+     * Updates the status of a user in the waiting list for a specific event.
+     *
+     * @param eventId   The ID of the event for which the user's status is being updated. Must not be null.
+     * @param userId    The ID of the user whose status needs to be updated. Must not be null.
+     * @param newStatus The new status to set for the user (e.g., "Enrolled", "Cancelled"). Must not be null.
+     * @param callback  A callback to handle the result of the update operation, providing onSuccess or onFailure methods.
+     */
+    public void updateUserStatus(String eventId, String userId, String newStatus, OnActionCompleteListener callback) {
+        if (eventId == null || userId == null || newStatus == null) {
+            callback.onFailure(new IllegalArgumentException("Event ID, User ID, and New Status must not be null."));
+            return;
+        }
+
+        db.collection("events").document(eventId)
+                .collection("waitingList").document(userId)
+                .update("status", newStatus)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(callback::onFailure);
+    }
+
 
     /**
      * Retrieves the status of a user in the waiting list for a specific event.
@@ -142,6 +163,9 @@ public class WaitingListController {
                 })
                 .addOnFailureListener(callback::onFailure);
     }
+
+
+
 
     // Callback interfaces
     public interface OnCheckCompleteListener {
