@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,7 @@ import java.util.UUID;
  *   <li><strong>US 03.04.01</strong>: As an administrator, I want to be able to browse events.</li>
  *   <li><strong>US 03.05.01</strong>: As an administrator, I want to be able to browse profiles.</li>
  *   <li><strong>US 03.06.01</strong>: As an administrator, I want to be able to browse images.</li>
+ *   <li><strong>US 03.07.01</strong>: As an administrator I want to remove facilities that violate app policy.</li>
  * </ul>
  *
  * <p>The tests use <code>Thread.sleep()</code> for Firebase synchronization delays.
@@ -368,6 +370,12 @@ public class AdminUITest {
         return "/" + testImagePath;
     }
 
+    /**
+     * Checks if an image exists in Firestore Storage.
+     *
+     * @param imagePath The image path of the image to check.
+     * @return True if the image exists, false otherwise.
+     */
     private boolean checkImageExistsInStorage(String imagePath) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference imageRef = storage.getReference().child(imagePath.substring(1)); // Remove leading "/"
@@ -376,6 +384,55 @@ public class AdminUITest {
         imageRef.getMetadata()
                 .addOnSuccessListener(metadata -> exists[0] = true)
                 .addOnFailureListener(e -> exists[0] = false);
+
+        waitForFirestoreSync();
+        return exists[0];
+    }
+
+    /**
+     * Adds a test facility to Firestore.
+     *
+     * @return The document ID of the test facility.
+     */
+    private String addTestFacility() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Setting a fixed facilityId for consistency in tests (facility appears at the top of the facility list)
+        String facilityId = "0";
+
+        Map<String, Object> testFacility = new HashMap<>();
+        testFacility.put("userId", "");
+        testFacility.put("facilityId", facilityId);
+        testFacility.put("name", "Castle Black");
+        testFacility.put("location", "The Wall");
+        testFacility.put("facility_imagePath", "");
+        testFacility.put("posterUri", "");
+
+        db.collection("facilities").document(facilityId)
+                .set(testFacility)
+                .addOnSuccessListener(aVoid -> Log.d("Test", "Test facility added: " + facilityId))
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to add test facility: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+        return facilityId;
+    }
+
+    /**
+     * Checks if a facility exists in Firestore.
+     *
+     * @param facilityId The document ID of the facility to check.
+     * @return True if the facility exists, false otherwise.
+     */
+    private boolean checkFacilityExistsInFirestore(String facilityId) {
+        final boolean[] exists = {false};
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("facilities").document(facilityId).get()
+                .addOnSuccessListener(documentSnapshot -> exists[0] = documentSnapshot.exists())
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to check facility existence: " + e.getMessage());
+                });
 
         waitForFirestoreSync();
         return exists[0];
@@ -528,5 +585,31 @@ public class AdminUITest {
         int firebaseImageCount = getFirebaseImageCount();
         int uiImageCount = getListViewItemCount(R.id.imageListView);
         assertEquals("Number of images in Firebase Storage does not match the UI", firebaseImageCount, uiImageCount);
+    }
+
+    /**
+     * US 03.07.01
+     * Ensures that admin can remove facilities.
+     */
+    @Test
+    public void testRemoveFacility() throws InterruptedException {
+        // Add a test facility to Firestore and wait for Firebase to sync
+        String testFacilityId = addTestFacility();
+        waitForFirestoreSync();
+
+        // Navigate to the admin facilities tab
+        Espresso.onView(withId(R.id.admin_button)).perform(click());
+        Espresso.onView(withId(R.id.nav_facility_browse)).perform(click());
+        waitForFirestoreSync();
+
+        // Click on the test facility, and then click on the delete button
+        onView(withText("Castle Black")).perform(click());
+        waitForFirestoreSync();
+        onView(withId(R.id.button_delete_facility)).perform(click());
+        waitForFirestoreSync();
+
+        // Verify the facility is no longer in Firestore
+        boolean facilityExists = checkFacilityExistsInFirestore(testFacilityId);
+        assertFalse("The test facility should be deleted.", facilityExists);
     }
 }
