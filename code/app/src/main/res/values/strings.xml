@@ -44,6 +44,8 @@
     <string name="generate_qr_code">Generate QR Code</string>
     <string name="download_qr_code">Download QR Code</string>
     <string name="redraw_attendees_button">Redraw Attendees</string>
+    <string name="accept_invitation_button">Accept Invitation</string>
+    <string name="deny_invitation_button">Deny Invitation</string>
 
     <!-- Titles -->
     <string name="camera_title">Camera</string>
