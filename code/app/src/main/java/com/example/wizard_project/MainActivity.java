@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                     currentUser.setUserData(document);
                     // If the document does not exist, create a new user
                 } else {
-                    currentUser = new User(deviceId, "", "", false, false, false, "", "", "", "");
+                    currentUser = new User(deviceId, "", false, false, false, "", "", "", "");
                     Map<String, Object> userData = createUserDataMap(currentUser);
                     db.collection("users").document(deviceId).set(userData)
                             .addOnSuccessListener(aVoid -> Toast.makeText(this, "New user created", Toast.LENGTH_SHORT).show())
@@ -308,7 +308,6 @@ public class MainActivity extends AppCompatActivity {
         Map<String, Object> userData = new HashMap<>();
         userData.put("deviceId", user.getDeviceId());
         userData.put("email", user.getEmail());
-        userData.put("location", user.getLocation());
         userData.put("IsAdmin", user.isAdmin());
         userData.put("IsEntrant", user.isEntrant());
         userData.put("isOrganizer", user.isOrganizer());
