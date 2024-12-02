@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.wizard_project"},{"l":"com.example.wizard_project.Adapters"},{"l":"com.example.wizard_project.Classes"},{"l":"com.example.wizard_project.Controllers"},{"l":"com.example.wizard_project.Fragments"}];updateSearchResults();
