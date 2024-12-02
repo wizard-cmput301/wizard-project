@@ -22,3 +22,5 @@ Your event journey starts here—wave your wand and let EventWizard take care of
 | Adam Squire     | asquire       | [awsomeadam07](https://github.com/awsomeadam07) |
 
 ## License
+This project is licensed under the [MIT License](LICENSE).  
+You are free to use, modify, and distribute this software as long as you include the original copyright notice and license.
