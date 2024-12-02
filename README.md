@@ -5,8 +5,8 @@ From seamless event registration to real-time cloud updates, EventWizard ensures
 Your event journey starts here—wave your wand and let EventWizard take care of the rest!
 
 ## Project Resources
-- EventWizard Wiki
-- EventWizard UML
+- [EventWizard Wiki](https://github.com/wizard-cmput301/wizard-project/wiki)
+- [EventWizard UML](https://github.com/wizard-cmput301/wizard-project/wiki/UML-Part-4)
 
 ### Built With
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)  ![Firebase](https://img.shields.io/badge/firebase-ffca28?style=for-the-badge&logo=firebase&logoColor=black) ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=Android&logoColor=white)
