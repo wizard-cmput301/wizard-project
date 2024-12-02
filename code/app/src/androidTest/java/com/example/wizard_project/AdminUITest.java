@@ -33,11 +33,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * AdminUITest tests the functionality of the admin features of the app.
@@ -47,6 +45,7 @@ import java.util.UUID;
  *   <li><strong>US 03.01.01</strong>: As an administrator, I want to be able to remove events.</li>
  *   <li><strong>US 03.02.01</strong>: As an administrator, I want to be able to remove profiles.</li>
  *   <li><strong>US 03.03.01</strong>: As an administrator, I want to be able to remove images.</li>
+ *   <li><strong>US 03.03.02</strong>: As an administrator, I want to be able to remove hashed QR code data.</li>
  *   <li><strong>US 03.04.01</strong>: As an administrator, I want to be able to browse events.</li>
  *   <li><strong>US 03.05.01</strong>: As an administrator, I want to be able to browse profiles.</li>
  *   <li><strong>US 03.06.01</strong>: As an administrator, I want to be able to browse images.</li>
@@ -251,7 +250,7 @@ public class AdminUITest {
         testEvent.put("geolocation_requirement", true);
         testEvent.put("registration_open", new Date());
         testEvent.put("registration_close", new Date(System.currentTimeMillis() + 3600000)); // +1 hour
-        testEvent.put("event_location", "Test Files");
+        testEvent.put("event_location", "The Twins");
 
         final String[] documentId = {null};
         db.collection("events")
@@ -390,6 +389,66 @@ public class AdminUITest {
     }
 
     /**
+     * Adds a test event to Firestore with a QR code.
+     *
+     * @return The document ID of the test event.
+     */
+    private String addTestEventWithQRCode() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Setting a fixed eventId for consistency in tests (event appears at the top of the event list)
+        String eventId = "0";
+
+        Map<String, Object> testEvent = new HashMap<>();
+        testEvent.put("eventId", eventId);
+        testEvent.put("event_name", "Tournament of the Vale");
+        testEvent.put("event_description", "Prove your honor and skill in a contest fit for knights and lords!");
+        testEvent.put("event_price", 25);
+        testEvent.put("event_max_entrants", 64);
+        testEvent.put("geolocation_requirement", true);
+        testEvent.put("registration_open", new Date());
+        testEvent.put("registration_close", new Date(System.currentTimeMillis() + 3600000)); // +1 hour
+        testEvent.put("event_location", "The Vale of Arryn");
+        testEvent.put("qrCode", "hashed_qr_code_test_data");
+
+        final String[] documentId = {null};
+        db.collection("events")
+                .document(eventId)
+                .set(testEvent)
+                .addOnSuccessListener(aVoid -> Log.d("Test", "Test event with QR code added successfully: " + eventId))
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to add test event: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+        return eventId;
+    }
+
+    /**
+     * Checks if the QR code data exists in Firestore for a given event.
+     *
+     * @param eventId The document ID of the event to check.
+     * @return True if the QR code exists, false otherwise.
+     */
+    private boolean checkQRCodeExistsInFirestore(String eventId) {
+        final boolean[] exists = {false};
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String qrCode = documentSnapshot.getString("qrCode");
+                        exists[0] = qrCode != null && !qrCode.isEmpty();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    throw new RuntimeException("Failed to check QR code existence: " + e.getMessage());
+                });
+
+        waitForFirestoreSync();
+        return exists[0];
+    }
+
+    /**
      * Adds a test facility to Firestore.
      *
      * @return The document ID of the test facility.
@@ -436,6 +495,18 @@ public class AdminUITest {
 
         waitForFirestoreSync();
         return exists[0];
+    }
+
+    /**
+     * Deletes a test event from Firestore.
+     *
+     * @param eventId The document ID of the event to delete.
+     */
+    private void deleteTestEvent(String eventId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("events").document(eventId).delete()
+                .addOnSuccessListener(aVoid -> Log.d("Test", "Test event deleted successfully: " + eventId))
+                .addOnFailureListener(e -> Log.e("Test", "Failed to delete test event: " + e.getMessage()));
     }
 
     // === TEST METHODS ===
@@ -516,6 +587,39 @@ public class AdminUITest {
         // Verify the image is no longer in Firestore
         boolean imageExists = checkImageExistsInStorage(testImagePath);
         assertFalse("The test image should be deleted.", imageExists);
+    }
+
+    /**
+     * US 03.03.02
+     * Ensures that admin can remove hashed QR code data.
+     */
+    @Test
+    public void testRemoveQRData() throws InterruptedException {
+        // Add a test event with a QR code to Firestore and wait for Firebase to sync
+        String testEventId = addTestEventWithQRCode();
+        waitForFirestoreSync();
+
+        try {
+            // Navigate to the admin events tab
+            Espresso.onView(withId(R.id.admin_button)).perform(click());
+            Espresso.onView(withId(R.id.nav_events_browse)).perform(click());
+            waitForFirestoreSync();
+
+            // Click on the test event, and then click on the delete QR Code data button
+            onView(withText("Tournament of the Vale")).perform(click());
+            waitForFirestoreSync();
+            onView(withId(R.id.button_delete_event_qr_data)).perform(click());
+            waitForFirestoreSync();
+
+            // Verify the event is no longer in Firestore
+            boolean QRCodeDataExists = checkQRCodeExistsInFirestore(testEventId);
+            assertFalse("The test event's QR code data should be deleted.", QRCodeDataExists);
+
+        } finally {
+            // Delete the test event from Firestore
+            deleteTestEvent(testEventId);
+            waitForFirestoreSync();
+        }
     }
 
     /**
