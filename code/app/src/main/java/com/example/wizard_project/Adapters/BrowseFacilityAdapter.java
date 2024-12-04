@@ -65,11 +65,11 @@ public class BrowseFacilityAdapter extends ArrayAdapter<Facility> {
             Glide.with(context)
                     .load(Uri.parse(facility.getposterUri()))
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.drawable.example_event)
-                    .error(R.drawable.example_event)
+                    .placeholder(R.drawable.example_facility)
+                    .error(R.drawable.example_facility)
                     .into(holder.facilityImage);
         } else {
-            holder.facilityImage.setImageResource(R.drawable.example_event);
+            holder.facilityImage.setImageResource(R.drawable.example_facility);
         }
 
         // Set facility name and location
